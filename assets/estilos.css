@@ -1,0 +1,58 @@
+body {
+    border-right: 1px solid black;
+    border-left: 1px solid black;
+    margin: 0% 25% 0% 25%;
+    font-family: Arial, Helvetica, sans-serif;
+    min-height: 100vh;
+    padding: 0 5px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    padding: 0;
+    margin: 0;
+}
+
+#area-dados {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    column-gap: 10px;
+}
+
+.quadro-dado {
+    padding: 5px;
+    background-color: darkblue;
+    color: white;
+    grid-column-start: span 2;
+}
+
+.quadro-dado>[data-dado] {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.grafico {
+    grid-column-start: span 6;
+}
+
+#filtros {
+    display: flex;
+    flex-direction: column;
+    row-gap: 5px;
+}
+
+#filtro-diametro {
+    display: flex;
+    column-gap: 1px;
+}
+
+#filtro-diametro>label {
+    border: 1px solid black;
+    padding: 0 3px 0 0;
+    background-color: azure;
+    font-weight: bold;
+}
