@@ -39,6 +39,10 @@ h6 {
     grid-column-start: span 6;
 }
 
+.tabela {
+    grid-column-start: span 6;
+}
+
 #filtros {
     display: flex;
     flex-direction: column;

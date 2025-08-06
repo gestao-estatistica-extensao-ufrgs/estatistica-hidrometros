@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 from dash import Dash, html, dcc, callback, Output, Input, State
+from dash.dash_table import DataTable
 
 
 # Declarações
@@ -25,6 +26,9 @@ def preparacao_dados(df: pd.DataFrame):
         lambda x: round(x.days / 365, 2)
     )
 
+    df["grupo_leitura"] = df["Grupo Leitura"]
+    df["perfil_imovel"] = df["Perfil Imovel"]
+
     df.drop(
         columns=[
             "Diametro",
@@ -32,6 +36,8 @@ def preparacao_dados(df: pd.DataFrame):
             "Hidrometro",
             "Idade Hidrometro",
             "Data Instalacao",
+            "Grupo Leitura",
+            "Perfil Imovel",
         ],
         inplace=True,
     )
@@ -65,6 +71,24 @@ def gerar_html_area_dados(df: pd.DataFrame):
         idade_media_hidrometros = f"{idade_media_hidrometros:.2f}"
     else:
         idade_media_hidrometros = "-"
+
+    contagem_perfil_imoveis = df.perfil_imovel.value_counts()
+    df_freq_perfil_imoveis = contagem_perfil_imoveis.to_frame()
+    df_freq_perfil_imoveis["%"] = (
+        contagem_perfil_imoveis * 100 / contagem_perfil_imoveis.sum()
+    )
+    df_freq_perfil_imoveis["%"] = df_freq_perfil_imoveis["%"].apply(
+        lambda x: round(x, 2)
+    )
+    df_freq_perfil_imoveis.reset_index(inplace=True)
+    df_freq_perfil_imoveis.rename(
+        columns={
+            "perfil_imovel": "Perfil Imóvel",
+            "count": "Frequência",
+            "%": "Frequência Relativa (%)",
+        },
+        inplace=True,
+    )
 
     return html.Div(
         [
@@ -115,6 +139,36 @@ def gerar_html_area_dados(df: pd.DataFrame):
                     )
                 ],
                 className="grafico",
+            ),
+            html.Div(
+                [
+                    dcc.Graph(
+                        figure=px.bar(
+                            x=df["grupo_leitura"].value_counts().index,
+                            y=df["grupo_leitura"].value_counts(),
+                            labels={"y": "Frequência", "x": "Grupo de Faturamento"},
+                            title="Gráfico de Frequência do Grupo de Faturamento",
+                        )
+                    )
+                ],
+                className="grafico",
+            ),
+            html.Div(
+                [
+                    html.H3(["Tabela de Frequência de Perfil de Imóvel"]),
+                    DataTable(
+                        df_freq_perfil_imoveis.to_dict(
+                            "records",
+                        ),
+                        style_cell={"textAlign": "left", "border": "1px solid black"},
+                        style_header={
+                            "backgroundColor": "azure",
+                            "font-weight": "bold",
+                            "text-transform": "uppercase",
+                        },
+                    ),
+                ],
+                className="tabela",
             ),
         ],
         id="area-dados",
