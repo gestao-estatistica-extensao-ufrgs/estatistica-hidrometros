@@ -90,6 +90,24 @@ def gerar_html_area_dados(df: pd.DataFrame):
         inplace=True,
     )
 
+    contagem_hidrometros_por_diametro = df.diametro.value_counts()
+    df_freq_hidrometros = contagem_hidrometros_por_diametro.to_frame()
+    df_freq_hidrometros["%"] = (
+        contagem_hidrometros_por_diametro
+        * 100
+        / contagem_hidrometros_por_diametro.sum()
+    )
+    df_freq_hidrometros["%"] = df_freq_hidrometros["%"].apply(lambda x: round(x, 2))
+    df_freq_hidrometros.reset_index(inplace=True)
+    df_freq_hidrometros.rename(
+        columns={
+            "diametro": "Diâmetro",
+            "count": "Frequência",
+            "%": "Frequência Relativa (%)",
+        },
+        inplace=True,
+    )
+
     return html.Div(
         [
             html.Div(
@@ -160,6 +178,21 @@ def gerar_html_area_dados(df: pd.DataFrame):
                         df_freq_perfil_imoveis.to_dict(
                             "records",
                         ),
+                        style_cell={"textAlign": "left", "border": "1px solid black"},
+                        style_header={
+                            "backgroundColor": "azure",
+                            "font-weight": "bold",
+                            "text-transform": "uppercase",
+                        },
+                    ),
+                ],
+                className="tabela",
+            ),
+            html.Div(
+                [
+                    html.H3(["Tabela de Frequência de Diâmetro em Hidrômetros"]),
+                    DataTable(
+                        df_freq_hidrometros.to_dict("records"),
                         style_cell={"textAlign": "left", "border": "1px solid black"},
                         style_header={
                             "backgroundColor": "azure",
