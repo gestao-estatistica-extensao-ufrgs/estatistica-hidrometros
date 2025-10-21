@@ -23,7 +23,7 @@ def preparacao_dados(df: pd.DataFrame):
     df["data_instalacao"] = df["Data Instalacao"]
     tempo_instalacao_ate_agora = pd.Timestamp.now() - df["data_instalacao"]
     df["idade_hidrometro"] = tempo_instalacao_ate_agora.apply(
-        lambda x: round(x.days / 365, 2)
+        lambda x: int(round(x.days / 365, 0))
     )
 
     df["grupo_leitura"] = df["Grupo Leitura"]
@@ -58,6 +58,9 @@ def calcular_porcentagem_hidrometros_ligados(df: pd.DataFrame):
 
 
 def gerar_html_area_dados(df: pd.DataFrame):
+    if df.empty:
+        return html.Div("0 Resultados")
+
     contagem_hidrometros = df.hidrometro.count()
 
     porcentagem_hidrometros_ligados = calcular_porcentagem_hidrometros_ligados(df)
@@ -225,6 +228,10 @@ VALORES_DIAMETRO_FILTRO = [
 VALOR_MINIMO_DIAMETRO = min(valores_unicos_diametro)
 VALOR_MAXIMO_DIAMETRO = max(valores_unicos_diametro)
 
+valores_unicos_idade = list(df.idade_hidrometro.unique())
+VALOR_MINIMO_IDADE = min(valores_unicos_idade)
+VALOR_MAXIMO_IDADE = max(valores_unicos_idade)
+
 app.layout = [
     html.Section(
         [
@@ -237,6 +244,17 @@ app.layout = [
                         value=valores_unicos_diametro,
                         inline=True,
                         id="filtro-diametro",
+                    ),
+                ]
+            ),
+            html.Div(
+                [
+                    html.Label("Idade Hidrômetro", htmlFor="filtro-idade"),
+                    dcc.RangeSlider(
+                        id="filtro-idade",
+                        min=VALOR_MINIMO_IDADE,
+                        max=VALOR_MAXIMO_IDADE,
+                        step=2,
                     ),
                 ]
             ),
@@ -264,10 +282,14 @@ app.layout = [
     Output("secao-resultados", "children"),
     Input("filtro-submit", "n_clicks"),
     State("filtro-diametro", "value"),
+    State("filtro-idade", "value"),
     prevent_initial_call=True,
 )
-def filtrar(n_clicks: int, limites_diametros: list[int]):
-    filtrado = df[df.diametro.isin(limites_diametros)]
+def filtrar(n_clicks: int, limites_diametros: list[int], limites_idade: list[int]):
+    filtrado = df[
+        (df.diametro.isin(limites_diametros))
+        & (df.idade_hidrometro.between(limites_idade[0], limites_idade[1]))
+    ]
 
     return gerar_html_area_dados(filtrado)
 
