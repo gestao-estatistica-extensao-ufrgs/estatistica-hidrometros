@@ -21,6 +21,7 @@ h6 {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     column-gap: 10px;
+    row-gap: 10px;
 }
 
 .quadro-dado {

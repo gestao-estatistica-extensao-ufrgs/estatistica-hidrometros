@@ -75,6 +75,12 @@ def gerar_html_area_dados(df: pd.DataFrame):
     else:
         idade_media_hidrometros = "-"
 
+    idade_media_20MM = df[df.diametro == 20].idade_hidrometro.mean()
+    if idade_media_20MM is not np.nan:
+        idade_media_20MM = f"{idade_media_20MM:.2f}"
+    else:
+        idade_media_20MM = "-"
+
     contagem_perfil_imoveis = df.perfil_imovel.value_counts()
     df_freq_perfil_imoveis = contagem_perfil_imoveis.to_frame()
     df_freq_perfil_imoveis["%"] = (
@@ -205,6 +211,17 @@ def gerar_html_area_dados(df: pd.DataFrame):
                     ),
                 ],
                 className="tabela",
+            ),
+            html.Div(
+                [
+                    html.Div(
+                        idade_media_20MM,
+                        id="idade-media-hidrometros-20MM",
+                        **{"data-dado": ""},
+                    ),
+                    html.Div("Idade Média dos Hidrômetros com 20MM"),
+                ],
+                className="quadro-dado",
             ),
         ],
         id="area-dados",
