@@ -81,6 +81,18 @@ def gerar_html_area_dados(df: pd.DataFrame):
     else:
         idade_media_20MM = "-"
 
+    idade_media_25MM = df[df.diametro == 25].idade_hidrometro.mean()
+    if idade_media_25MM is not np.nan:
+        idade_media_25MM = f"{idade_media_25MM:.2f}"
+    else:
+        idade_media_25MM = "-"
+
+    idade_media_acima_25MM = df[df.diametro > 25].idade_hidrometro.mean()
+    if idade_media_acima_25MM is not np.nan:
+        idade_media_acima_25MM = f"{idade_media_acima_25MM:.2f}"
+    else:
+        idade_media_acima_25MM = "-"
+
     contagem_perfil_imoveis = df.perfil_imovel.value_counts()
     df_freq_perfil_imoveis = contagem_perfil_imoveis.to_frame()
     df_freq_perfil_imoveis["%"] = (
@@ -223,6 +235,28 @@ def gerar_html_area_dados(df: pd.DataFrame):
                 ],
                 className="quadro-dado",
             ),
+            html.Div(
+                [
+                    html.Div(
+                        idade_media_25MM,
+                        id="idade-media-hidrometros-25MM",
+                        **{"data-dado": ""},
+                    ),
+                    html.Div("Idade Média dos Hidrômetros com 25MM"),
+                ],
+                className="quadro-dado",
+            ),
+            html.Div(
+                [
+                    html.Div(
+                        idade_media_acima_25MM,
+                        id="idade-media-hidrometros-acima-25MM",
+                        **{"data-dado": ""},
+                    ),
+                    html.Div("Idade Média dos Hidrômetros com mais de 25MM"),
+                ],
+                className="quadro-dado",
+            ),
         ],
         id="area-dados",
     )
@@ -272,6 +306,7 @@ app.layout = [
                         min=VALOR_MINIMO_IDADE,
                         max=VALOR_MAXIMO_IDADE,
                         step=2,
+                        value=[VALOR_MINIMO_IDADE, VALOR_MAXIMO_IDADE],
                     ),
                 ]
             ),
