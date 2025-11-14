@@ -1,3 +1,5 @@
+import math
+
 import pandas as pd
 import numpy as np
 import plotly.express as px
@@ -75,23 +77,89 @@ def gerar_html_area_dados(df: pd.DataFrame):
     else:
         idade_media_hidrometros = "-"
 
-    idade_media_20MM = df[df.diametro == 20].idade_hidrometro.mean()
-    if idade_media_20MM is not np.nan:
+    hidrometros_20MM = df[df.diametro == 20]
+    if not hidrometros_20MM.empty:
+        idade_media_20MM = hidrometros_20MM.idade_hidrometro.mean()
+        idade_desvio_padrao_20MM = hidrometros_20MM.idade_hidrometro.std()
         idade_media_20MM = f"{idade_media_20MM:.2f}"
+        idade_desvio_padrao_20MM = f"{idade_desvio_padrao_20MM:.2f}"
+
+        contagem_idades_hidrometros_20MM = (
+            hidrometros_20MM.idade_hidrometro.value_counts()
+        )
+
+        grafico_idades_hidrometros_20MM = [
+            dcc.Graph(
+                figure=px.bar(
+                    x=contagem_idades_hidrometros_20MM.index,
+                    y=contagem_idades_hidrometros_20MM,
+                    labels={"y": "Frequência", "x": "idade"},
+                    title="Idade Hidrômetros de 20MM",
+                )
+            )
+        ]
+
     else:
         idade_media_20MM = "-"
+        idade_desvio_padrao_20MM = "-"
+        contagem_idades_hidrometros_20MM = pd.Series()
+        grafico_idades_hidrometros_20MM = []
 
-    idade_media_25MM = df[df.diametro == 25].idade_hidrometro.mean()
-    if idade_media_25MM is not np.nan:
+    hidrometros_25MM = df[df.diametro == 25]
+    if not hidrometros_25MM.empty:
+        idade_media_25MM = hidrometros_25MM.idade_hidrometro.mean()
+        idade_desvio_padrao_25MM = hidrometros_25MM.idade_hidrometro.std()
         idade_media_25MM = f"{idade_media_25MM:.2f}"
+        idade_desvio_padrao_25MM = f"{idade_desvio_padrao_25MM:.2f}"
+
+        contagem_idades_hidrometros_25MM = (
+            hidrometros_25MM.idade_hidrometro.value_counts()
+        )
+
+        grafico_idades_hidrometros_25MM = [
+            dcc.Graph(
+                figure=px.bar(
+                    x=contagem_idades_hidrometros_25MM.index,
+                    y=contagem_idades_hidrometros_25MM,
+                    labels={"y": "Frequência", "x": "idade"},
+                    title="Idade Hidrômetros de 25MM",
+                )
+            )
+        ]
+
     else:
         idade_media_25MM = "-"
+        idade_desvio_padrao_25MM = "-"
+        contagem_idades_hidrometros_25MM = pd.Series()
+        grafico_idades_hidrometros_25MM = []
 
-    idade_media_acima_25MM = df[df.diametro > 25].idade_hidrometro.mean()
-    if idade_media_acima_25MM is not np.nan:
+    hidrometros_acima_25MM = df[df.diametro > 25]
+    if not hidrometros_acima_25MM.empty:
+        idade_media_acima_25MM = hidrometros_acima_25MM.idade_hidrometro.mean()
+        idade_desvio_padrao_acima_25MM = hidrometros_acima_25MM.idade_hidrometro.std()
         idade_media_acima_25MM = f"{idade_media_acima_25MM:.2f}"
+        idade_desvio_padrao_acima_25MM = f"{idade_desvio_padrao_acima_25MM:.2f}"
+
+        contagem_idades_hidrometros_acima_25MM = (
+            hidrometros_acima_25MM.idade_hidrometro.value_counts()
+        )
+
+        grafico_idades_hidrometros_acima_de_25MM = [
+            dcc.Graph(
+                figure=px.bar(
+                    x=contagem_idades_hidrometros_acima_25MM.index,
+                    y=contagem_idades_hidrometros_acima_25MM,
+                    labels={"y": "Frequência", "x": "idade"},
+                    title="Idade Hidrômetros acima de 25MM",
+                )
+            )
+        ]
+
     else:
         idade_media_acima_25MM = "-"
+        idade_desvio_padrao_acima_25MM = "-"
+        contagem_idades_hidrometros_acima_25MM = pd.Series()
+        grafico_idades_hidrometros_acima_de_25MM = []
 
     contagem_perfil_imoveis = df.perfil_imovel.value_counts()
     df_freq_perfil_imoveis = contagem_perfil_imoveis.to_frame()
@@ -256,6 +324,51 @@ def gerar_html_area_dados(df: pd.DataFrame):
                     html.Div("Idade Média dos Hidrômetros com mais de 25MM"),
                 ],
                 className="quadro-dado",
+            ),
+            html.Div(
+                [
+                    html.Div(
+                        idade_desvio_padrao_20MM,
+                        id="idade-desvio-padrao-hidrometros-com-20MM",
+                        **{"data-dado": ""},
+                    ),
+                    html.Div("Desvio Padrão da Idade dos Hidrômetros com 20MM"),
+                ],
+                className="quadro-dado",
+            ),
+            html.Div(
+                [
+                    html.Div(
+                        idade_desvio_padrao_25MM,
+                        id="idade-desvio-padrao-hidrometros-com-25MM",
+                        **{"data-dado": ""},
+                    ),
+                    html.Div("Desvio Padrão da Idade dos Hidrômetros com 25MM"),
+                ],
+                className="quadro-dado",
+            ),
+            html.Div(
+                [
+                    html.Div(
+                        idade_desvio_padrao_acima_25MM,
+                        id="idade-desvio-padrao-hidrometros-acima-25MM",
+                        **{"data-dado": ""},
+                    ),
+                    html.Div("Desvio Padrão da Idade dos Hidrômetros com mais de 25MM"),
+                ],
+                className="quadro-dado",
+            ),
+            html.Div(
+                grafico_idades_hidrometros_20MM,
+                className="grafico",
+            ),
+            html.Div(
+                grafico_idades_hidrometros_25MM,
+                className="grafico",
+            ),
+            html.Div(
+                grafico_idades_hidrometros_acima_de_25MM,
+                className="grafico",
             ),
         ],
         id="area-dados",
