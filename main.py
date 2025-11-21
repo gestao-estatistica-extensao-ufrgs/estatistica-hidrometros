@@ -461,3 +461,4 @@ def filtrar(n_clicks: int, limites_diametros: list[int], limites_idade: list[int
 
 if __name__ == "__main__":
     app.run(debug=True)
+#teste commit github
