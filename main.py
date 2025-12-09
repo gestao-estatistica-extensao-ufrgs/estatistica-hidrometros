@@ -254,7 +254,6 @@ def gerar_html_area_dados(df: pd.DataFrame):
                             bargap=0.05,
                         )
                     )
-
                 ],
                 className="grafico",
             ),
@@ -436,6 +435,20 @@ app.layout = [
             ),
             html.Div(
                 [
+                    html.Label("Situação Ligação Água", htmlFor="filtro-situacao"),
+                    dcc.Checklist(
+                        id="filtro-situacao",
+                        options=[
+                            {"label": v, "value": v}
+                            for v in sorted(df.situacao_ligacao_agua.unique())
+                        ],
+                        value=sorted(df.situacao_ligacao_agua.unique()),
+                        inline=True
+                    )
+                ]
+            ),
+            html.Div(
+                [
                     html.Button(
                         "Filtrar",
                         id="filtro-submit",
@@ -459,12 +472,14 @@ app.layout = [
     Input("filtro-submit", "n_clicks"),
     State("filtro-diametro", "value"),
     State("filtro-idade", "value"),
+    State("filtro-situacao", "value"),
     prevent_initial_call=True,
 )
-def filtrar(n_clicks: int, limites_diametros: list[int], limites_idade: list[int]):
+def filtrar(n_clicks: int, limites_diametros: list[int], limites_idade: list[int], situacoes: list[str]):
     filtrado = df[
         (df.diametro.isin(limites_diametros))
         & (df.idade_hidrometro.between(limites_idade[0], limites_idade[1]))
+        & (df.situacao_ligacao_agua.isin(situacoes))
     ]
 
     return gerar_html_area_dados(filtrado)
@@ -473,3 +488,5 @@ def filtrar(n_clicks: int, limites_diametros: list[int], limites_idade: list[int
 if __name__ == "__main__":
     app.run(debug=True)
 #teste commit github
+
+
