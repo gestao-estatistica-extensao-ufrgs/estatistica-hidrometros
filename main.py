@@ -238,12 +238,23 @@ def gerar_html_area_dados(df: pd.DataFrame):
                         figure=px.histogram(
                             df,
                             x="idade_hidrometro",
-                            nbins=10,
-                            labels={
-                                "idade_hidrometro": "Idade Hidrômetro",
-                            },
+                            nbins=30,  # quantidade de classes
+                            labels={"idade_hidrometro": "Idade do Hidrômetro (anos)", "count": "Frequência"},
+                            opacity=0.75,
+                        ).update_layout(
+                            xaxis=dict(
+                                tickmode="linear",
+                                tick0=0,
+                                dtick=2,           # um "tick" a cada 2 anos
+                                title="Idade do Hidrômetro (anos)",
+                            ),
+                            yaxis=dict(
+                                title="Frequência",
+                            ),
+                            bargap=0.05,
                         )
                     )
+
                 ],
                 className="grafico",
             ),
