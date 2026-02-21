@@ -1,4 +1,5 @@
-import math
+import base64
+import io
 
 import pandas as pd
 import numpy as np
@@ -8,6 +9,16 @@ from dash.dash_table import DataTable
 
 
 # Declarações
+ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS = {
+    "hidrometro": "associacao_col_hidrometro",
+    "diametro": "associacao_col_diametro",
+    "data_instalacao": "associacao_col_data_instalacao",
+    "grupo_leitura": "associacao_col_grupo_leitura",
+    "situacao_ligacao_agua": "associacao_col_situacao_ligacao_agua",
+    "perfil_imovel": "associacao_col_perfil_imovel",
+}
+
+
 def padronizacao_diametro(diametro: str):
     filtrado = filter(lambda caractere: caractere.isnumeric(), diametro)
     diametro_padronizado_texto = "".join(caractere for caractere in filtrado)
@@ -15,32 +26,34 @@ def padronizacao_diametro(diametro: str):
     return diametro_padronizado_numero
 
 
-def preparacao_dados(df: pd.DataFrame):
-    df["hidrometro"] = df["Hidrometro"]
+def preparacao_dados(df: pd.DataFrame, relacao_colunas_tabela_inserida_com_dataframe):
+    df["hidrometro"] = df[relacao_colunas_tabela_inserida_com_dataframe["hidrometro"]]
 
-    df["situacao_ligacao_agua"] = df["Situacao Ligacao Agua"]
+    df["situacao_ligacao_agua"] = df[
+        relacao_colunas_tabela_inserida_com_dataframe["situacao_ligacao_agua"]
+    ]
 
-    df["diametro"] = df["Diametro"].apply(padronizacao_diametro)
+    df["diametro"] = df[
+        relacao_colunas_tabela_inserida_com_dataframe["diametro"]
+    ].apply(padronizacao_diametro)
 
-    df["data_instalacao"] = df["Data Instalacao"]
+    df["data_instalacao"] = df[
+        relacao_colunas_tabela_inserida_com_dataframe["data_instalacao"]
+    ]
     tempo_instalacao_ate_agora = pd.Timestamp.now() - df["data_instalacao"]
     df["idade_hidrometro"] = tempo_instalacao_ate_agora.apply(
         lambda x: int(round(x.days / 365, 0))
     )
 
-    df["grupo_leitura"] = df["Grupo Leitura"]
-    df["perfil_imovel"] = df["Perfil Imovel"]
+    df["grupo_leitura"] = df[
+        relacao_colunas_tabela_inserida_com_dataframe["grupo_leitura"]
+    ]
+    df["perfil_imovel"] = df[
+        relacao_colunas_tabela_inserida_com_dataframe["perfil_imovel"]
+    ]
 
     df.drop(
-        columns=[
-            "Diametro",
-            "Situacao Ligacao Agua",
-            "Hidrometro",
-            "Idade Hidrometro",
-            "Data Instalacao",
-            "Grupo Leitura",
-            "Perfil Imovel",
-        ],
+        columns=relacao_colunas_tabela_inserida_com_dataframe.values(),
         inplace=True,
     )
 
@@ -57,6 +70,120 @@ def calcular_porcentagem_hidrometros_ligados(df: pd.DataFrame):
         return porcentagem
 
     return 0.0
+
+
+# HTML
+def gerar_form_colunas():
+    def _label_e_dropdown(
+        nome_label: str,
+        coluna_necessaria: str,
+    ):
+        id_select = ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS[
+            coluna_necessaria
+        ]
+
+        div_html = html.Div(
+            children=[
+                html.Label(children=nome_label, htmlFor=id_select),
+                dcc.Dropdown(id=id_select, options=[]),
+            ]
+        )
+        return div_html
+
+    col_hidrometro = _label_e_dropdown("Hidrômetro", "hidrometro")
+    col_diametro = _label_e_dropdown("Diâmetro", "diametro")
+    col_data_instalacao = _label_e_dropdown("Data de Instalação", "data_instalacao")
+    col_grupo_leitura = _label_e_dropdown("Grupo de Leitura", "grupo_leitura")
+    col_situacao_ligacao_agua = _label_e_dropdown(
+        "Situação Ligacao Água", "situacao_ligacao_agua"
+    )
+    col_perfil_imovel = _label_e_dropdown("Perfil do Imóvel", "perfil_imovel")
+
+    return html.Form(
+        [
+            html.H3("Associar Colunas com Variáveis"),
+            html.Div(
+                id="dropdowns-associacao-colunas",
+                children=[
+                    html.Div(
+                        children=[
+                            col_hidrometro,
+                            col_diametro,
+                            col_data_instalacao,
+                            col_grupo_leitura,
+                            col_situacao_ligacao_agua,
+                            col_perfil_imovel,
+                        ]
+                    ),
+                    html.Div(
+                        html.Button(
+                            id="botao_associar_colunas",
+                            type="button",
+                            disabled=True,
+                            children="Associar Colunas",
+                        )
+                    ),
+                ],
+            ),
+            html.Div(id="dropdowns-associacao-colunas-erro"),
+        ]
+    )
+
+
+def gerar_html_filtros(
+    opcoes_valores_diametro_filtro,
+    valores_unicos_diametro,
+    valor_minimo_idade,
+    valor_maximo_idade,
+    opcoes_valores_situacao_ligacao_agua,
+    opcoes_selecionadas_situacao_ligacao_agua,
+):
+    return [
+        html.H2("Filtros"),
+        html.Div(
+            [
+                html.Label("Diâmetro Hidrômetro", htmlFor="filtro-diametro"),
+                dcc.Checklist(
+                    options=opcoes_valores_diametro_filtro,
+                    value=valores_unicos_diametro,
+                    inline=True,
+                    id="filtro-diametro",
+                ),
+            ]
+        ),
+        html.Div(
+            [
+                html.Label("Idade Hidrômetro", htmlFor="filtro-idade"),
+                dcc.RangeSlider(
+                    id="filtro-idade",
+                    min=valor_minimo_idade,
+                    max=valor_maximo_idade,
+                    step=2,
+                    value=[valor_minimo_idade, valor_maximo_idade],
+                ),
+            ]
+        ),
+        html.Div(
+            [
+                html.Label("Situação Ligação Água", htmlFor="filtro-situacao"),
+                dcc.Checklist(
+                    id="filtro-situacao",
+                    options=opcoes_valores_situacao_ligacao_agua,
+                    value=opcoes_selecionadas_situacao_ligacao_agua,
+                    inline=True,
+                ),
+            ]
+        ),
+        html.Div(
+            [
+                html.Button(
+                    "Filtrar",
+                    id="filtro-submit",
+                    type="button",
+                ),
+            ]
+        ),
+    ]
 
 
 def gerar_html_area_dados(df: pd.DataFrame):
@@ -239,13 +366,16 @@ def gerar_html_area_dados(df: pd.DataFrame):
                             df,
                             x="idade_hidrometro",
                             nbins=30,  # quantidade de classes
-                            labels={"idade_hidrometro": "Idade do Hidrômetro (anos)", "count": "Frequência"},
+                            labels={
+                                "idade_hidrometro": "Idade do Hidrômetro (anos)",
+                                "count": "Frequência",
+                            },
                             opacity=0.75,
                         ).update_layout(
                             xaxis=dict(
                                 tickmode="linear",
                                 tick0=0,
-                                dtick=2,           # um "tick" a cada 2 anos
+                                dtick=2,  # um "tick" a cada 2 anos
                                 title="Idade do Hidrômetro (anos)",
                             ),
                             yaxis=dict(
@@ -386,107 +516,183 @@ def gerar_html_area_dados(df: pd.DataFrame):
 
 
 # Preparação Dados
-df = pd.read_excel(
-    "testes/dados_teste/amostra_dados.xlsx",
-)
-preparacao_dados(df)
+DF = pd.DataFrame()
 
 # Inicialização App
-app = Dash()
-
-valores_unicos_diametro = [int(x) for x in df.diametro.unique()]
-valores_unicos_diametro.sort()
-VALORES_DIAMETRO_FILTRO = [
-    dict([["label", f"{x}MM"], ["value", int(x)]]) for x in valores_unicos_diametro
-]
-VALOR_MINIMO_DIAMETRO = min(valores_unicos_diametro)
-VALOR_MAXIMO_DIAMETRO = max(valores_unicos_diametro)
-
-valores_unicos_idade = list(df.idade_hidrometro.unique())
-VALOR_MINIMO_IDADE = min(valores_unicos_idade)
-VALOR_MAXIMO_IDADE = max(valores_unicos_idade)
+app = Dash(suppress_callback_exceptions=True)
 
 app.layout = [
     html.Section(
         [
-            html.H2("Filtros"),
             html.Div(
                 [
-                    html.Label("Diâmetro Hidrômetro", htmlFor="filtro-diametro"),
-                    dcc.Checklist(
-                        options=VALORES_DIAMETRO_FILTRO,
-                        value=valores_unicos_diametro,
-                        inline=True,
-                        id="filtro-diametro",
-                    ),
+                    html.H2("Abrir Planilha"),
+                    dcc.Upload(children=[html.Button("Abrir")], id="upload-tabela"),
+                    dcc.Input("", readOnly=True, id="upload-nome-arquivo"),
+                    html.Div(id="upload-tabela-erro", children=""),
                 ]
             ),
-            html.Div(
-                [
-                    html.Label("Idade Hidrômetro", htmlFor="filtro-idade"),
-                    dcc.RangeSlider(
-                        id="filtro-idade",
-                        min=VALOR_MINIMO_IDADE,
-                        max=VALOR_MAXIMO_IDADE,
-                        step=2,
-                        value=[VALOR_MINIMO_IDADE, VALOR_MAXIMO_IDADE],
-                    ),
-                ]
-            ),
-            html.Div(
-                [
-                    html.Label("Situação Ligação Água", htmlFor="filtro-situacao"),
-                    dcc.Checklist(
-                        id="filtro-situacao",
-                        options=[
-                            {"label": v, "value": v}
-                            for v in sorted(df.situacao_ligacao_agua.unique())
-                        ],
-                        value=sorted(df.situacao_ligacao_agua.unique()),
-                        inline=True
-                    )
-                ]
-            ),
-            html.Div(
-                [
-                    html.Button(
-                        "Filtrar",
-                        id="filtro-submit",
-                        type="button",
-                    ),
-                ]
-            ),
-        ],
+            gerar_form_colunas(),
+        ]
+    ),
+    html.Hr(),
+    html.Section(
         id="filtros",
     ),
     html.Hr(),
     html.Section(
-        [gerar_html_area_dados(df)],
+        [],
         id="secao-resultados",
     ),
 ]
 
 
 @callback(
+    Output("upload-nome-arquivo", "value"),
+    Output("botao_associar_colunas", "disabled"),
+    Output("associacao_col_hidrometro", "options"),
+    Output("associacao_col_diametro", "options"),
+    Output("associacao_col_data_instalacao", "options"),
+    Output("associacao_col_grupo_leitura", "options"),
+    Output("associacao_col_situacao_ligacao_agua", "options"),
+    Output("associacao_col_perfil_imovel", "options", allow_duplicate=True),
+    Output("upload-tabela-erro", "children"),
+    Output("filtros", "children", allow_duplicate=True),
     Output("secao-resultados", "children"),
+    Input("upload-tabela", "contents"),
+    State("upload-tabela", "filename"),
+    prevent_initial_call=True,
+)
+def liberar_associacao_de_colunas(conteudo: str, nome_arquivo: str):
+    global DF
+    DF = pd.DataFrame()
+
+    if nome_arquivo[-4:] == "xlsx":
+        _, con = conteudo.split(",")
+
+        DF = pd.read_excel(io.BytesIO(base64.b64decode(con)))
+        opcoes = list(DF.columns)
+        return (
+            nome_arquivo,
+            False,
+            opcoes,
+            opcoes,
+            opcoes,
+            opcoes,
+            opcoes,
+            opcoes,
+            "",
+            [],
+            [],
+        )
+
+    return (
+        nome_arquivo,
+        True,
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        "Arquivo não está no formato '.xlsx' ",
+        [],
+        [],
+    )
+
+
+@callback(
+    Output("secao-resultados", "children", allow_duplicate=True),
     Input("filtro-submit", "n_clicks"),
     State("filtro-diametro", "value"),
     State("filtro-idade", "value"),
     State("filtro-situacao", "value"),
     prevent_initial_call=True,
 )
-def filtrar(n_clicks: int, limites_diametros: list[int], limites_idade: list[int], situacoes: list[str]):
-    filtrado = df[
-        (df.diametro.isin(limites_diametros))
-        & (df.idade_hidrometro.between(limites_idade[0], limites_idade[1]))
-        & (df.situacao_ligacao_agua.isin(situacoes))
+def filtrar(
+    n_clicks: int,
+    limites_diametros: list[int],
+    limites_idade: list[int],
+    situacoes: list[str],
+):
+    global DF
+    filtrado = DF[
+        (DF.diametro.isin(limites_diametros))
+        & (DF.idade_hidrometro.between(limites_idade[0], limites_idade[1]))
+        & (DF.situacao_ligacao_agua.isin(situacoes))
     ]
 
     return gerar_html_area_dados(filtrado)
 
 
+@callback(
+    Output("filtros", "children", allow_duplicate=True),
+    Output("dropdowns-associacao-colunas-erro", "children"),
+    Input("botao_associar_colunas", "n_clicks"),
+    State("associacao_col_hidrometro", "value"),
+    State("associacao_col_situacao_ligacao_agua", "value"),
+    State("associacao_col_diametro", "value"),
+    State("associacao_col_data_instalacao", "value"),
+    State("associacao_col_grupo_leitura", "value"),
+    State("associacao_col_perfil_imovel", "value"),
+    prevent_initial_call=True,
+)
+def associar_colunas(
+    n_clicks,
+    hidrometro,
+    situacao_ligacao_agua,
+    diametro,
+    data_instalacao,
+    grupo_leitura,
+    perfil_imovel,
+):
+    colunas_associadas_de_cada_variavel = {
+        "hidrometro": hidrometro,
+        "situacao_ligacao_agua": situacao_ligacao_agua,
+        "diametro": diametro,
+        "data_instalacao": data_instalacao,
+        "grupo_leitura": grupo_leitura,
+        "perfil_imovel": perfil_imovel,
+    }
+
+    teste_se_todos_valores_sao_nao_nulos = all(
+        map(lambda x: x is not None, colunas_associadas_de_cada_variavel.values())
+    )
+
+    if teste_se_todos_valores_sao_nao_nulos:
+        global DF
+        preparacao_dados(DF, colunas_associadas_de_cada_variavel)
+
+        valores_unicos_diametro = [int(x) for x in DF.diametro.unique()]
+        valores_unicos_diametro.sort()
+        VALORES_DIAMETRO_FILTRO = [
+            {"label": f"{x}MM", "value": int(x)} for x in valores_unicos_diametro
+        ]
+
+        valores_unicos_idade = list(DF.idade_hidrometro.unique())
+        VALOR_MINIMO_IDADE = min(valores_unicos_idade)
+        VALOR_MAXIMO_IDADE = max(valores_unicos_idade)
+
+        valores_unicos_situacao_agua = list(DF.situacao_ligacao_agua.unique())
+        opcoes_valores_situacao_agua = [
+            {"label": v, "value": v} for v in sorted(valores_unicos_situacao_agua)
+        ]
+
+        return (
+            gerar_html_filtros(
+                VALORES_DIAMETRO_FILTRO,
+                valores_unicos_diametro,
+                VALOR_MINIMO_IDADE,
+                VALOR_MAXIMO_IDADE,
+                opcoes_valores_situacao_agua,
+                valores_unicos_situacao_agua,
+            ),
+            "",
+        )
+
+    return [], "ERRO: Todas as variáveis devem estar associadas a uma coluna da tabela."
+
+
 if __name__ == "__main__":
     app.run(debug=True)
-#teste commit github
-
-
+# teste commit github
