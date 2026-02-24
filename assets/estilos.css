@@ -31,7 +31,7 @@ h6 {
     grid-column-start: span 2;
 }
 
-.quadro-dado>[data-dado] {
+.quadro-dado-numero {
     font-size: 2rem;
     font-weight: bold;
 }
