@@ -29,6 +29,20 @@ def padronizacao_diametro(diametro: str):
     return diametro_padronizado_numero
 
 
+def diametro_e_letra_codigo(linha: pd.Series):
+    codigo = linha["hidrometro"]
+    if codigo is None:
+        primeira_letra = "*"
+    elif isinstance(codigo, int):
+        primeira_letra = "*"
+    elif (len(codigo) < 1) or (not codigo[0].isalpha):
+        primeira_letra = "*"
+    else:
+        primeira_letra = codigo[0]
+
+    return f"{linha["diametro"]} - {primeira_letra}"
+
+
 def preparacao_dados(
     df: pd.DataFrame,
     relacao_colunas_tabela_inserida_com_dataframe: dict[NOME_VARIAVEIS, str],
@@ -42,6 +56,8 @@ def preparacao_dados(
     df["diametro"] = df[
         relacao_colunas_tabela_inserida_com_dataframe["diametro"]
     ].apply(padronizacao_diametro)
+
+    df["diametro_letra"] = df.apply(diametro_e_letra_codigo, axis=1)
 
     df["data_instalacao"] = df[
         relacao_colunas_tabela_inserida_com_dataframe["data_instalacao"]
@@ -190,6 +206,11 @@ def calcular_dados_necessarios_do_filtro(df: pd.DataFrame):
         {"label": v, "value": v} for v in sorted(valores_unicos_situacao_agua)
     ]
 
+    valores_unicos_diametro_letra = list(DF.diametro_letra.unique())
+    opcoes_valores_diametro_letra = [
+        {"label": v, "value": v} for v in sorted(valores_unicos_diametro_letra)
+    ]
+
     return {
         "opcoes_valores_diametro_filtro": VALORES_DIAMETRO_FILTRO,
         "valores_unicos_diametro": valores_unicos_diametro,
@@ -197,6 +218,8 @@ def calcular_dados_necessarios_do_filtro(df: pd.DataFrame):
         "valor_maximo_idade": VALOR_MAXIMO_IDADE,
         "opcoes_valores_situacao_ligacao_agua": opcoes_valores_situacao_agua,
         "opcoes_selecionadas_situacao_ligacao_agua": valores_unicos_situacao_agua,
+        "valores_unicos_diametro_letra": valores_unicos_diametro_letra,
+        "opcoes_valores_diametro_letra": opcoes_valores_diametro_letra,
     }
 
 
@@ -394,6 +417,7 @@ def liberar_associacao_de_colunas(conteudo: str, nome_arquivo: str):
     State(ID_ELEMENTOS_HTML.FILTRO_DIAMETRO, "value"),
     State(ID_ELEMENTOS_HTML.FILTRO_IDADE, "value"),
     State(ID_ELEMENTOS_HTML.FILTRO_SITUACAO, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_DIAMETRO_LETRA, "value"),
     prevent_initial_call=True,
 )
 def filtrar(
@@ -401,12 +425,15 @@ def filtrar(
     limites_diametros: list[int],
     limites_idade: list[int],
     situacoes: list[str],
+    diametro_letra: list[str],
 ):
     global DF
+    # TODO: lógica de filtro ineficiente
     filtrado = DF[
         (DF.diametro.isin(limites_diametros))
         & (DF.idade_hidrometro.between(limites_idade[0], limites_idade[1]))
         & (DF.situacao_ligacao_agua.isin(situacoes))
+        & (DF.diametro_letra.isin(diametro_letra))
     ]
 
     if filtrado.empty:

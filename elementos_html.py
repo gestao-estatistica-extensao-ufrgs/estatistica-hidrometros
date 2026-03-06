@@ -65,6 +65,7 @@ class ID_ELEMENTOS_HTML(StrEnum):
     FILTROS = "filtros"
     FILTRO_SUBMIT = "filtro-submit"
     FILTRO_DIAMETRO = "filtro-diametro"
+    FILTRO_DIAMETRO_LETRA = "filtro-diametro-letra"
     FILTRO_IDADE = "filtro-idade"
     FILTRO_SITUACAO = "filtro-situacao"
 
@@ -158,6 +159,8 @@ def gerar_html_filtros(
     valor_maximo_idade,
     opcoes_valores_situacao_ligacao_agua,
     opcoes_selecionadas_situacao_ligacao_agua,
+    opcoes_valores_diametro_letra,
+    valores_unicos_diametro_letra,
 ):
     return [
         html.H2("Filtros"),
@@ -170,6 +173,22 @@ def gerar_html_filtros(
                     id=ID_ELEMENTOS_HTML.FILTRO_DIAMETRO,
                     options=opcoes_valores_diametro_filtro,
                     value=valores_unicos_diametro,
+                    inline=True,
+                    labelStyle=EstilosCSS.CHECKLIST_LABEL,
+                    style=EstilosCSS.CHECKLIST,
+                ),
+            ]
+        ),
+        html.Div(
+            [
+                html.Label(
+                    "Diâmetro Hidrômetro + Letra",
+                    htmlFor=ID_ELEMENTOS_HTML.FILTRO_DIAMETRO_LETRA,
+                ),
+                dcc.Checklist(
+                    id=ID_ELEMENTOS_HTML.FILTRO_DIAMETRO_LETRA,
+                    options=opcoes_valores_diametro_letra,
+                    value=valores_unicos_diametro_letra,
                     inline=True,
                     labelStyle=EstilosCSS.CHECKLIST_LABEL,
                     style=EstilosCSS.CHECKLIST,
