@@ -1,10 +1,15 @@
+:root {
+    --cor-primaria: #1377bd;
+    --cor-primaria-light: #2cbdf0;
+    --cor-segundaria: #00772f;
+    --cor-segundaria-light: #4cae31;
+    --cor-terciaria: #884317;
+    --cor-terciaria-light: #b77c07;
+}
+
 body {
-    border-right: 1px solid black;
-    border-left: 1px solid black;
-    margin: 0% 25% 0% 25%;
     font-family: Arial, Helvetica, sans-serif;
-    min-height: 100vh;
-    padding: 0 5px;
+    background-color: snow;
 }
 
 h1,
@@ -17,47 +22,43 @@ h6 {
     margin: 0;
 }
 
-#area-dados {
+#layout {
+    min-height: 100vh;
     display: grid;
     grid-template-columns: repeat(6, 1fr);
-    column-gap: 10px;
-    row-gap: 10px;
+    gap: 5px;
+    grid-template-areas: "upload filtro filtro filtro filtro filtro"
+        "upload dados dados dados dados dados"
+        "upload dados dados dados dados dados"
+        "upload dados dados dados dados dados"
+    ;
 }
 
-.quadro-dado {
+#area-upload-tabela {
+    grid-area: upload;
+    background-color: lightsteelblue;
     padding: 5px;
-    background-color: darkblue;
-    color: white;
-    grid-column-start: span 2;
-}
-
-.quadro-dado-numero {
-    font-size: 2rem;
-    font-weight: bold;
-}
-
-.grafico {
-    grid-column-start: span 6;
-}
-
-.tabela {
-    grid-column-start: span 6;
+    border: 1px solid black;
 }
 
 #filtros {
+    grid-area: filtro;
+    padding: 5px;
+    border: 1px solid black;
     display: flex;
     flex-direction: column;
     row-gap: 5px;
 }
 
-#filtro-diametro {
-    display: flex;
-    column-gap: 1px;
+#secao-resultados {
+    grid-area: dados;
+    padding: 5px;
+    border: 1px solid black;
 }
 
-#filtro-diametro>label {
-    border: 1px solid black;
-    padding: 0 3px 0 0;
-    background-color: azure;
-    font-weight: bold;
+#area-dados {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    column-gap: 10px;
+    row-gap: 10px;
 }

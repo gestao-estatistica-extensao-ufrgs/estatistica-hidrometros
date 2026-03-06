@@ -1,6 +1,7 @@
 import base64
 import io
 from typing import Literal
+import sys
 
 import pandas as pd
 import plotly.express as px
@@ -173,40 +174,143 @@ def calcular_freq_prefil_imoveis(df):
     return freq_perfil_imoveis
 
 
+def calcular_dados_necessarios_do_filtro(df: pd.DataFrame):
+    valores_unicos_diametro = [int(x) for x in DF.diametro.unique()]
+    valores_unicos_diametro.sort()
+    VALORES_DIAMETRO_FILTRO = [
+        {"label": f"{x}MM", "value": int(x)} for x in valores_unicos_diametro
+    ]
+
+    valores_unicos_idade = list(DF.idade_hidrometro.unique())
+    VALOR_MINIMO_IDADE = min(valores_unicos_idade)
+    VALOR_MAXIMO_IDADE = max(valores_unicos_idade)
+
+    valores_unicos_situacao_agua = list(DF.situacao_ligacao_agua.unique())
+    opcoes_valores_situacao_agua = [
+        {"label": v, "value": v} for v in sorted(valores_unicos_situacao_agua)
+    ]
+
+    return {
+        "opcoes_valores_diametro_filtro": VALORES_DIAMETRO_FILTRO,
+        "valores_unicos_diametro": valores_unicos_diametro,
+        "valor_minimo_idade": VALOR_MINIMO_IDADE,
+        "valor_maximo_idade": VALOR_MAXIMO_IDADE,
+        "opcoes_valores_situacao_ligacao_agua": opcoes_valores_situacao_agua,
+        "opcoes_selecionadas_situacao_ligacao_agua": valores_unicos_situacao_agua,
+    }
+
+
+def calcular_todos_os_dados_necessarios(df: pd.DataFrame):
+    contagem_hidrometros = df.hidrometro.count()
+
+    porcentagem_hidrometros_ligados = calcular_porcentagem_hidrometros_ligados(df)
+
+    idade_media_hidrometros = df.idade_hidrometro.mean()
+
+    idade_media_20MM, idade_desvio_padrao_20MM, grafico_idades_hidrometros_20MM = (
+        calcular_dados_hidrometros_segundo_diametro(df, "20")
+    )
+
+    idade_media_25MM, idade_desvio_padrao_25MM, grafico_idades_hidrometros_25MM = (
+        calcular_dados_hidrometros_segundo_diametro(df, "25")
+    )
+
+    (
+        idade_media_acima_25MM,
+        idade_desvio_padrao_acima_25MM,
+        grafico_idades_hidrometros_acima_de_25MM,
+    ) = calcular_dados_hidrometros_segundo_diametro(df, "25+")
+
+    freq_perfil_imoveis = calcular_freq_prefil_imoveis(df)
+
+    freq_hidrometros = calcular_freq_hidrometros_por_diametro(df)
+
+    return {
+        "df": df,
+        "contagem_hidrometros": contagem_hidrometros,
+        "porcentagem_hidrometros_ligados": porcentagem_hidrometros_ligados,
+        "idade_media_hidrometros": idade_media_hidrometros,
+        "idade_media_20MM": idade_media_20MM,
+        "idade_desvio_padrao_20MM": idade_desvio_padrao_20MM,
+        "grafico_idades_hidrometros_20MM": grafico_idades_hidrometros_20MM,
+        "idade_media_25MM": idade_media_25MM,
+        "idade_desvio_padrao_25MM": idade_desvio_padrao_25MM,
+        "grafico_idades_hidrometros_25MM": grafico_idades_hidrometros_25MM,
+        "idade_media_acima_25MM": idade_media_acima_25MM,
+        "idade_desvio_padrao_acima_25MM": idade_desvio_padrao_acima_25MM,
+        "grafico_idades_hidrometros_acima_de_25MM": grafico_idades_hidrometros_acima_de_25MM,
+        "freq_perfil_imoveis": freq_perfil_imoveis,
+        "freq_hidrometros": freq_hidrometros,
+    }
+
+
 # -------------------------------------------------------------
 #########################
 ### INICIALIZAÇÃO APP ###
 #########################
 DF = pd.DataFrame()
+filtro_html = []
+dados_html = []
+if len(sys.argv) > 1:
+    DF = pd.read_excel("testes/dados_teste/amostra_dados.xlsx")
+    colunas_x_variaveis: dict[NOME_VARIAVEIS, str] = {
+        "diametro": "Diametro",
+        "data_instalacao": "Data Instalacao",
+        "hidrometro": "Hidrometro",
+        "grupo_leitura": "Grupo Leitura",
+        "perfil_imovel": "Perfil Imovel",
+        "situacao_ligacao_agua": "Situacao Ligacao Agua",
+    }
+    preparacao_dados(DF, colunas_x_variaveis)
+
+    filtro_html = gerar_html_filtros(**calcular_dados_necessarios_do_filtro(DF))
+    dados_html = gerar_html_dados(**calcular_todos_os_dados_necessarios(DF))
+
 app = Dash(suppress_callback_exceptions=True)
 
 app.layout = [
-    html.Section(
-        [
-            html.Div(
-                [
-                    html.H2("Abrir Planilha"),
-                    dcc.Upload(
-                        children=[html.Button("Abrir")],
-                        id=ID_ELEMENTOS_HTML.UPLOAD_TABELA,
+    html.Div(
+        id=ID_ELEMENTOS_HTML.LAYOUT,
+        children=[
+            html.Section(
+                id=ID_ELEMENTOS_HTML.AREA_UPLOAD_TABELA,
+                style={"display": "flex", "flexDirection": "column", "gap": "5px"},
+                children=[
+                    html.Div(
+                        style={
+                            "display": "flex",
+                            "flexDirection": "column",
+                            "gap": "2px",
+                        },
+                        children=[
+                            html.H2("Abrir Planilha"),
+                            dcc.Upload(
+                                id=ID_ELEMENTOS_HTML.UPLOAD_TABELA,
+                                style={"display": "flex"},
+                                children=[
+                                    html.Button("Abrir"),
+                                    dcc.Input(
+                                        "",
+                                        id=ID_ELEMENTOS_HTML.UPLOAD_NOME_ARQUIVO,
+                                        readOnly=True,
+                                        style={"flexGrow": "1"},
+                                    ),
+                                ],
+                            ),
+                            html.Div(
+                                id=ID_ELEMENTOS_HTML.UPLOAD_TABELA_ERRO, children=""
+                            ),
+                        ],
                     ),
-                    dcc.Input(
-                        "", readOnly=True, id=ID_ELEMENTOS_HTML.UPLOAD_NOME_ARQUIVO
-                    ),
-                    html.Div(id=ID_ELEMENTOS_HTML.UPLOAD_TABELA_ERRO, children=""),
-                ]
+                    gerar_form_colunas(),
+                ],
             ),
-            gerar_form_colunas(),
-        ]
-    ),
-    html.Hr(),
-    html.Section(
-        id=ID_ELEMENTOS_HTML.FILTROS,
-    ),
-    html.Hr(),
-    html.Section(
-        [],
-        id=ID_ELEMENTOS_HTML.SECAO_RESULTADOS,
+            html.Section(id=ID_ELEMENTOS_HTML.FILTROS, children=filtro_html),
+            html.Section(
+                id=ID_ELEMENTOS_HTML.SECAO_RESULTADOS,
+                children=dados_html,
+            ),
+        ],
     ),
 ]
 
@@ -308,47 +412,9 @@ def filtrar(
     if filtrado.empty:
         return gerar_html_zero_resultados()
 
-    contagem_hidrometros = filtrado.hidrometro.count()
+    dados = calcular_todos_os_dados_necessarios(filtrado)
 
-    porcentagem_hidrometros_ligados = calcular_porcentagem_hidrometros_ligados(filtrado)
-
-    idade_media_hidrometros = filtrado.idade_hidrometro.mean()
-
-    idade_media_20MM, idade_desvio_padrao_20MM, grafico_idades_hidrometros_20MM = (
-        calcular_dados_hidrometros_segundo_diametro(filtrado, "20")
-    )
-
-    idade_media_25MM, idade_desvio_padrao_25MM, grafico_idades_hidrometros_25MM = (
-        calcular_dados_hidrometros_segundo_diametro(filtrado, "25")
-    )
-
-    (
-        idade_media_acima_25MM,
-        idade_desvio_padrao_acima_25MM,
-        grafico_idades_hidrometros_acima_de_25MM,
-    ) = calcular_dados_hidrometros_segundo_diametro(filtrado, "25+")
-
-    freq_perfil_imoveis = calcular_freq_prefil_imoveis(filtrado)
-
-    freq_hidrometros = calcular_freq_hidrometros_por_diametro(filtrado)
-
-    dados_html = gerar_html_dados(
-        filtrado,
-        contagem_hidrometros,
-        porcentagem_hidrometros_ligados,
-        idade_media_hidrometros,
-        idade_media_20MM,
-        idade_desvio_padrao_20MM,
-        grafico_idades_hidrometros_20MM,
-        idade_media_25MM,
-        idade_desvio_padrao_25MM,
-        grafico_idades_hidrometros_25MM,
-        idade_media_acima_25MM,
-        idade_desvio_padrao_acima_25MM,
-        grafico_idades_hidrometros_acima_de_25MM,
-        freq_perfil_imoveis,
-        freq_hidrometros,
-    )
+    dados_html = gerar_html_dados(**dados)
 
     return dados_html
 
@@ -400,30 +466,10 @@ def associar_colunas(
         global DF
         preparacao_dados(DF, colunas_associadas_de_cada_variavel)
 
-        valores_unicos_diametro = [int(x) for x in DF.diametro.unique()]
-        valores_unicos_diametro.sort()
-        VALORES_DIAMETRO_FILTRO = [
-            {"label": f"{x}MM", "value": int(x)} for x in valores_unicos_diametro
-        ]
-
-        valores_unicos_idade = list(DF.idade_hidrometro.unique())
-        VALOR_MINIMO_IDADE = min(valores_unicos_idade)
-        VALOR_MAXIMO_IDADE = max(valores_unicos_idade)
-
-        valores_unicos_situacao_agua = list(DF.situacao_ligacao_agua.unique())
-        opcoes_valores_situacao_agua = [
-            {"label": v, "value": v} for v in sorted(valores_unicos_situacao_agua)
-        ]
+        dados = calcular_dados_necessarios_do_filtro(DF)
 
         return (
-            gerar_html_filtros(
-                VALORES_DIAMETRO_FILTRO,
-                valores_unicos_diametro,
-                VALOR_MINIMO_IDADE,
-                VALOR_MAXIMO_IDADE,
-                opcoes_valores_situacao_agua,
-                valores_unicos_situacao_agua,
-            ),
+            gerar_html_filtros(**dados),
             "",
         )
 

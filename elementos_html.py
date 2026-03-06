@@ -16,7 +16,35 @@ NOME_VARIAVEIS: TypeAlias = Literal[
 ]
 
 
+class EstilosCSS:
+    QUADRO_DADO = {
+        "padding": "5px",
+        "backgroundColor": "darkblue",
+        "color": "white",
+        "gridColumnStart": "span 2",
+    }
+
+    QUADRO_DADO_NUMERO = {
+        "fontSize": "2rem",
+        "fontWeight": "bold",
+    }
+
+    TABELA = {"gridColumnStart": "span 6"}
+    GRAFICO = {"gridColumnStart": "span 6"}
+
+    CHECKLIST = {"display": "flex", "columnGap": "1px"}
+    CHECKLIST_LABEL = {
+        "border": "1px solid black",
+        "padding": "0 3px 0 0",
+        "backgroundColor": "azure",
+        "fontWeight": "bold",
+    }
+
+
 class ID_ELEMENTOS_HTML(StrEnum):
+    LAYOUT = "layout"
+
+    AREA_UPLOAD_TABELA = "area-upload-tabela"
     UPLOAD_TABELA_ERRO = "upload-tabela-erro"
     UPLOAD_NOME_ARQUIVO = "upload-nome-arquivo"
     UPLOAD_TABELA = "upload-tabela"
@@ -69,9 +97,12 @@ def gerar_form_colunas():
 
         div_html = html.Div(
             children=[
-                html.Label(children=nome_label, htmlFor=id_select),
+                html.Label(
+                    style={"fontStyle": "bold"}, children=nome_label, htmlFor=id_select
+                ),
                 dcc.Dropdown(id=id_select, options=[]),
-            ]
+            ],
+            style={"display": "flex", "flexDirection": "column", "gap": "1px"},
         )
         return div_html
 
@@ -85,7 +116,12 @@ def gerar_form_colunas():
     col_perfil_imovel = _label_e_dropdown("Perfil do Imóvel", "perfil_imovel")
 
     return html.Form(
-        [
+        style={
+            "display": "flex",
+            "flexDirection": "column",
+            "gap": "2px",
+        },
+        children=[
             html.H3("Associar Colunas com Variáveis"),
             html.Div(
                 id=ID_ELEMENTOS_HTML.DROPDOWN_ASSOCIACAO_COLUNAS,
@@ -100,18 +136,18 @@ def gerar_form_colunas():
                             col_perfil_imovel,
                         ]
                     ),
-                    html.Div(
-                        html.Button(
-                            id=ID_ELEMENTOS_HTML.BOTAO_ASSOCIAR_COLUNAS,
-                            type="button",
-                            disabled=True,
-                            children="Associar Colunas",
-                        )
-                    ),
                 ],
             ),
+            html.Div(
+                html.Button(
+                    id=ID_ELEMENTOS_HTML.BOTAO_ASSOCIAR_COLUNAS,
+                    type="button",
+                    disabled=True,
+                    children="Associar Colunas",
+                )
+            ),
             html.Div(id=ID_ELEMENTOS_HTML.DROPDOWN_ASSOCIACAO_COLUNAS_ERRO),
-        ]
+        ],
     )
 
 
@@ -131,10 +167,12 @@ def gerar_html_filtros(
                     "Diâmetro Hidrômetro", htmlFor=ID_ELEMENTOS_HTML.FILTRO_DIAMETRO
                 ),
                 dcc.Checklist(
+                    id=ID_ELEMENTOS_HTML.FILTRO_DIAMETRO,
                     options=opcoes_valores_diametro_filtro,
                     value=valores_unicos_diametro,
                     inline=True,
-                    id=ID_ELEMENTOS_HTML.FILTRO_DIAMETRO,
+                    labelStyle=EstilosCSS.CHECKLIST_LABEL,
+                    style=EstilosCSS.CHECKLIST,
                 ),
             ]
         ),
@@ -160,6 +198,8 @@ def gerar_html_filtros(
                     options=opcoes_valores_situacao_ligacao_agua,
                     value=opcoes_selecionadas_situacao_ligacao_agua,
                     inline=True,
+                    labelStyle=EstilosCSS.CHECKLIST_LABEL,
+                    style=EstilosCSS.CHECKLIST,
                 ),
             ]
         ),
@@ -209,33 +249,33 @@ def gerar_html_dados(
                     html.Div(
                         contagem_hidrometros,
                         id=ID_ELEMENTOS_HTML.CONTAGEM_HIDROMETROS,
-                        className="quadro-dado-numero",
+                        style=EstilosCSS.QUADRO_DADO_NUMERO,
                     ),
                     html.Div("Nº Total de Hidrômetros"),
                 ],
-                className="quadro-dado",
+                style=EstilosCSS.QUADRO_DADO,
             ),
             html.Div(
                 [
                     html.Div(
                         porcentagem_hidrometros_ligados,
                         id=ID_ELEMENTOS_HTML.PORCENTAGEM_HIDROMETOS_LIGADOS,
-                        className="quadro-dado-numero",
+                        style=EstilosCSS.QUADRO_DADO_NUMERO,
                     ),
                     html.Div("Porcentagem de Hidrômetros Ligados"),
                 ],
-                className="quadro-dado",
+                style=EstilosCSS.QUADRO_DADO,
             ),
             html.Div(
                 [
                     html.Div(
                         idade_media_hidrometros,
                         id=ID_ELEMENTOS_HTML.IDADE_MEDIA_HIDROMETROS,
-                        className="quadro-dado-numero",
+                        style=EstilosCSS.QUADRO_DADO_NUMERO,
                     ),
                     html.Div("Idade Média dos Hidrômetros"),
                 ],
-                className="quadro-dado",
+                style=EstilosCSS.QUADRO_DADO,
             ),
             html.Div(
                 [
@@ -263,7 +303,7 @@ def gerar_html_dados(
                         )
                     )
                 ],
-                className="grafico",
+                style=EstilosCSS.GRAFICO,
             ),
             html.Div(
                 [
@@ -276,7 +316,7 @@ def gerar_html_dados(
                         )
                     )
                 ],
-                className="grafico",
+                style=EstilosCSS.GRAFICO,
             ),
             html.Div(
                 [
@@ -291,7 +331,7 @@ def gerar_html_dados(
                         },
                     ),
                 ],
-                className="tabela",
+                style=EstilosCSS.TABELA,
             ),
             html.Div(
                 [
@@ -306,85 +346,85 @@ def gerar_html_dados(
                         },
                     ),
                 ],
-                className="tabela",
+                style=EstilosCSS.TABELA,
             ),
             html.Div(
                 [
                     html.Div(
                         idade_media_20MM,
                         id=ID_ELEMENTOS_HTML.IDADE_MEDIA_HIDROMETROS_20MM,
-                        className="quadro-dado-numero",
+                        style=EstilosCSS.QUADRO_DADO_NUMERO,
                     ),
                     html.Div("Idade Média dos Hidrômetros com 20MM"),
                 ],
-                className="quadro-dado",
+                style=EstilosCSS.QUADRO_DADO,
             ),
             html.Div(
                 [
                     html.Div(
                         idade_media_25MM,
                         id=ID_ELEMENTOS_HTML.IDADE_MEDIA_HIDROMETROS_25MM,
-                        className="quadro-dado-numero",
+                        style=EstilosCSS.QUADRO_DADO_NUMERO,
                     ),
                     html.Div("Idade Média dos Hidrômetros com 25MM"),
                 ],
-                className="quadro-dado",
+                style=EstilosCSS.QUADRO_DADO,
             ),
             html.Div(
                 [
                     html.Div(
                         idade_media_acima_25MM,
                         id=ID_ELEMENTOS_HTML.IDADE_MEDIA_HIDROMETROS_ACIMA_25MM,
-                        className="quadro-dado-numero",
+                        style=EstilosCSS.QUADRO_DADO_NUMERO,
                     ),
                     html.Div("Idade Média dos Hidrômetros com mais de 25MM"),
                 ],
-                className="quadro-dado",
+                style=EstilosCSS.QUADRO_DADO,
             ),
             html.Div(
                 [
                     html.Div(
                         idade_desvio_padrao_20MM,
                         id=ID_ELEMENTOS_HTML.IDADE_DESVIO_PADRAO_20MM,
-                        className="quadro-dado-numero",
+                        style=EstilosCSS.QUADRO_DADO_NUMERO,
                     ),
                     html.Div("Desvio Padrão da Idade dos Hidrômetros com 20MM"),
                 ],
-                className="quadro-dado",
+                style=EstilosCSS.QUADRO_DADO,
             ),
             html.Div(
                 [
                     html.Div(
                         idade_desvio_padrao_25MM,
                         id=ID_ELEMENTOS_HTML.IDADE_DESVIO_PADRAO_25MM,
-                        className="quadro-dado-numero",
+                        style=EstilosCSS.QUADRO_DADO_NUMERO,
                     ),
                     html.Div("Desvio Padrão da Idade dos Hidrômetros com 25MM"),
                 ],
-                className="quadro-dado",
+                style=EstilosCSS.QUADRO_DADO,
             ),
             html.Div(
                 [
                     html.Div(
                         idade_desvio_padrao_acima_25MM,
                         id=ID_ELEMENTOS_HTML.IDADE_DESVIO_PADRAO_ACIMA_25MM,
-                        className="quadro-dado-numero",
+                        style=EstilosCSS.QUADRO_DADO_NUMERO,
                     ),
                     html.Div("Desvio Padrão da Idade dos Hidrômetros com mais de 25MM"),
                 ],
-                className="quadro-dado",
+                style=EstilosCSS.QUADRO_DADO,
             ),
             html.Div(
                 grafico_idades_hidrometros_20MM,
-                className="grafico",
+                style=EstilosCSS.GRAFICO,
             ),
             html.Div(
                 grafico_idades_hidrometros_25MM,
-                className="grafico",
+                style=EstilosCSS.GRAFICO,
             ),
             html.Div(
                 grafico_idades_hidrometros_acima_de_25MM,
-                className="grafico",
+                style=EstilosCSS.GRAFICO,
             ),
         ],
         id=ID_ELEMENTOS_HTML.AREA_DADOS,
