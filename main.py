@@ -211,6 +211,11 @@ def calcular_dados_necessarios_do_filtro(df: pd.DataFrame):
         {"label": v, "value": v} for v in sorted(valores_unicos_diametro_letra)
     ]
 
+    valores_unicos_grupo_faturamento = list(DF.grupo_leitura.unique())
+    opcoes_valores_grupo_faturamento = [
+        {"label": v, "value": v} for v in sorted(valores_unicos_grupo_faturamento)
+    ]
+
     return {
         "opcoes_valores_diametro_filtro": VALORES_DIAMETRO_FILTRO,
         "valores_unicos_diametro": valores_unicos_diametro,
@@ -220,6 +225,8 @@ def calcular_dados_necessarios_do_filtro(df: pd.DataFrame):
         "opcoes_selecionadas_situacao_ligacao_agua": valores_unicos_situacao_agua,
         "valores_unicos_diametro_letra": valores_unicos_diametro_letra,
         "opcoes_valores_diametro_letra": opcoes_valores_diametro_letra,
+        "opcoes_valores_grupo_faturamento": opcoes_valores_grupo_faturamento,
+        "valores_unicos_grupo_faturamento": valores_unicos_grupo_faturamento,
     }
 
 
@@ -418,6 +425,7 @@ def liberar_associacao_de_colunas(conteudo: str, nome_arquivo: str):
     State(ID_ELEMENTOS_HTML.FILTRO_IDADE, "value"),
     State(ID_ELEMENTOS_HTML.FILTRO_SITUACAO, "value"),
     State(ID_ELEMENTOS_HTML.FILTRO_DIAMETRO_LETRA, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_GRUPO_FATURAMENTO, "value"),
     prevent_initial_call=True,
 )
 def filtrar(
@@ -426,6 +434,7 @@ def filtrar(
     limites_idade: list[int],
     situacoes: list[str],
     diametro_letra: list[str],
+    grupo_faturamento: list[str],
 ):
     global DF
     # TODO: lógica de filtro ineficiente
@@ -434,6 +443,7 @@ def filtrar(
         & (DF.idade_hidrometro.between(limites_idade[0], limites_idade[1]))
         & (DF.situacao_ligacao_agua.isin(situacoes))
         & (DF.diametro_letra.isin(diametro_letra))
+        & (DF.grupo_leitura.isin(grupo_faturamento))
     ]
 
     if filtrado.empty:

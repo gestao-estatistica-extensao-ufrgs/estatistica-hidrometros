@@ -32,7 +32,7 @@ class EstilosCSS:
     TABELA = {"gridColumnStart": "span 6"}
     GRAFICO = {"gridColumnStart": "span 6"}
 
-    CHECKLIST = {"display": "flex", "columnGap": "1px"}
+    CHECKLIST = {"display": "flex", "columnGap": "1px", "flex-wrap": "wrap"}
     CHECKLIST_LABEL = {
         "border": "1px solid black",
         "padding": "0 3px 0 0",
@@ -68,6 +68,7 @@ class ID_ELEMENTOS_HTML(StrEnum):
     FILTRO_DIAMETRO_LETRA = "filtro-diametro-letra"
     FILTRO_IDADE = "filtro-idade"
     FILTRO_SITUACAO = "filtro-situacao"
+    FILTRO_GRUPO_FATURAMENTO = "filtro-grupo-faturamento"
 
     DROPDOWN_ASSOCIACAO_COLUNAS_ERRO = "dropdowns-associacao-colunas-erro"
     DROPDOWN_ASSOCIACAO_COLUNAS = "dropdowns-associacao-colunas"
@@ -161,6 +162,8 @@ def gerar_html_filtros(
     opcoes_selecionadas_situacao_ligacao_agua,
     opcoes_valores_diametro_letra,
     valores_unicos_diametro_letra,
+    opcoes_valores_grupo_faturamento,
+    valores_unicos_grupo_faturamento,
 ):
     return [
         html.H2("Filtros"),
@@ -216,6 +219,22 @@ def gerar_html_filtros(
                     id=ID_ELEMENTOS_HTML.FILTRO_SITUACAO,
                     options=opcoes_valores_situacao_ligacao_agua,
                     value=opcoes_selecionadas_situacao_ligacao_agua,
+                    inline=True,
+                    labelStyle=EstilosCSS.CHECKLIST_LABEL,
+                    style=EstilosCSS.CHECKLIST,
+                ),
+            ]
+        ),
+        html.Div(
+            [
+                html.Label(
+                    "Grupo de Faturamento",
+                    htmlFor=ID_ELEMENTOS_HTML.FILTRO_GRUPO_FATURAMENTO,
+                ),
+                dcc.Checklist(
+                    id=ID_ELEMENTOS_HTML.FILTRO_GRUPO_FATURAMENTO,
+                    options=opcoes_valores_grupo_faturamento,
+                    value=valores_unicos_grupo_faturamento,
                     inline=True,
                     labelStyle=EstilosCSS.CHECKLIST_LABEL,
                     style=EstilosCSS.CHECKLIST,
