@@ -18,15 +18,19 @@ NOME_VARIAVEIS: TypeAlias = Literal[
 
 class EstilosCSS:
     QUADRO_DADO = {
-        "padding": "5px",
+        "padding": "20px",
         "backgroundColor": "darkblue",
         "color": "white",
+        "borderRadius": "12px",
+        "textAlign": "center",
         "gridColumnStart": "span 2",
+        "border": "1px solid #000080"
     }
 
     QUADRO_DADO_NUMERO = {
-        "fontSize": "2rem",
+        "fontSize": "3rem",
         "fontWeight": "bold",
+        "marginBottom": "5px",
     }
 
     TABELA = {"gridColumnStart": "span 6"}
@@ -34,11 +38,13 @@ class EstilosCSS:
 
     CHECKLIST = {"display": "flex", "columnGap": "1px", "flex-wrap": "wrap"}
     CHECKLIST_LABEL = {
-        "border": "1px solid black",
-        "padding": "0 3px 0 0",
-        "backgroundColor": "azure",
-        "fontWeight": "bold",
-    }
+            "border": "1px solid darkblue", 
+            "borderRadius": "5px",         
+            "margin": "2px",
+            "backgroundColor": "azure",
+            "fontWeight": "bold",
+            "cursor": "pointer",
+        }
 
 
 class ID_ELEMENTOS_HTML(StrEnum):

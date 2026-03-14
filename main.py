@@ -512,6 +512,5 @@ def associar_colunas(
 
     return [], "ERRO: Todas as variáveis devem estar associadas a uma coluna da tabela."
 
-
 if __name__ == "__main__":
     app.run(debug=True)
