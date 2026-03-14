@@ -75,6 +75,7 @@ class ID_ELEMENTOS_HTML(StrEnum):
     FILTRO_IDADE = "filtro-idade"
     FILTRO_SITUACAO = "filtro-situacao"
     FILTRO_GRUPO_FATURAMENTO = "filtro-grupo-faturamento"
+    FILTRO_PERFIL_IMOVEL = "filtro-perfil-imovel"
 
     DROPDOWN_ASSOCIACAO_COLUNAS_ERRO = "dropdowns-associacao-colunas-erro"
     DROPDOWN_ASSOCIACAO_COLUNAS = "dropdowns-associacao-colunas"
@@ -170,6 +171,8 @@ def gerar_html_filtros(
     valores_unicos_diametro_letra,
     opcoes_valores_grupo_faturamento,
     valores_unicos_grupo_faturamento,
+    opcoes_valores_perfil_imovel, 
+    valores_unicos_perfil_imovel,
 ):
     return [
         html.H2("Filtros"),
@@ -241,6 +244,19 @@ def gerar_html_filtros(
                     id=ID_ELEMENTOS_HTML.FILTRO_GRUPO_FATURAMENTO,
                     options=opcoes_valores_grupo_faturamento,
                     value=valores_unicos_grupo_faturamento,
+                    inline=True,
+                    labelStyle=EstilosCSS.CHECKLIST_LABEL,
+                    style=EstilosCSS.CHECKLIST,
+                ),
+            ]
+        ),
+        html.Div(
+            [
+                html.Label("Perfil do Imóvel", htmlFor=ID_ELEMENTOS_HTML.FILTRO_PERFIL_IMOVEL),
+                dcc.Checklist(
+                    id=ID_ELEMENTOS_HTML.FILTRO_PERFIL_IMOVEL,
+                    options=opcoes_valores_perfil_imovel,
+                    value=valores_unicos_perfil_imovel,
                     inline=True,
                     labelStyle=EstilosCSS.CHECKLIST_LABEL,
                     style=EstilosCSS.CHECKLIST,

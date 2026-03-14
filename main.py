@@ -216,6 +216,11 @@ def calcular_dados_necessarios_do_filtro(df: pd.DataFrame):
         {"label": v, "value": v} for v in sorted(valores_unicos_grupo_faturamento)
     ]
 
+    valores_unicos_perfil = list(df.perfil_imovel.unique())
+    opcoes_perfil = [
+        {"label": v, "value": v} for v in sorted(valores_unicos_perfil)
+    ]
+
     return {
         "opcoes_valores_diametro_filtro": VALORES_DIAMETRO_FILTRO,
         "valores_unicos_diametro": valores_unicos_diametro,
@@ -227,6 +232,8 @@ def calcular_dados_necessarios_do_filtro(df: pd.DataFrame):
         "opcoes_valores_diametro_letra": opcoes_valores_diametro_letra,
         "opcoes_valores_grupo_faturamento": opcoes_valores_grupo_faturamento,
         "valores_unicos_grupo_faturamento": valores_unicos_grupo_faturamento,
+        "opcoes_valores_perfil_imovel": opcoes_perfil,
+        "valores_unicos_perfil_imovel": valores_unicos_perfil,
     }
 
 
@@ -426,6 +433,7 @@ def liberar_associacao_de_colunas(conteudo: str, nome_arquivo: str):
     State(ID_ELEMENTOS_HTML.FILTRO_SITUACAO, "value"),
     State(ID_ELEMENTOS_HTML.FILTRO_DIAMETRO_LETRA, "value"),
     State(ID_ELEMENTOS_HTML.FILTRO_GRUPO_FATURAMENTO, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_PERFIL_IMOVEL, "value"),
     prevent_initial_call=True,
 )
 def filtrar(
@@ -435,6 +443,7 @@ def filtrar(
     situacoes: list[str],
     diametro_letra: list[str],
     grupo_faturamento: list[str],
+    perfil_imovel_selecionados: list[str],
 ):
     global DF
     # TODO: lógica de filtro ineficiente
@@ -444,6 +453,7 @@ def filtrar(
         & (DF.situacao_ligacao_agua.isin(situacoes))
         & (DF.diametro_letra.isin(diametro_letra))
         & (DF.grupo_leitura.isin(grupo_faturamento))
+        & (DF.perfil_imovel.isin(perfil_imovel_selecionados))
     ]
 
     if filtrado.empty:
