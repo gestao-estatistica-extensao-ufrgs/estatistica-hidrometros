@@ -446,7 +446,13 @@ def filtrar(
     perfil_imovel_selecionados: list[str],
 ):
     global DF
-    # TODO: lógica de filtro ineficiente
+    
+    limites_diametros = limites_diametros or []
+    situacoes = situacoes or []
+    diametro_letra = diametro_letra or []
+    grupo_faturamento = grupo_faturamento or []
+    perfil_imovel_selecionados = perfil_imovel_selecionados or []
+
     filtrado = DF[
         (DF.diametro.isin(limites_diametros))
         & (DF.idade_hidrometro.between(limites_idade[0], limites_idade[1]))
@@ -460,7 +466,6 @@ def filtrar(
         return gerar_html_zero_resultados()
 
     dados = calcular_todos_os_dados_necessarios(filtrado)
-
     dados_html = gerar_html_dados(**dados)
 
     return dados_html

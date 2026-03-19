@@ -46,6 +46,43 @@ class EstilosCSS:
             "cursor": "pointer",
         }
 
+    CONTAINER_FILTROS = {
+            "display": "grid",
+            "gridTemplateColumns": "repeat(auto-fit, minmax(250px, 1fr))", 
+            "gap": "20px",
+            "padding": "25px",
+            "backgroundColor": "#f8f9fa", # Cinza bem claro profissional
+            "borderRadius": "15px",
+            "border": "1px solid #e9ecef",
+            "boxShadow": "0 4px 6px rgba(0,0,0,0.05)"
+        }
+
+    ITEM_FILTRO = {
+        "display": "flex",
+        "flexDirection": "column",
+        "gap": "8px"
+    }
+
+    LABEL_FILTRO = {
+        "fontWeight": "bold",
+        "fontSize": "0.9rem",
+        "color": "#2c3e50",
+        "textTransform": "uppercase",
+        "letterSpacing": "0.5px"
+    }
+
+    BOTAO_FILTRAR = {
+        "backgroundColor": "#007bff",
+        "color": "white",
+        "border": "none",
+        "padding": "12px 35px",
+        "borderRadius": "8px",
+        "fontWeight": "bold",
+        "cursor": "pointer",
+        "transition": "0.3s",
+        "boxShadow": "0 4px 15px rgba(0,123,255,0.3)"
+    }
+
 
 class ID_ELEMENTOS_HTML(StrEnum):
     LAYOUT = "layout"
@@ -175,102 +212,106 @@ def gerar_html_filtros(
     valores_unicos_perfil_imovel,
 ):
     return [
-        html.H2("Filtros"),
+        html.H2("Filtros", style={"marginBottom": "15px", "color": "#2c3e50"}),
+        
+        # Container Principal com Grid
         html.Div(
-            [
-                html.Label(
-                    "Diâmetro Hidrômetro", htmlFor=ID_ELEMENTOS_HTML.FILTRO_DIAMETRO
-                ),
-                dcc.Checklist(
-                    id=ID_ELEMENTOS_HTML.FILTRO_DIAMETRO,
-                    options=opcoes_valores_diametro_filtro,
-                    value=valores_unicos_diametro,
-                    inline=True,
-                    labelStyle=EstilosCSS.CHECKLIST_LABEL,
-                    style=EstilosCSS.CHECKLIST,
-                ),
+            style=EstilosCSS.CONTAINER_FILTROS,
+            children=[
+                
+                # Diâmetro Hidrômetro
+                html.Div([
+                    html.Label("Diâmetro Hidrômetro", style=EstilosCSS.LABEL_FILTRO),
+                    dcc.Dropdown(
+                        id=ID_ELEMENTOS_HTML.FILTRO_DIAMETRO,
+                        options=opcoes_valores_diametro_filtro,
+                        value=valores_unicos_diametro,
+                        multi=True,
+                        placeholder="Selecione o diâmetro..."
+                    ),
+                ], style=EstilosCSS.ITEM_FILTRO),
+
+                # Diâmetro Hidrômetro + Letra
+                html.Div([
+                    html.Label("Diâmetro + Letra", style=EstilosCSS.LABEL_FILTRO),
+                    dcc.Dropdown(
+                        id=ID_ELEMENTOS_HTML.FILTRO_DIAMETRO_LETRA,
+                        options=opcoes_valores_diametro_letra,
+                        value=valores_unicos_diametro_letra,
+                        multi=True,
+                        placeholder="Selecione a combinação..."
+                    ),
+                ], style=EstilosCSS.ITEM_FILTRO),
+
+                # Idade Hidrômetro
+                html.Div([
+                    html.Label(f"Idade do Hidrômetro ({valor_minimo_idade} - {valor_maximo_idade} anos)", style=EstilosCSS.LABEL_FILTRO),
+                    html.Div(
+                        dcc.RangeSlider(
+                            id=ID_ELEMENTOS_HTML.FILTRO_IDADE,
+                            min=valor_minimo_idade,
+                            max=valor_maximo_idade,
+                            step=1, 
+                            value=[valor_minimo_idade, valor_maximo_idade],
+                            # Gera marcas apenas para múltiplos de 5
+                            marks={
+                                str(i): (str(i) if i % 5 == 0 or i == valor_minimo_idade or i == valor_maximo_idade else "")
+                                for i in range(valor_minimo_idade, valor_maximo_idade + 1)
+                            },
+                            tooltip={"placement": "bottom", "always_visible": True},
+                        ),
+                        style={"marginTop": "15px"}
+                    ),
+                ], style=EstilosCSS.ITEM_FILTRO),
+
+                # Situação Ligação Água 
+                html.Div([
+                    html.Label("Situação Ligação Água", style=EstilosCSS.LABEL_FILTRO),
+                    dcc.Checklist(
+                        id=ID_ELEMENTOS_HTML.FILTRO_SITUACAO,
+                        options=opcoes_valores_situacao_ligacao_agua,
+                        value=opcoes_selecionadas_situacao_ligacao_agua,
+                        inline=True,
+                        labelStyle={"marginRight": "15px", "cursor": "pointer"}
+                    ),
+                ], style=EstilosCSS.ITEM_FILTRO),
+
+                # Grupo de Faturamento
+                html.Div([
+                    html.Label("Grupo de Faturamento", style=EstilosCSS.LABEL_FILTRO),
+                    dcc.Dropdown(
+                        id=ID_ELEMENTOS_HTML.FILTRO_GRUPO_FATURAMENTO,
+                        options=opcoes_valores_grupo_faturamento,
+                        value=valores_unicos_grupo_faturamento,
+                        multi=True,
+                        placeholder="Selecione os grupos..."
+                    ),
+                ], style=EstilosCSS.ITEM_FILTRO),
+
+                # Perfil do Imóvel
+                html.Div([
+                    html.Label("Perfil do Imóvel", style=EstilosCSS.LABEL_FILTRO),
+                    dcc.Dropdown(
+                        id=ID_ELEMENTOS_HTML.FILTRO_PERFIL_IMOVEL,
+                        options=opcoes_valores_perfil_imovel,
+                        value=valores_unicos_perfil_imovel,
+                        multi=True,
+                        placeholder="Selecione os perfis..."
+                    ),
+                ], style=EstilosCSS.ITEM_FILTRO),
             ]
         ),
-        html.Div(
-            [
-                html.Label(
-                    "Diâmetro Hidrômetro + Letra",
-                    htmlFor=ID_ELEMENTOS_HTML.FILTRO_DIAMETRO_LETRA,
-                ),
-                dcc.Checklist(
-                    id=ID_ELEMENTOS_HTML.FILTRO_DIAMETRO_LETRA,
-                    options=opcoes_valores_diametro_letra,
-                    value=valores_unicos_diametro_letra,
-                    inline=True,
-                    labelStyle=EstilosCSS.CHECKLIST_LABEL,
-                    style=EstilosCSS.CHECKLIST,
-                ),
-            ]
-        ),
-        html.Div(
-            [
-                html.Label("Idade Hidrômetro", htmlFor=ID_ELEMENTOS_HTML.FILTRO_IDADE),
-                dcc.RangeSlider(
-                    id=ID_ELEMENTOS_HTML.FILTRO_IDADE,
-                    min=valor_minimo_idade,
-                    max=valor_maximo_idade,
-                    step=2,
-                    value=[valor_minimo_idade, valor_maximo_idade],
-                ),
-            ]
-        ),
-        html.Div(
-            [
-                html.Label(
-                    "Situação Ligação Água", htmlFor=ID_ELEMENTOS_HTML.FILTRO_SITUACAO
-                ),
-                dcc.Checklist(
-                    id=ID_ELEMENTOS_HTML.FILTRO_SITUACAO,
-                    options=opcoes_valores_situacao_ligacao_agua,
-                    value=opcoes_selecionadas_situacao_ligacao_agua,
-                    inline=True,
-                    labelStyle=EstilosCSS.CHECKLIST_LABEL,
-                    style=EstilosCSS.CHECKLIST,
-                ),
-            ]
-        ),
-        html.Div(
-            [
-                html.Label(
-                    "Grupo de Faturamento",
-                    htmlFor=ID_ELEMENTOS_HTML.FILTRO_GRUPO_FATURAMENTO,
-                ),
-                dcc.Checklist(
-                    id=ID_ELEMENTOS_HTML.FILTRO_GRUPO_FATURAMENTO,
-                    options=opcoes_valores_grupo_faturamento,
-                    value=valores_unicos_grupo_faturamento,
-                    inline=True,
-                    labelStyle=EstilosCSS.CHECKLIST_LABEL,
-                    style=EstilosCSS.CHECKLIST,
-                ),
-            ]
-        ),
-        html.Div(
-            [
-                html.Label("Perfil do Imóvel", htmlFor=ID_ELEMENTOS_HTML.FILTRO_PERFIL_IMOVEL),
-                dcc.Checklist(
-                    id=ID_ELEMENTOS_HTML.FILTRO_PERFIL_IMOVEL,
-                    options=opcoes_valores_perfil_imovel,
-                    value=valores_unicos_perfil_imovel,
-                    inline=True,
-                    labelStyle=EstilosCSS.CHECKLIST_LABEL,
-                    style=EstilosCSS.CHECKLIST,
-                ),
-            ]
-        ),
+
         html.Div(
             [
                 html.Button(
-                    "Filtrar",
+                    "Aplicar Filtros",
                     id=ID_ELEMENTOS_HTML.FILTRO_SUBMIT,
                     type="button",
+                    style=EstilosCSS.BOTAO_FILTRAR,
                 ),
-            ]
+            ],
+            style={"textAlign": "right", "marginTop": "10px"}
         ),
     ]
 
