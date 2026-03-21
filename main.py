@@ -14,6 +14,7 @@ from elementos_html import (
     gerar_html_zero_resultados,
     ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS,
     ID_ELEMENTOS_HTML,
+    EstilosCSS,
     NOME_VARIAVEIS,
 )
 
@@ -72,6 +73,17 @@ def preparacao_dados(
     ]
     df["perfil_imovel"] = df[
         relacao_colunas_tabela_inserida_com_dataframe["perfil_imovel"]
+    ]
+
+    ### Colunas Consumo
+    df["media_consumo_mes_1"] = df[
+        relacao_colunas_tabela_inserida_com_dataframe["media_consumo_mes_1"]
+    ]
+    df["media_consumo_mes_2"] = df[
+        relacao_colunas_tabela_inserida_com_dataframe["media_consumo_mes_2"]
+    ]
+    df["media_consumo_mes_3"] = df[
+        relacao_colunas_tabela_inserida_com_dataframe["media_consumo_mes_3"]
     ]
 
     df.drop(
@@ -217,9 +229,7 @@ def calcular_dados_necessarios_do_filtro(df: pd.DataFrame):
     ]
 
     valores_unicos_perfil = list(df.perfil_imovel.unique())
-    opcoes_perfil = [
-        {"label": v, "value": v} for v in sorted(valores_unicos_perfil)
-    ]
+    opcoes_perfil = [{"label": v, "value": v} for v in sorted(valores_unicos_perfil)]
 
     return {
         "opcoes_valores_diametro_filtro": VALORES_DIAMETRO_FILTRO,
@@ -262,6 +272,14 @@ def calcular_todos_os_dados_necessarios(df: pd.DataFrame):
 
     freq_hidrometros = calcular_freq_hidrometros_por_diametro(df)
 
+    media_do_consumo_medio_mes_1 = df.media_consumo_mes_1.mean()
+    media_do_consumo_medio_mes_2 = df.media_consumo_mes_2.mean()
+    media_do_consumo_medio_mes_3 = df.media_consumo_mes_3.mean()
+
+    desvio_padrao_consumo_medio_mes_1 = df.media_consumo_mes_1.std()
+    desvio_padrao_consumo_medio_mes_2 = df.media_consumo_mes_2.std()
+    desvio_padrao_consumo_medio_mes_3 = df.media_consumo_mes_3.std()
+
     return {
         "df": df,
         "contagem_hidrometros": contagem_hidrometros,
@@ -278,6 +296,12 @@ def calcular_todos_os_dados_necessarios(df: pd.DataFrame):
         "grafico_idades_hidrometros_acima_de_25MM": grafico_idades_hidrometros_acima_de_25MM,
         "freq_perfil_imoveis": freq_perfil_imoveis,
         "freq_hidrometros": freq_hidrometros,
+        "media_do_consumo_medio_mes_1": media_do_consumo_medio_mes_1,
+        "media_do_consumo_medio_mes_2": media_do_consumo_medio_mes_2,
+        "media_do_consumo_medio_mes_3": media_do_consumo_medio_mes_3,
+        "desvio_padrao_consumo_medio_mes_1": desvio_padrao_consumo_medio_mes_1,
+        "desvio_padrao_consumo_medio_mes_2": desvio_padrao_consumo_medio_mes_2,
+        "desvio_padrao_consumo_medio_mes_3": desvio_padrao_consumo_medio_mes_3,
     }
 
 
@@ -297,6 +321,9 @@ if len(sys.argv) > 1:
         "grupo_leitura": "Grupo Leitura",
         "perfil_imovel": "Perfil Imovel",
         "situacao_ligacao_agua": "Situacao Ligacao Agua",
+        "media_consumo_mes_1": "Media de Consumo 1",
+        "media_consumo_mes_2": "Media de Consumo 2",
+        "media_consumo_mes_3": "Media de Consumo 3",
     }
     preparacao_dados(DF, colunas_x_variaveis)
 
@@ -380,6 +407,18 @@ app.layout = [
         "options",
         allow_duplicate=True,
     ),
+    Output(
+        ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["media_consumo_mes_1"],
+        "options",
+    ),
+    Output(
+        ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["media_consumo_mes_2"],
+        "options",
+    ),
+    Output(
+        ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["media_consumo_mes_3"],
+        "options",
+    ),
     Output(ID_ELEMENTOS_HTML.UPLOAD_TABELA_ERRO, "children"),
     Output(ID_ELEMENTOS_HTML.FILTROS, "children", allow_duplicate=True),
     Output(ID_ELEMENTOS_HTML.SECAO_RESULTADOS, "children"),
@@ -399,6 +438,9 @@ def liberar_associacao_de_colunas(conteudo: str, nome_arquivo: str):
         return (
             nome_arquivo,
             False,
+            opcoes,
+            opcoes,
+            opcoes,
             opcoes,
             opcoes,
             opcoes,
@@ -446,7 +488,7 @@ def filtrar(
     perfil_imovel_selecionados: list[str],
 ):
     global DF
-    
+
     limites_diametros = limites_diametros or []
     situacoes = situacoes or []
     diametro_letra = diametro_letra or []
@@ -490,6 +532,18 @@ def filtrar(
     State(
         ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["perfil_imovel"], "value"
     ),
+    State(
+        ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["media_consumo_mes_1"],
+        "value",
+    ),
+    State(
+        ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["media_consumo_mes_2"],
+        "value",
+    ),
+    State(
+        ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["media_consumo_mes_3"],
+        "value",
+    ),
     prevent_initial_call=True,
 )
 def associar_colunas(
@@ -500,6 +554,9 @@ def associar_colunas(
     data_instalacao: str,
     grupo_leitura: str,
     perfil_imovel: str,
+    media_consumo_mes_1: str,
+    media_consumo_mes_2: str,
+    media_consumo_mes_3: str,
 ):
     colunas_associadas_de_cada_variavel: dict[NOME_VARIAVEIS, str] = {
         "hidrometro": hidrometro,
@@ -508,6 +565,9 @@ def associar_colunas(
         "data_instalacao": data_instalacao,
         "grupo_leitura": grupo_leitura,
         "perfil_imovel": perfil_imovel,
+        "media_consumo_mes_1": media_consumo_mes_1,
+        "media_consumo_mes_2": media_consumo_mes_2,
+        "media_consumo_mes_3": media_consumo_mes_3,
     }
 
     teste_se_todos_valores_sao_nao_nulos = all(
@@ -526,6 +586,35 @@ def associar_colunas(
         )
 
     return [], "ERRO: Todas as variáveis devem estar associadas a uma coluna da tabela."
+
+
+@callback(
+    Output(ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_1, "style"),
+    Output(ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_2, "style"),
+    Output(ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_3, "style"),
+    Input(ID_ELEMENTOS_HTML.ESCOLHA_ABA_DADOS_CONSUMO, "value"),
+    prevent_initial_call=True,
+)
+def escolher_aba_consumo_mes(mes_referencia: str):
+    if mes_referencia == "1":
+        return (
+            EstilosCSS.GRID_AREA_DADOS_CONSUMO,
+            {"display": "none"},
+            {"display": "none"},
+        )
+    elif mes_referencia == "2":
+        return (
+            {"display": "none"},
+            EstilosCSS.GRID_AREA_DADOS_CONSUMO,
+            {"display": "none"},
+        )
+    else:
+        return (
+            {"display": "none"},
+            {"display": "none"},
+            EstilosCSS.GRID_AREA_DADOS_CONSUMO,
+        )
+
 
 if __name__ == "__main__":
     app.run(debug=True)
