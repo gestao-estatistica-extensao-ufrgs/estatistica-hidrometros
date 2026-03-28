@@ -1,6 +1,7 @@
 from typing import Literal, TypeAlias
 from enum import StrEnum
 
+import pandas as pd
 from dash import dcc, html
 import numpy as np
 import plotly.express as px
@@ -397,6 +398,9 @@ def gerar_html_dados(
     frequencia_consumo_acima_limite_mes_1,
     frequencia_consumo_acima_limite_mes_2,
     frequencia_consumo_acima_limite_mes_3,
+    frequencia_consumos_medios_mes_1: pd.Series,
+    frequencia_consumos_medios_mes_2: pd.Series,
+    frequencia_consumos_medios_mes_3: pd.Series,
 ):
     if idade_media_hidrometros is not np.nan:
         idade_media_hidrometros = f"{idade_media_hidrometros:.2f}"
@@ -576,6 +580,7 @@ def gerar_html_dados(
                                 media_do_consumo_medio_mes_1,
                                 desvio_padrao_consumo_medio_mes_1,
                                 frequencia_consumo_acima_limite_mes_1,
+                                frequencia_consumos_medios_mes_1,
                                 "Mês 1",
                                 ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_1,
                             ),
@@ -583,6 +588,7 @@ def gerar_html_dados(
                                 media_do_consumo_medio_mes_2,
                                 desvio_padrao_consumo_medio_mes_2,
                                 frequencia_consumo_acima_limite_mes_2,
+                                frequencia_consumos_medios_mes_2,
                                 "Mês 2",
                                 ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_2,
                                 oculto=True,
@@ -591,6 +597,7 @@ def gerar_html_dados(
                                 media_do_consumo_medio_mes_3,
                                 desvio_padrao_consumo_medio_mes_3,
                                 frequencia_consumo_acima_limite_mes_3,
+                                frequencia_consumos_medios_mes_3,
                                 "Mês 3",
                                 ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_3,
                                 oculto=True,
@@ -614,6 +621,7 @@ def gerar_html_dados_consumo_mes(
     media_consumo_medio: float,
     desvio_padrao: float,
     frequencia_consumo_acima_limite: int,
+    frequencia_consumos_medios: pd.Series,
     titulo: str,
     id_html_elemento: str,
     limite_consumo_utilizado: int = 130,
@@ -638,6 +646,19 @@ def gerar_html_dados_consumo_mes(
             gerar_html_quadro_dado(
                 frequencia_consumo_acima_limite,
                 f"Frequência de Consumo maior que {limite_consumo_utilizado}",
+            ),
+            html.Div(
+                [
+                    dcc.Graph(
+                        figure=px.bar(
+                            x=[str(x) for x in frequencia_consumos_medios.index],
+                            y=frequencia_consumos_medios,
+                            labels={"y": "Frequência", "x": "Consumo Médio"},
+                            title="Gráfico de Consumo Médio",
+                        )
+                    )
+                ],
+                style=EstilosCSS.GRAFICO,
             ),
         ],
         style=estilo,

@@ -291,6 +291,12 @@ def calcular_todos_os_dados_necessarios(df: pd.DataFrame):
         df.media_consumo_mes_3 > 130
     ].count()
 
+    (
+        frequencia_consumos_medios_mes_1,
+        frequencia_consumos_medios_mes_2,
+        frequencia_consumos_medios_mes_3,
+    ) = calcular_frequencia_consumos_medios(df, 130)
+
     return {
         "df": df,
         "contagem_hidrometros": contagem_hidrometros,
@@ -316,7 +322,29 @@ def calcular_todos_os_dados_necessarios(df: pd.DataFrame):
         "frequencia_consumo_acima_limite_mes_1": frequencia_consumo_acima_limite_mes_1,
         "frequencia_consumo_acima_limite_mes_2": frequencia_consumo_acima_limite_mes_2,
         "frequencia_consumo_acima_limite_mes_3": frequencia_consumo_acima_limite_mes_3,
+        "frequencia_consumos_medios_mes_1": frequencia_consumos_medios_mes_1,
+        "frequencia_consumos_medios_mes_2": frequencia_consumos_medios_mes_2,
+        "frequencia_consumos_medios_mes_3": frequencia_consumos_medios_mes_3,
     }
+
+
+def calcular_frequencia_consumos_medios(df: pd.DataFrame, valor_concatenar: int):
+    resultados = []
+    for col in (
+        "media_consumo_mes_1",
+        "media_consumo_mes_2",
+        "media_consumo_mes_3",
+    ):
+        consumos = df[col][df[col] <= valor_concatenar]
+        freq_consumos = consumos.groupby(consumos).count()
+
+        freq_consumos_concatenados = df[col][df[col] > valor_concatenar].count()
+
+        freq_consumos.loc[f"{valor_concatenar}+"] = freq_consumos_concatenados
+
+        resultados.append(freq_consumos)
+
+    return resultados[0], resultados[1], resultados[2]
 
 
 # -------------------------------------------------------------
@@ -687,11 +715,18 @@ def concatenar_dados_consumo_mes(
         filtrado.media_consumo_mes_3 > valor_limite
     ].count()
 
+    (
+        frequencia_consumos_medios_mes_1,
+        frequencia_consumos_medios_mes_2,
+        frequencia_consumos_medios_mes_3,
+    ) = calcular_frequencia_consumos_medios(filtrado, valor_limite)
+
     return [
         gerar_html_dados_consumo_mes(
             media_do_consumo_medio_mes_1,
             desvio_padrao_consumo_medio_mes_1,
             frequencia_consumo_acima_limite_mes_1,
+            frequencia_consumos_medios_mes_1,
             "Mês 1",
             ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_1,
             limite_consumo_utilizado=valor_limite,
@@ -700,6 +735,7 @@ def concatenar_dados_consumo_mes(
             media_do_consumo_medio_mes_2,
             desvio_padrao_consumo_medio_mes_2,
             frequencia_consumo_acima_limite_mes_2,
+            frequencia_consumos_medios_mes_2,
             "Mês 2",
             ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_2,
             oculto=True,
@@ -709,6 +745,7 @@ def concatenar_dados_consumo_mes(
             media_do_consumo_medio_mes_3,
             desvio_padrao_consumo_medio_mes_3,
             frequencia_consumo_acima_limite_mes_3,
+            frequencia_consumos_medios_mes_3,
             "Mês 3",
             ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_3,
             oculto=True,
