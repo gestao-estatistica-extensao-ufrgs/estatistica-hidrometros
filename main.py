@@ -10,6 +10,7 @@ from dash import Dash, html, dcc, callback, Output, Input, State
 from elementos_html import (
     gerar_form_colunas,
     gerar_html_dados,
+    gerar_html_dados_consumo_mes,
     gerar_html_filtros,
     gerar_html_zero_resultados,
     ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS,
@@ -280,6 +281,16 @@ def calcular_todos_os_dados_necessarios(df: pd.DataFrame):
     desvio_padrao_consumo_medio_mes_2 = df.media_consumo_mes_2.std()
     desvio_padrao_consumo_medio_mes_3 = df.media_consumo_mes_3.std()
 
+    frequencia_consumo_acima_limite_mes_1 = df.media_consumo_mes_1[
+        df.media_consumo_mes_1 > 130
+    ].count()
+    frequencia_consumo_acima_limite_mes_2 = df.media_consumo_mes_2[
+        df.media_consumo_mes_2 > 130
+    ].count()
+    frequencia_consumo_acima_limite_mes_3 = df.media_consumo_mes_3[
+        df.media_consumo_mes_3 > 130
+    ].count()
+
     return {
         "df": df,
         "contagem_hidrometros": contagem_hidrometros,
@@ -302,6 +313,9 @@ def calcular_todos_os_dados_necessarios(df: pd.DataFrame):
         "desvio_padrao_consumo_medio_mes_1": desvio_padrao_consumo_medio_mes_1,
         "desvio_padrao_consumo_medio_mes_2": desvio_padrao_consumo_medio_mes_2,
         "desvio_padrao_consumo_medio_mes_3": desvio_padrao_consumo_medio_mes_3,
+        "frequencia_consumo_acima_limite_mes_1": frequencia_consumo_acima_limite_mes_1,
+        "frequencia_consumo_acima_limite_mes_2": frequencia_consumo_acima_limite_mes_2,
+        "frequencia_consumo_acima_limite_mes_3": frequencia_consumo_acima_limite_mes_3,
     }
 
 
@@ -614,6 +628,93 @@ def escolher_aba_consumo_mes(mes_referencia: str):
             {"display": "none"},
             EstilosCSS.GRID_AREA_DADOS_CONSUMO,
         )
+
+
+@callback(
+    Output(ID_ELEMENTOS_HTML.AREA_DADOS_CONSUMO_MES, "children"),
+    Input(ID_ELEMENTOS_HTML.BOTAO_CONCATENAR_CONSUMO, "n_clicks"),
+    State(ID_ELEMENTOS_HTML.VALOR_LIMITE_CONCATENAR, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_DIAMETRO, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_IDADE, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_SITUACAO, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_DIAMETRO_LETRA, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_GRUPO_FATURAMENTO, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_PERFIL_IMOVEL, "value"),
+    prevent_initial_call=True,
+)
+def concatenar_dados_consumo_mes(
+    n_clicks,
+    valor_limite: int,
+    limites_diametros: list[int],
+    limites_idade: list[int],
+    situacoes: list[str],
+    diametro_letra: list[str],
+    grupo_faturamento: list[str],
+    perfil_imovel_selecionados: list[str],
+):
+    global DF
+
+    limites_diametros = limites_diametros or []
+    situacoes = situacoes or []
+    diametro_letra = diametro_letra or []
+    grupo_faturamento = grupo_faturamento or []
+    perfil_imovel_selecionados = perfil_imovel_selecionados or []
+
+    filtrado = DF[
+        (DF.diametro.isin(limites_diametros))
+        & (DF.idade_hidrometro.between(limites_idade[0], limites_idade[1]))
+        & (DF.situacao_ligacao_agua.isin(situacoes))
+        & (DF.diametro_letra.isin(diametro_letra))
+        & (DF.grupo_leitura.isin(grupo_faturamento))
+        & (DF.perfil_imovel.isin(perfil_imovel_selecionados))
+    ]
+
+    media_do_consumo_medio_mes_1 = filtrado.media_consumo_mes_1.mean()
+    media_do_consumo_medio_mes_2 = filtrado.media_consumo_mes_2.mean()
+    media_do_consumo_medio_mes_3 = filtrado.media_consumo_mes_3.mean()
+
+    desvio_padrao_consumo_medio_mes_1 = filtrado.media_consumo_mes_1.std()
+    desvio_padrao_consumo_medio_mes_2 = filtrado.media_consumo_mes_2.std()
+    desvio_padrao_consumo_medio_mes_3 = filtrado.media_consumo_mes_3.std()
+
+    frequencia_consumo_acima_limite_mes_1 = filtrado.media_consumo_mes_1[
+        filtrado.media_consumo_mes_1 > valor_limite
+    ].count()
+    frequencia_consumo_acima_limite_mes_2 = filtrado.media_consumo_mes_2[
+        filtrado.media_consumo_mes_2 > valor_limite
+    ].count()
+    frequencia_consumo_acima_limite_mes_3 = filtrado.media_consumo_mes_3[
+        filtrado.media_consumo_mes_3 > valor_limite
+    ].count()
+
+    return [
+        gerar_html_dados_consumo_mes(
+            media_do_consumo_medio_mes_1,
+            desvio_padrao_consumo_medio_mes_1,
+            frequencia_consumo_acima_limite_mes_1,
+            "Mês 1",
+            ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_1,
+            limite_consumo_utilizado=valor_limite,
+        ),
+        gerar_html_dados_consumo_mes(
+            media_do_consumo_medio_mes_2,
+            desvio_padrao_consumo_medio_mes_2,
+            frequencia_consumo_acima_limite_mes_2,
+            "Mês 2",
+            ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_2,
+            oculto=True,
+            limite_consumo_utilizado=valor_limite,
+        ),
+        gerar_html_dados_consumo_mes(
+            media_do_consumo_medio_mes_3,
+            desvio_padrao_consumo_medio_mes_3,
+            frequencia_consumo_acima_limite_mes_3,
+            "Mês 3",
+            ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_3,
+            oculto=True,
+            limite_consumo_utilizado=valor_limite,
+        ),
+    ]
 
 
 if __name__ == "__main__":

@@ -125,6 +125,9 @@ class ID_ELEMENTOS_HTML(StrEnum):
     BOTAO_ASSOCIAR_COLUNAS = "botao_associar_colunas"
 
     ESCOLHA_ABA_DADOS_CONSUMO = "escolha-dados-consumo-mes"
+    BOTAO_CONCATENAR_CONSUMO = "concatenar-consumo"
+    VALOR_LIMITE_CONCATENAR = "valor-limite-concatenar"
+    AREA_DADOS_CONSUMO_MES = "area-dados-consumo-mes"
     DADOS_CONSUMO_MES_1 = "dados-consumo-mes-1"
     DADOS_CONSUMO_MES_2 = "dados-consumo-mes-2"
     DADOS_CONSUMO_MES_3 = "dados-consumo-mes-3"
@@ -391,6 +394,9 @@ def gerar_html_dados(
     desvio_padrao_consumo_medio_mes_1,
     desvio_padrao_consumo_medio_mes_2,
     desvio_padrao_consumo_medio_mes_3,
+    frequencia_consumo_acima_limite_mes_1,
+    frequencia_consumo_acima_limite_mes_2,
+    frequencia_consumo_acima_limite_mes_3,
 ):
     if idade_media_hidrometros is not np.nan:
         idade_media_hidrometros = f"{idade_media_hidrometros:.2f}"
@@ -532,92 +538,109 @@ def gerar_html_dados(
                 grafico_idades_hidrometros_acima_de_25MM,
                 style=EstilosCSS.GRAFICO,
             ),
-            gerar_html_dados_consumo(
-                media_do_consumo_medio_mes_1,
-                media_do_consumo_medio_mes_2,
-                media_do_consumo_medio_mes_3,
-                desvio_padrao_consumo_medio_mes_1,
-                desvio_padrao_consumo_medio_mes_2,
-                desvio_padrao_consumo_medio_mes_3,
+            html.Div(
+                children=[
+                    html.H3("Informações Descritivas de Consumo"),
+                    html.Div(
+                        children=[
+                            dcc.RadioItems(
+                                {
+                                    "1": "Mês Referência 1",
+                                    "2": "Mês Referência 2",
+                                    "3": "Mês Referência 3",
+                                },
+                                value="1",
+                                inline=True,
+                                id=ID_ELEMENTOS_HTML.ESCOLHA_ABA_DADOS_CONSUMO,
+                            ),
+                            html.Div(
+                                children=[
+                                    html.Label("Concatenar Consumo a Partir de: "),
+                                    dcc.Input(
+                                        130,
+                                        "number",
+                                        id=ID_ELEMENTOS_HTML.VALOR_LIMITE_CONCATENAR,
+                                    ),
+                                    html.Button(
+                                        "Concatenar",
+                                        id=ID_ELEMENTOS_HTML.BOTAO_CONCATENAR_CONSUMO,
+                                    ),
+                                ]
+                            ),
+                        ],
+                    ),
+                    html.Div(
+                        id=ID_ELEMENTOS_HTML.AREA_DADOS_CONSUMO_MES,
+                        children=[
+                            gerar_html_dados_consumo_mes(
+                                media_do_consumo_medio_mes_1,
+                                desvio_padrao_consumo_medio_mes_1,
+                                frequencia_consumo_acima_limite_mes_1,
+                                "Mês 1",
+                                ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_1,
+                            ),
+                            gerar_html_dados_consumo_mes(
+                                media_do_consumo_medio_mes_2,
+                                desvio_padrao_consumo_medio_mes_2,
+                                frequencia_consumo_acima_limite_mes_2,
+                                "Mês 2",
+                                ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_2,
+                                oculto=True,
+                            ),
+                            gerar_html_dados_consumo_mes(
+                                media_do_consumo_medio_mes_3,
+                                desvio_padrao_consumo_medio_mes_3,
+                                frequencia_consumo_acima_limite_mes_3,
+                                "Mês 3",
+                                ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_3,
+                                oculto=True,
+                            ),
+                        ],
+                    ),
+                ],
+                style={
+                    "display": "flex",
+                    "flexDirection": "column",
+                    "gap": "8px",
+                    "gridColumnStart": "span 6",
+                },
             ),
         ],
         id=ID_ELEMENTOS_HTML.AREA_DADOS,
     )
 
 
-def gerar_html_dados_consumo(
-    media_do_consumo_medio_mes_1,
-    media_do_consumo_medio_mes_2,
-    media_do_consumo_medio_mes_3,
-    desvio_padrao_consumo_medio_mes_1,
-    desvio_padrao_consumo_medio_mes_2,
-    desvio_padrao_consumo_medio_mes_3,
+def gerar_html_dados_consumo_mes(
+    media_consumo_medio: float,
+    desvio_padrao: float,
+    frequencia_consumo_acima_limite: int,
+    titulo: str,
+    id_html_elemento: str,
+    limite_consumo_utilizado: int = 130,
+    oculto: bool = False,
 ):
+    estilo = EstilosCSS.GRID_AREA_DADOS_CONSUMO
+    if oculto:
+        estilo = {"display": "none"}
+
     return html.Div(
+        id=id_html_elemento,
         children=[
-            html.H3("Informações Descritivas de Consumo"),
-            html.Div(
-                children=[
-                    dcc.RadioItems(
-                        ["1", "2", "3"],
-                        value="1",
-                        inline=True,
-                        id=ID_ELEMENTOS_HTML.ESCOLHA_ABA_DADOS_CONSUMO,
-                    )
-                ],
+            html.H4(titulo, style={"gridColumnStart": "1", "gridColumnEnd": "-1"}),
+            gerar_html_quadro_dado(
+                f"{media_consumo_medio:.2f}",
+                "Média dos Consumos Médios",
             ),
-            html.Div(
-                id=ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_1,
-                children=[
-                    gerar_html_quadro_dado(
-                        f"{media_do_consumo_medio_mes_1:.2f}",
-                        "Média dos Consumos Médios do Mês 1",
-                    ),
-                    gerar_html_quadro_dado(
-                        f"{desvio_padrao_consumo_medio_mes_1:.2f}",
-                        "Desvio Padrão dos Consumos Médios do Mês 1",
-                    ),
-                ],
-                style=EstilosCSS.GRID_AREA_DADOS_CONSUMO,
-                hidden=False,
+            gerar_html_quadro_dado(
+                f"{desvio_padrao:.2f}",
+                "Desvio Padrão dos Consumos Médios",
             ),
-            html.Div(
-                id=ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_2,
-                children=[
-                    gerar_html_quadro_dado(
-                        f"{media_do_consumo_medio_mes_2:.2f}",
-                        "Média dos Consumos Médios do Mês 2",
-                    ),
-                    gerar_html_quadro_dado(
-                        f"{desvio_padrao_consumo_medio_mes_2:.2f}",
-                        "Desvio Padrão dos Consumos Médios do Mês 2",
-                    ),
-                ],
-                style={"display": "none"},
-                hidden=True,
-            ),
-            html.Div(
-                id=ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_3,
-                children=[
-                    gerar_html_quadro_dado(
-                        f"{media_do_consumo_medio_mes_3:.2f}",
-                        "Média dos Consumos Médios do Mês 3",
-                    ),
-                    gerar_html_quadro_dado(
-                        f"{desvio_padrao_consumo_medio_mes_3:.2f}",
-                        "Desvio Padrão dos Consumos Médios do Mês 3",
-                    ),
-                ],
-                style={"display": "none"},
-                hidden=True,
+            gerar_html_quadro_dado(
+                frequencia_consumo_acima_limite,
+                f"Frequência de Consumo maior que {limite_consumo_utilizado}",
             ),
         ],
-        style={
-            "display": "flex",
-            "flexDirection": "column",
-            "gap": "8px",
-            "gridColumnStart": "span 6",
-        },
+        style=estilo,
     )
 
 
