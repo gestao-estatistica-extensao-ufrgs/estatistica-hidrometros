@@ -121,6 +121,7 @@ class ID_ELEMENTOS_HTML(StrEnum):
     FILTRO_GRUPO_FATURAMENTO = "filtro-grupo-faturamento"
     FILTRO_PERFIL_IMOVEL = "filtro-perfil-imovel"
 
+    AREA_ASSOCIACAO_COLUNAS = "area-associacao-colunas"
     DROPDOWN_ASSOCIACAO_COLUNAS_ERRO = "dropdowns-associacao-colunas-erro"
     DROPDOWN_ASSOCIACAO_COLUNAS = "dropdowns-associacao-colunas"
     BOTAO_ASSOCIAR_COLUNAS = "botao_associar_colunas"
@@ -150,7 +151,14 @@ ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS: dict[
 }
 
 
-def gerar_form_colunas():
+def gerar_form_colunas(
+    opcoes: None | list[str] = None,
+    erro="",
+):
+    opcoes_dropdowns = []
+    if opcoes is not None:
+        opcoes_dropdowns: list[str] = opcoes
+
     def _label_e_dropdown(
         nome_label: str,
         coluna_necessaria: NOME_VARIAVEIS,
@@ -164,7 +172,7 @@ def gerar_form_colunas():
                 html.Label(
                     style={"fontStyle": "bold"}, children=nome_label, htmlFor=id_select
                 ),
-                dcc.Dropdown(id=id_select, options=[]),
+                dcc.Dropdown(id=id_select, options=opcoes_dropdowns),
             ],
             style={"display": "flex", "flexDirection": "column", "gap": "1px"},
         )
@@ -218,11 +226,12 @@ def gerar_form_colunas():
                 html.Button(
                     id=ID_ELEMENTOS_HTML.BOTAO_ASSOCIAR_COLUNAS,
                     type="button",
-                    disabled=True,
                     children="Associar Colunas",
                 )
             ),
-            html.Div(id=ID_ELEMENTOS_HTML.DROPDOWN_ASSOCIACAO_COLUNAS_ERRO),
+            html.Div(
+                id=ID_ELEMENTOS_HTML.DROPDOWN_ASSOCIACAO_COLUNAS_ERRO, children=erro
+            ),
         ],
     )
 

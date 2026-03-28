@@ -408,7 +408,10 @@ app.layout = [
                             ),
                         ],
                     ),
-                    gerar_form_colunas(),
+                    html.Div(
+                        id=ID_ELEMENTOS_HTML.AREA_ASSOCIACAO_COLUNAS,
+                        children=[],
+                    ),
                 ],
             ),
             html.Section(id=ID_ELEMENTOS_HTML.FILTROS, children=filtro_html),
@@ -428,39 +431,7 @@ app.layout = [
 
 @callback(
     Output(ID_ELEMENTOS_HTML.UPLOAD_NOME_ARQUIVO, "value"),
-    Output(ID_ELEMENTOS_HTML.BOTAO_ASSOCIAR_COLUNAS, "disabled"),
-    Output(
-        ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["hidrometro"], "options"
-    ),
-    Output(ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["diametro"], "options"),
-    Output(
-        ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["data_instalacao"],
-        "options",
-    ),
-    Output(
-        ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["grupo_leitura"], "options"
-    ),
-    Output(
-        ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["situacao_ligacao_agua"],
-        "options",
-    ),
-    Output(
-        ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["perfil_imovel"],
-        "options",
-        allow_duplicate=True,
-    ),
-    Output(
-        ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["media_consumo_mes_1"],
-        "options",
-    ),
-    Output(
-        ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["media_consumo_mes_2"],
-        "options",
-    ),
-    Output(
-        ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["media_consumo_mes_3"],
-        "options",
-    ),
+    Output(ID_ELEMENTOS_HTML.AREA_ASSOCIACAO_COLUNAS, "children"),
     Output(ID_ELEMENTOS_HTML.UPLOAD_TABELA_ERRO, "children"),
     Output(ID_ELEMENTOS_HTML.FILTROS, "children", allow_duplicate=True),
     Output(ID_ELEMENTOS_HTML.SECAO_RESULTADOS, "children"),
@@ -479,16 +450,7 @@ def liberar_associacao_de_colunas(conteudo: str, nome_arquivo: str):
         opcoes = list(DF.columns)
         return (
             nome_arquivo,
-            False,
-            opcoes,
-            opcoes,
-            opcoes,
-            opcoes,
-            opcoes,
-            opcoes,
-            opcoes,
-            opcoes,
-            opcoes,
+            gerar_form_colunas(opcoes, ""),
             "",
             [],
             [],
@@ -496,12 +458,6 @@ def liberar_associacao_de_colunas(conteudo: str, nome_arquivo: str):
 
     return (
         nome_arquivo,
-        True,
-        [],
-        [],
-        [],
-        [],
-        [],
         [],
         "Arquivo não está no formato '.xlsx' ",
         [],
@@ -600,6 +556,9 @@ def associar_colunas(
     media_consumo_mes_2: str,
     media_consumo_mes_3: str,
 ):
+    if n_clicks is None:
+        return [], ""
+
     colunas_associadas_de_cada_variavel: dict[NOME_VARIAVEIS, str] = {
         "hidrometro": hidrometro,
         "situacao_ligacao_agua": situacao_ligacao_agua,
