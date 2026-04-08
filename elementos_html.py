@@ -17,6 +17,9 @@ NOME_VARIAVEIS: TypeAlias = Literal[
     "media_consumo_mes_1",
     "media_consumo_mes_2",
     "media_consumo_mes_3",
+    "anormalidade_leitura_mes_1",
+    "anormalidade_leitura_mes_2",
+    "anormalidade_leitura_mes_3",
 ]
 
 
@@ -148,6 +151,9 @@ ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS: dict[
     "media_consumo_mes_1": "associacao_media_consumo_mes_1",
     "media_consumo_mes_2": "associacao_media_consumo_mes_2",
     "media_consumo_mes_3": "associacao_media_consumo_mes_3",
+    "anormalidade_leitura_mes_1": "associacao_anormalidade_leitura_mes_1",
+    "anormalidade_leitura_mes_2": "associacao_anormalidade_leitura_mes_2",
+    "anormalidade_leitura_mes_3": "associacao_anormalidade_leitura_mes_3",
 }
 
 
@@ -195,6 +201,15 @@ def gerar_form_colunas(
     col_consumo_medio_mes_3 = _label_e_dropdown(
         "Média de Consumo do Mês de Referência 3", "media_consumo_mes_3"
     )
+    col_anormalidade_leitura_mes_1 = _label_e_dropdown(
+        "Anormalidade de Leitura Mês de Referência 1", "anormalidade_leitura_mes_1"
+    )
+    col_anormalidade_leitura_mes_2 = _label_e_dropdown(
+        "Anormalidade de Leitura Mês de Referência 2", "anormalidade_leitura_mes_2"
+    )
+    col_anormalidade_leitura_mes_3 = _label_e_dropdown(
+        "Anormalidade de Leitura Mês de Referência 3", "anormalidade_leitura_mes_3"
+    )
 
     return html.Form(
         style={
@@ -218,6 +233,9 @@ def gerar_form_colunas(
                             col_consumo_medio_mes_1,
                             col_consumo_medio_mes_2,
                             col_consumo_medio_mes_3,
+                            col_anormalidade_leitura_mes_1,
+                            col_anormalidade_leitura_mes_2,
+                            col_anormalidade_leitura_mes_3,
                         ]
                     ),
                 ],
@@ -410,6 +428,9 @@ def gerar_html_dados(
     frequencia_consumos_medios_mes_1: pd.Series,
     frequencia_consumos_medios_mes_2: pd.Series,
     frequencia_consumos_medios_mes_3: pd.Series,
+    anormalidade_leitura_mes_1,
+    anormalidade_leitura_mes_2,
+    anormalidade_leitura_mes_3,
 ):
     if idade_media_hidrometros is not np.nan:
         idade_media_hidrometros = f"{idade_media_hidrometros:.2f}"
@@ -590,6 +611,7 @@ def gerar_html_dados(
                                 desvio_padrao_consumo_medio_mes_1,
                                 frequencia_consumo_acima_limite_mes_1,
                                 frequencia_consumos_medios_mes_1,
+                                anormalidade_leitura_mes_1,
                                 "Mês 1",
                                 ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_1,
                             ),
@@ -598,6 +620,7 @@ def gerar_html_dados(
                                 desvio_padrao_consumo_medio_mes_2,
                                 frequencia_consumo_acima_limite_mes_2,
                                 frequencia_consumos_medios_mes_2,
+                                anormalidade_leitura_mes_2,
                                 "Mês 2",
                                 ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_2,
                                 oculto=True,
@@ -607,6 +630,7 @@ def gerar_html_dados(
                                 desvio_padrao_consumo_medio_mes_3,
                                 frequencia_consumo_acima_limite_mes_3,
                                 frequencia_consumos_medios_mes_3,
+                                anormalidade_leitura_mes_3,
                                 "Mês 3",
                                 ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_3,
                                 oculto=True,
@@ -631,6 +655,7 @@ def gerar_html_dados_consumo_mes(
     desvio_padrao: float,
     frequencia_consumo_acima_limite: int,
     frequencia_consumos_medios: pd.Series,
+    anormalidade_de_leitura: pd.DataFrame,
     titulo: str,
     id_html_elemento: str,
     limite_consumo_utilizado: int = 130,
@@ -668,6 +693,15 @@ def gerar_html_dados_consumo_mes(
                     )
                 ],
                 style=EstilosCSS.GRAFICO,
+            ),
+            DataTable(
+                anormalidade_de_leitura.to_dict("records"),
+                style_cell={"textAlign": "left", "border": "1px solid black"},
+                style_header={
+                    "backgroundColor": "azure",
+                    "font-weight": "bold",
+                    "text-transform": "uppercase",
+                },
             ),
         ],
         style=estilo,
