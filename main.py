@@ -106,6 +106,16 @@ def preparacao_dados(
         "Sem Anormalidade"
     )
 
+    df["consumo_medido_mes_1"] = df[
+        relacao_colunas_tabela_inserida_com_dataframe["consumo_medido_mes_1"]
+    ]
+    df["consumo_medido_mes_2"] = df[
+        relacao_colunas_tabela_inserida_com_dataframe["consumo_medido_mes_2"]
+    ]
+    df["consumo_medido_mes_3"] = df[
+        relacao_colunas_tabela_inserida_com_dataframe["consumo_medido_mes_3"]
+    ]
+
     df.drop(
         columns=relacao_colunas_tabela_inserida_com_dataframe.values(),
         inplace=True,
@@ -322,6 +332,12 @@ def calcular_todos_os_dados_necessarios(df: pd.DataFrame):
         anormalidade_leitura_mes_3,
     ) = calcular_frequencia_anormalidade_leitura(df)
 
+    (
+        frequencia_consumos_medidos_mes_1,
+        frequencia_consumos_medidos_mes_2,
+        frequencia_consumos_medidos_mes_3,
+    ) = calcular_frequencia_consumo_medido(df, 130)
+
     return {
         "df": df,
         "contagem_hidrometros": contagem_hidrometros,
@@ -353,6 +369,9 @@ def calcular_todos_os_dados_necessarios(df: pd.DataFrame):
         "anormalidade_leitura_mes_1": anormalidade_leitura_mes_1,
         "anormalidade_leitura_mes_2": anormalidade_leitura_mes_2,
         "anormalidade_leitura_mes_3": anormalidade_leitura_mes_3,
+        "frequencia_consumos_medidos_mes_1": frequencia_consumos_medidos_mes_1,
+        "frequencia_consumos_medidos_mes_2": frequencia_consumos_medidos_mes_2,
+        "frequencia_consumos_medidos_mes_3": frequencia_consumos_medidos_mes_3,
     }
 
 
@@ -400,6 +419,25 @@ def calcular_frequencia_anormalidade_leitura(df: pd.DataFrame):
     return resultados[0], resultados[1], resultados[2]
 
 
+def calcular_frequencia_consumo_medido(
+    df: pd.DataFrame, valor_concatenar: int = 130
+) -> tuple[pd.Series, pd.Series, pd.Series]:
+    resultados = []
+    for col in ("consumo_medido_mes_1", "consumo_medido_mes_2", "consumo_medido_mes_3"):
+        consumos_medidos = df[col][df[col] <= valor_concatenar]
+        freq_consumos_medidos = consumos_medidos.groupby(consumos_medidos).count()
+
+        freq_consumos_medidos_concatenados = df[col][df[col] > valor_concatenar].count()
+
+        freq_consumos_medidos.loc[f"{valor_concatenar}+"] = (
+            freq_consumos_medidos_concatenados
+        )
+
+        resultados.append(freq_consumos_medidos)
+
+    return resultados[0], resultados[1], resultados[2]
+
+
 # -------------------------------------------------------------
 #########################
 ### INICIALIZAÇÃO APP ###
@@ -422,6 +460,9 @@ if len(sys.argv) > 1:
         "anormalidade_leitura_mes_1": "Anormalidade Leitura 1",
         "anormalidade_leitura_mes_2": "Anormalidade Leitura 2",
         "anormalidade_leitura_mes_3": "Anormalidade Leitura 3",
+        "consumo_medido_mes_1": "Consumo Medido 1",
+        "consumo_medido_mes_2": "Consumo Medido 2",
+        "consumo_medido_mes_3": "Consumo Medido 3",
     }
     preparacao_dados(DF, colunas_x_variaveis)
 
@@ -616,6 +657,18 @@ def filtrar(
         ],
         "value",
     ),
+    State(
+        ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["consumo_medido_mes_1"],
+        "value",
+    ),
+    State(
+        ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["consumo_medido_mes_2"],
+        "value",
+    ),
+    State(
+        ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["consumo_medido_mes_3"],
+        "value",
+    ),
     prevent_initial_call=True,
 )
 def associar_colunas(
@@ -632,6 +685,9 @@ def associar_colunas(
     anormalidade_leitura_mes_1: str,
     anormalidade_leitura_mes_2: str,
     anormalidade_leitura_mes_3: str,
+    consumo_medido_mes_1: str,
+    consumo_medido_mes_2: str,
+    consumo_medido_mes_3: str,
 ):
     if n_clicks is None:
         return [], ""
@@ -649,6 +705,9 @@ def associar_colunas(
         "anormalidade_leitura_mes_1": anormalidade_leitura_mes_1,
         "anormalidade_leitura_mes_2": anormalidade_leitura_mes_2,
         "anormalidade_leitura_mes_3": anormalidade_leitura_mes_3,
+        "consumo_medido_mes_1": consumo_medido_mes_1,
+        "consumo_medido_mes_2": consumo_medido_mes_2,
+        "consumo_medido_mes_3": consumo_medido_mes_3,
     }
 
     teste_se_todos_valores_sao_nao_nulos = all(
@@ -766,6 +825,12 @@ def concatenar_dados_consumo_mes(
         anormalidade_leitura_mes_3,
     ) = calcular_frequencia_anormalidade_leitura(filtrado)
 
+    (
+        frequencia_consumos_medidos_mes_1,
+        frequencia_consumos_medidos_mes_2,
+        frequencia_consumos_medidos_mes_3,
+    ) = calcular_frequencia_consumo_medido(filtrado, valor_limite)
+
     return [
         gerar_html_dados_consumo_mes(
             media_do_consumo_medio_mes_1,
@@ -773,6 +838,7 @@ def concatenar_dados_consumo_mes(
             frequencia_consumo_acima_limite_mes_1,
             frequencia_consumos_medios_mes_1,
             anormalidade_leitura_mes_1,
+            frequencia_consumos_medidos_mes_1,
             "Mês 1",
             ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_1,
             limite_consumo_utilizado=valor_limite,
@@ -783,6 +849,7 @@ def concatenar_dados_consumo_mes(
             frequencia_consumo_acima_limite_mes_2,
             frequencia_consumos_medios_mes_2,
             anormalidade_leitura_mes_2,
+            frequencia_consumos_medidos_mes_2,
             "Mês 2",
             ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_2,
             oculto=True,
@@ -794,6 +861,7 @@ def concatenar_dados_consumo_mes(
             frequencia_consumo_acima_limite_mes_3,
             frequencia_consumos_medios_mes_3,
             anormalidade_leitura_mes_3,
+            frequencia_consumos_medidos_mes_3,
             "Mês 3",
             ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_3,
             oculto=True,

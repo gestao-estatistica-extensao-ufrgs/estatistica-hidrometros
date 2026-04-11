@@ -20,6 +20,9 @@ NOME_VARIAVEIS: TypeAlias = Literal[
     "anormalidade_leitura_mes_1",
     "anormalidade_leitura_mes_2",
     "anormalidade_leitura_mes_3",
+    "consumo_medido_mes_1",
+    "consumo_medido_mes_2",
+    "consumo_medido_mes_3",
 ]
 
 
@@ -154,6 +157,9 @@ ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS: dict[
     "anormalidade_leitura_mes_1": "associacao_anormalidade_leitura_mes_1",
     "anormalidade_leitura_mes_2": "associacao_anormalidade_leitura_mes_2",
     "anormalidade_leitura_mes_3": "associacao_anormalidade_leitura_mes_3",
+    "consumo_medido_mes_1": "associacao_consumo_medido_mes_1",
+    "consumo_medido_mes_2": "associacao_consumo_medido_mes_2",
+    "consumo_medido_mes_3": "associacao_consumo_medido_mes_3",
 }
 
 
@@ -210,6 +216,15 @@ def gerar_form_colunas(
     col_anormalidade_leitura_mes_3 = _label_e_dropdown(
         "Anormalidade de Leitura Mês de Referência 3", "anormalidade_leitura_mes_3"
     )
+    col_consumo_medido_mes_1 = _label_e_dropdown(
+        "Consumo Medido Mês de Referência 1", "consumo_medido_mes_1"
+    )
+    col_consumo_medido_mes_2 = _label_e_dropdown(
+        "Consumo Medido Mês de Referência 2", "consumo_medido_mes_2"
+    )
+    col_consumo_medido_mes_3 = _label_e_dropdown(
+        "Consumo Medido Mês de Referência 3", "consumo_medido_mes_3"
+    )
 
     return html.Form(
         style={
@@ -236,6 +251,9 @@ def gerar_form_colunas(
                             col_anormalidade_leitura_mes_1,
                             col_anormalidade_leitura_mes_2,
                             col_anormalidade_leitura_mes_3,
+                            col_consumo_medido_mes_1,
+                            col_consumo_medido_mes_2,
+                            col_consumo_medido_mes_3,
                         ]
                     ),
                 ],
@@ -431,6 +449,9 @@ def gerar_html_dados(
     anormalidade_leitura_mes_1,
     anormalidade_leitura_mes_2,
     anormalidade_leitura_mes_3,
+    frequencia_consumos_medidos_mes_1: pd.Series,
+    frequencia_consumos_medidos_mes_2: pd.Series,
+    frequencia_consumos_medidos_mes_3: pd.Series,
 ):
     if idade_media_hidrometros is not np.nan:
         idade_media_hidrometros = f"{idade_media_hidrometros:.2f}"
@@ -612,6 +633,7 @@ def gerar_html_dados(
                                 frequencia_consumo_acima_limite_mes_1,
                                 frequencia_consumos_medios_mes_1,
                                 anormalidade_leitura_mes_1,
+                                frequencia_consumos_medidos_mes_1,
                                 "Mês 1",
                                 ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_1,
                             ),
@@ -621,6 +643,7 @@ def gerar_html_dados(
                                 frequencia_consumo_acima_limite_mes_2,
                                 frequencia_consumos_medios_mes_2,
                                 anormalidade_leitura_mes_2,
+                                frequencia_consumos_medidos_mes_2,
                                 "Mês 2",
                                 ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_2,
                                 oculto=True,
@@ -631,6 +654,7 @@ def gerar_html_dados(
                                 frequencia_consumo_acima_limite_mes_3,
                                 frequencia_consumos_medios_mes_3,
                                 anormalidade_leitura_mes_3,
+                                frequencia_consumos_medidos_mes_3,
                                 "Mês 3",
                                 ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_3,
                                 oculto=True,
@@ -656,6 +680,7 @@ def gerar_html_dados_consumo_mes(
     frequencia_consumo_acima_limite: int,
     frequencia_consumos_medios: pd.Series,
     anormalidade_de_leitura: pd.DataFrame,
+    frequencia_consumos_medidos: pd.Series,
     titulo: str,
     id_html_elemento: str,
     limite_consumo_utilizado: int = 130,
@@ -702,6 +727,19 @@ def gerar_html_dados_consumo_mes(
                     "font-weight": "bold",
                     "text-transform": "uppercase",
                 },
+            ),
+            html.Div(
+                [
+                    dcc.Graph(
+                        figure=px.bar(
+                            x=[str(x) for x in frequencia_consumos_medidos.index],
+                            y=frequencia_consumos_medidos,
+                            labels={"y": "Frequência", "x": "Consumo Medido"},
+                            title="Gráfico de Consumo Medido",
+                        )
+                    )
+                ],
+                style=EstilosCSS.GRAFICO,
             ),
         ],
         style=estilo,
