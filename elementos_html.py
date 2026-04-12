@@ -23,6 +23,9 @@ NOME_VARIAVEIS: TypeAlias = Literal[
     "consumo_medido_mes_1",
     "consumo_medido_mes_2",
     "consumo_medido_mes_3",
+    "consumo_faturado_mes_1",
+    "consumo_faturado_mes_2",
+    "consumo_faturado_mes_3",
 ]
 
 
@@ -160,6 +163,9 @@ ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS: dict[
     "consumo_medido_mes_1": "associacao_consumo_medido_mes_1",
     "consumo_medido_mes_2": "associacao_consumo_medido_mes_2",
     "consumo_medido_mes_3": "associacao_consumo_medido_mes_3",
+    "consumo_faturado_mes_1": "associacao_consumo_faturado_mes_1",
+    "consumo_faturado_mes_2": "associacao_consumo_faturado_mes_2",
+    "consumo_faturado_mes_3": "associacao_consumo_faturado_mes_3",
 }
 
 
@@ -167,9 +173,9 @@ def gerar_form_colunas(
     opcoes: None | list[str] = None,
     erro="",
 ):
-    opcoes_dropdowns = []
+    opcoes_dropdowns: list[str] = []
     if opcoes is not None:
-        opcoes_dropdowns: list[str] = opcoes
+        opcoes_dropdowns = opcoes
 
     def _label_e_dropdown(
         nome_label: str,
@@ -226,6 +232,16 @@ def gerar_form_colunas(
         "Consumo Medido Mês de Referência 3", "consumo_medido_mes_3"
     )
 
+    col_consumo_faturado_mes_1 = _label_e_dropdown(
+        "Consumo Faturado Mês de Referência 1", "consumo_faturado_mes_1"
+    )
+    col_consumo_faturado_mes_2 = _label_e_dropdown(
+        "Consumo Faturado Mês de Referência 2", "consumo_faturado_mes_2"
+    )
+    col_consumo_faturado_mes_3 = _label_e_dropdown(
+        "Consumo Faturado Mês de Referência 3", "consumo_faturado_mes_3"
+    )
+
     return html.Form(
         style={
             "display": "flex",
@@ -254,6 +270,9 @@ def gerar_form_colunas(
                             col_consumo_medido_mes_1,
                             col_consumo_medido_mes_2,
                             col_consumo_medido_mes_3,
+                            col_consumo_faturado_mes_1,
+                            col_consumo_faturado_mes_2,
+                            col_consumo_faturado_mes_3,
                         ]
                     ),
                 ],
@@ -452,6 +471,9 @@ def gerar_html_dados(
     frequencia_consumos_medidos_mes_1: pd.Series,
     frequencia_consumos_medidos_mes_2: pd.Series,
     frequencia_consumos_medidos_mes_3: pd.Series,
+    frequencia_consumo_faturado_mes_1: pd.Series,
+    frequencia_consumo_faturado_mes_2: pd.Series,
+    frequencia_consumo_faturado_mes_3: pd.Series,
 ):
     if idade_media_hidrometros is not np.nan:
         idade_media_hidrometros = f"{idade_media_hidrometros:.2f}"
@@ -634,6 +656,7 @@ def gerar_html_dados(
                                 frequencia_consumos_medios_mes_1,
                                 anormalidade_leitura_mes_1,
                                 frequencia_consumos_medidos_mes_1,
+                                frequencia_consumo_faturado_mes_1,
                                 "Mês 1",
                                 ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_1,
                             ),
@@ -644,6 +667,7 @@ def gerar_html_dados(
                                 frequencia_consumos_medios_mes_2,
                                 anormalidade_leitura_mes_2,
                                 frequencia_consumos_medidos_mes_2,
+                                frequencia_consumo_faturado_mes_2,
                                 "Mês 2",
                                 ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_2,
                                 oculto=True,
@@ -655,6 +679,7 @@ def gerar_html_dados(
                                 frequencia_consumos_medios_mes_3,
                                 anormalidade_leitura_mes_3,
                                 frequencia_consumos_medidos_mes_3,
+                                frequencia_consumo_faturado_mes_3,
                                 "Mês 3",
                                 ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_3,
                                 oculto=True,
@@ -681,6 +706,7 @@ def gerar_html_dados_consumo_mes(
     frequencia_consumos_medios: pd.Series,
     anormalidade_de_leitura: pd.DataFrame,
     frequencia_consumos_medidos: pd.Series,
+    frequencia_consumo_faturado: pd.Series,
     titulo: str,
     id_html_elemento: str,
     limite_consumo_utilizado: int = 130,
@@ -736,6 +762,19 @@ def gerar_html_dados_consumo_mes(
                             y=frequencia_consumos_medidos,
                             labels={"y": "Frequência", "x": "Consumo Medido"},
                             title="Gráfico de Consumo Medido",
+                        )
+                    )
+                ],
+                style=EstilosCSS.GRAFICO,
+            ),
+            html.Div(
+                [
+                    dcc.Graph(
+                        figure=px.bar(
+                            x=[str(x) for x in frequencia_consumo_faturado.index],
+                            y=frequencia_consumo_faturado,
+                            labels={"y": "Frequência", "x": "Consumo Faturado"},
+                            title="Gráfico de Consumo Faturado",
                         )
                     )
                 ],
