@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Literal, TypeAlias
 from enum import StrEnum
 
@@ -110,6 +111,9 @@ class ID_ELEMENTOS_HTML(StrEnum):
     UPLOAD_TABELA_ERRO = "upload-tabela-erro"
     UPLOAD_NOME_ARQUIVO = "upload-nome-arquivo"
     UPLOAD_TABELA = "upload-tabela"
+    ANO_EXTRACAO = "ano-extracao"
+    MES_EXTRACAO = "mes-extracao"
+    PROCESSAR_TABELA = "processar-tabela"
 
     SECAO_RESULTADOS = "secao-resultados"
     CONTAGEM_HIDROMETROS = "contagem-hidrometros"
@@ -175,13 +179,86 @@ ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS: dict[
 }
 
 
+def gerar_form_importar_planilha(
+    mes_extracao: int | None = None,
+    ano_extracao: int | None = None,
+):
+    data_padrao = datetime.now()
+    if mes_extracao is None:
+        mes_extracao = data_padrao.month
+
+    if ano_extracao is None:
+        ano_extracao = data_padrao.year
+
+    return html.Div(
+        [
+            dcc.Upload(
+                id=ID_ELEMENTOS_HTML.UPLOAD_TABELA,
+                style={"display": "flex"},
+                children=[
+                    html.Button("Escolher", type="button"),
+                    dcc.Input(
+                        None,
+                        id=ID_ELEMENTOS_HTML.UPLOAD_NOME_ARQUIVO,
+                        readOnly=True,
+                        style={"flexGrow": "1"},
+                    ),
+                ],
+            ),
+            html.Div(
+                [
+                    html.Label("Mês da Extração"),
+                    dcc.Dropdown(
+                        [
+                            {"value": 1, "label": "Janeiro"},
+                            {"value": 2, "label": "Fevereiro"},
+                            {"value": 3, "label": "Março"},
+                            {"value": 4, "label": "Abril"},
+                            {"value": 5, "label": "Maio"},
+                            {"value": 6, "label": "Junho"},
+                            {"value": 7, "label": "Julho"},
+                            {"value": 8, "label": "Agosto"},
+                            {"value": 9, "label": "Setembro"},
+                            {"value": 10, "label": "Outubro"},
+                            {"value": 11, "label": "Novembro"},
+                            {"value": 12, "label": "Dezembro"},
+                        ],
+                        id=ID_ELEMENTOS_HTML.MES_EXTRACAO,
+                        value=mes_extracao,
+                    ),
+                    html.Label("Ano da Extração"),
+                    dcc.Dropdown(
+                        [ano for ano in range(ano_extracao - 20, ano_extracao + 1)],
+                        id=ID_ELEMENTOS_HTML.ANO_EXTRACAO,
+                        value=ano_extracao,
+                    ),
+                ]
+            ),
+            html.Button("Processar Planilha", id=ID_ELEMENTOS_HTML.PROCESSAR_TABELA),
+            html.Div(id=ID_ELEMENTOS_HTML.UPLOAD_TABELA_ERRO, children=""),
+        ],
+        style={
+            "display": "flex",
+            "flexDirection": "column",
+            "gap": "2px",
+        },
+    )
+
+
 def gerar_form_colunas(
+    data_referencia_1: str,
+    data_referencia_2: str,
+    data_referencia_3: str,
     opcoes: None | list[str] = None,
     erro="",
+    valores_pre_selecionados: dict[NOME_VARIAVEIS, str] | None = None,
 ):
     opcoes_dropdowns: list[str] = []
     if opcoes is not None:
         opcoes_dropdowns = opcoes
+
+    if valores_pre_selecionados is None:
+        valores_pre_selecionados = {}
 
     def _label_e_dropdown(
         nome_label: str,
@@ -196,7 +273,11 @@ def gerar_form_colunas(
                 html.Label(
                     style={"fontStyle": "bold"}, children=nome_label, htmlFor=id_select
                 ),
-                dcc.Dropdown(id=id_select, options=opcoes_dropdowns),
+                dcc.Dropdown(
+                    id=id_select,
+                    options=opcoes_dropdowns,
+                    value=valores_pre_selecionados.get(coluna_necessaria, None),
+                ),
             ],
             style={"display": "flex", "flexDirection": "column", "gap": "1px"},
         )
@@ -211,51 +292,51 @@ def gerar_form_colunas(
     )
     col_perfil_imovel = _label_e_dropdown("Perfil do Imóvel", "perfil_imovel")
     col_consumo_medio_mes_1 = _label_e_dropdown(
-        "Média de Consumo do Mês de Referência 1", "media_consumo_mes_1"
+        "Média de Consumo", "media_consumo_mes_1"
     )
     col_consumo_medio_mes_2 = _label_e_dropdown(
-        "Média de Consumo do Mês de Referência 2", "media_consumo_mes_2"
+        "Média de Consumo", "media_consumo_mes_2"
     )
     col_consumo_medio_mes_3 = _label_e_dropdown(
-        "Média de Consumo do Mês de Referência 3", "media_consumo_mes_3"
+        "Média de Consumo", "media_consumo_mes_3"
     )
     col_anormalidade_leitura_mes_1 = _label_e_dropdown(
-        "Anormalidade de Leitura Mês de Referência 1", "anormalidade_leitura_mes_1"
+        "Anormalidade de Leitura", "anormalidade_leitura_mes_1"
     )
     col_anormalidade_leitura_mes_2 = _label_e_dropdown(
-        "Anormalidade de Leitura Mês de Referência 2", "anormalidade_leitura_mes_2"
+        "Anormalidade de Leitura", "anormalidade_leitura_mes_2"
     )
     col_anormalidade_leitura_mes_3 = _label_e_dropdown(
-        "Anormalidade de Leitura Mês de Referência 3", "anormalidade_leitura_mes_3"
+        "Anormalidade de Leitura", "anormalidade_leitura_mes_3"
     )
     col_consumo_medido_mes_1 = _label_e_dropdown(
-        "Consumo Medido Mês de Referência 1", "consumo_medido_mes_1"
+        "Consumo Medido", "consumo_medido_mes_1"
     )
     col_consumo_medido_mes_2 = _label_e_dropdown(
-        "Consumo Medido Mês de Referência 2", "consumo_medido_mes_2"
+        "Consumo Medido", "consumo_medido_mes_2"
     )
     col_consumo_medido_mes_3 = _label_e_dropdown(
-        "Consumo Medido Mês de Referência 3", "consumo_medido_mes_3"
+        "Consumo Medido", "consumo_medido_mes_3"
     )
 
     col_consumo_faturado_mes_1 = _label_e_dropdown(
-        "Consumo Faturado Mês de Referência 1", "consumo_faturado_mes_1"
+        "Consumo Faturado", "consumo_faturado_mes_1"
     )
     col_consumo_faturado_mes_2 = _label_e_dropdown(
-        "Consumo Faturado Mês de Referência 2", "consumo_faturado_mes_2"
+        "Consumo Faturado", "consumo_faturado_mes_2"
     )
     col_consumo_faturado_mes_3 = _label_e_dropdown(
-        "Consumo Faturado Mês de Referência 3", "consumo_faturado_mes_3"
+        "Consumo Faturado", "consumo_faturado_mes_3"
     )
 
     col_anormalidade_consumo_mes_1 = _label_e_dropdown(
-        "Anormalidade de Consumo Mês de Referência 1", "anormalidade_consumo_mes_1"
+        "Anormalidade de Consumo", "anormalidade_consumo_mes_1"
     )
     col_anormalidade_consumo_mes_2 = _label_e_dropdown(
-        "Anormalidade de Consumo Mês de Referência 2", "anormalidade_consumo_mes_2"
+        "Anormalidade de Consumo", "anormalidade_consumo_mes_2"
     )
     col_anormalidade_consumo_mes_3 = _label_e_dropdown(
-        "Anormalidade de Consumo Mês de Referência 3", "anormalidade_consumo_mes_3"
+        "Anormalidade de Consumo", "anormalidade_consumo_mes_3"
     )
 
     return html.Form(
@@ -277,21 +358,45 @@ def gerar_form_colunas(
                             col_grupo_leitura,
                             col_situacao_ligacao_agua,
                             col_perfil_imovel,
-                            col_consumo_medio_mes_1,
-                            col_consumo_medio_mes_2,
-                            col_consumo_medio_mes_3,
-                            col_anormalidade_leitura_mes_1,
-                            col_anormalidade_leitura_mes_2,
-                            col_anormalidade_leitura_mes_3,
-                            col_consumo_medido_mes_1,
-                            col_consumo_medido_mes_2,
-                            col_consumo_medido_mes_3,
-                            col_consumo_faturado_mes_1,
-                            col_consumo_faturado_mes_2,
-                            col_consumo_faturado_mes_3,
-                            col_anormalidade_consumo_mes_1,
-                            col_anormalidade_consumo_mes_2,
-                            col_anormalidade_consumo_mes_3,
+                            html.Fieldset(
+                                [
+                                    html.Legend(
+                                        f"Dados de {data_referencia_1}",
+                                        style={"fontWeight": "bold"},
+                                    ),
+                                    col_consumo_medio_mes_1,
+                                    col_anormalidade_leitura_mes_1,
+                                    col_consumo_medido_mes_1,
+                                    col_consumo_faturado_mes_1,
+                                    col_anormalidade_consumo_mes_1,
+                                ],
+                            ),
+                            html.Fieldset(
+                                [
+                                    html.Legend(
+                                        f"Dados de {data_referencia_2}",
+                                        style={"fontWeight": "bold"},
+                                    ),
+                                    col_consumo_medio_mes_2,
+                                    col_anormalidade_leitura_mes_2,
+                                    col_consumo_medido_mes_2,
+                                    col_consumo_faturado_mes_2,
+                                    col_anormalidade_consumo_mes_2,
+                                ],
+                            ),
+                            html.Fieldset(
+                                [
+                                    html.Legend(
+                                        f"Dados de {data_referencia_3}",
+                                        style={"fontWeight": "bold"},
+                                    ),
+                                    col_consumo_medio_mes_3,
+                                    col_anormalidade_leitura_mes_3,
+                                    col_consumo_medido_mes_3,
+                                    col_consumo_faturado_mes_3,
+                                    col_anormalidade_consumo_mes_3,
+                                ],
+                            ),
                         ]
                     ),
                 ],
@@ -458,6 +563,7 @@ def gerar_html_filtros(
 
 def gerar_html_dados(
     df,
+    datas_referencias: tuple[str, str, str],
     contagem_hidrometros,
     porcentagem_hidrometros_ligados,
     idade_media_hidrometros,
@@ -644,9 +750,9 @@ def gerar_html_dados(
                         children=[
                             dcc.RadioItems(
                                 {
-                                    "1": "Mês Referência 1",
-                                    "2": "Mês Referência 2",
-                                    "3": "Mês Referência 3",
+                                    "1": f"Data {datas_referencias[0]}",
+                                    "2": f"Data {datas_referencias[1]}",
+                                    "3": f"Data {datas_referencias[2]}",
                                 },
                                 value="1",
                                 inline=True,
@@ -680,7 +786,7 @@ def gerar_html_dados(
                                 frequencia_consumos_medidos_mes_1,
                                 frequencia_consumo_faturado_mes_1,
                                 frequencia_anormalidade_consumo_1,
-                                "Mês 1",
+                                datas_referencias[0],
                                 ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_1,
                             ),
                             gerar_html_dados_consumo_mes(
@@ -692,7 +798,7 @@ def gerar_html_dados(
                                 frequencia_consumos_medidos_mes_2,
                                 frequencia_consumo_faturado_mes_2,
                                 frequencia_anormalidade_consumo_2,
-                                "Mês 2",
+                                datas_referencias[1],
                                 ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_2,
                                 oculto=True,
                             ),
@@ -705,7 +811,7 @@ def gerar_html_dados(
                                 frequencia_consumos_medidos_mes_3,
                                 frequencia_consumo_faturado_mes_3,
                                 frequencia_anormalidade_consumo_3,
-                                "Mês 3",
+                                datas_referencias[2],
                                 ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_3,
                                 oculto=True,
                             ),

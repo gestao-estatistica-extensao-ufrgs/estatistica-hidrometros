@@ -9,6 +9,7 @@ from dash import Dash, html, dcc, callback, Output, Input, State
 
 from elementos_html import (
     gerar_form_colunas,
+    gerar_form_importar_planilha,
     gerar_html_dados,
     gerar_html_dados_consumo_mes,
     gerar_html_filtros,
@@ -45,9 +46,33 @@ def diametro_e_letra_codigo(linha: pd.Series):
     return f"{linha["diametro"]} - {primeira_letra}"
 
 
+def calcular_data_referencia(mes_extracao: int, ano_extracao: int):
+    data_referencia_1 = f"{ano_extracao}-{mes_extracao}"
+    mes_ref_2 = mes_extracao - 1
+    ano_ref_2 = ano_extracao
+    if mes_ref_2 < 1:
+        mes_ref_2 = 12
+        ano_ref_2 -= 1
+
+    data_referencia_2 = f"{ano_ref_2}-{mes_ref_2}"
+
+    mes_ref_3 = mes_ref_2 - 1
+    ano_ref_3 = ano_ref_2
+    if mes_ref_3 < 1:
+        mes_ref_3 = 12
+        ano_ref_3 -= 1
+
+    data_referencia_3 = f"{ano_ref_3}-{mes_ref_3}"
+
+    return (data_referencia_1, data_referencia_2, data_referencia_3)
+
+
 def preparacao_dados(
     df: pd.DataFrame,
     relacao_colunas_tabela_inserida_com_dataframe: dict[NOME_VARIAVEIS, str],
+    data_referencia_1: str,
+    data_referencia_2: str,
+    data_referencia_3: str,
 ):
     df["hidrometro"] = df[relacao_colunas_tabela_inserida_com_dataframe["hidrometro"]]
 
@@ -77,6 +102,10 @@ def preparacao_dados(
     ]
 
     ### Colunas Consumo
+    df["data_referencia_1"] = data_referencia_1
+    df["data_referencia_2"] = data_referencia_2
+    df["data_referencia_3"] = data_referencia_3
+
     df["media_consumo_mes_1"] = df[
         relacao_colunas_tabela_inserida_com_dataframe["media_consumo_mes_1"]
     ]
@@ -541,9 +570,12 @@ def calcular_frequencia_anormalidade_consumo(df: pd.DataFrame):
 DF = pd.DataFrame()
 filtro_html = []
 dados_html = []
+mes_extracao = None
+ano_extracao = None
+ASSOCIACAO_COLUNAS_VARIAVEIS_PREVIA: dict[NOME_VARIAVEIS, str] | None = None
 if len(sys.argv) > 1:
-    DF = pd.read_excel("testes/dados_teste/amostra_dados.xlsx")
-    colunas_x_variaveis: dict[NOME_VARIAVEIS, str] = {
+
+    ASSOCIACAO_COLUNAS_VARIAVEIS_PREVIA = {
         "diametro": "Diametro",
         "data_instalacao": "Data Instalacao",
         "hidrometro": "Hidrometro",
@@ -566,10 +598,21 @@ if len(sys.argv) > 1:
         "anormalidade_consumo_mes_2": "Anormalidade Consumo 2",
         "anormalidade_consumo_mes_3": "Anormalidade Consumo 3",
     }
-    preparacao_dados(DF, colunas_x_variaveis)
 
-    filtro_html = gerar_html_filtros(**calcular_dados_necessarios_do_filtro(DF))
-    dados_html = gerar_html_dados(**calcular_todos_os_dados_necessarios(DF))
+    if sys.argv[1] == "-p":
+        DF = pd.read_excel("testes/dados_teste/amostra_dados.xlsx")
+
+        preparacao_dados(
+            DF, ASSOCIACAO_COLUNAS_VARIAVEIS_PREVIA, "2024-10", "2024-09", "2024-08"
+        )
+        mes_extracao = 10
+        ano_extracao = 2024
+
+        filtro_html = gerar_html_filtros(**calcular_dados_necessarios_do_filtro(DF))
+
+        dados = calcular_todos_os_dados_necessarios(DF)
+        dados["datas_referencias"] = calcular_data_referencia(10, 2024)
+        dados_html = gerar_html_dados(**dados)
 
 app = Dash(suppress_callback_exceptions=True)
 
@@ -589,21 +632,8 @@ app.layout = [
                         },
                         children=[
                             html.H2("Abrir Planilha"),
-                            dcc.Upload(
-                                id=ID_ELEMENTOS_HTML.UPLOAD_TABELA,
-                                style={"display": "flex"},
-                                children=[
-                                    html.Button("Abrir"),
-                                    dcc.Input(
-                                        "",
-                                        id=ID_ELEMENTOS_HTML.UPLOAD_NOME_ARQUIVO,
-                                        readOnly=True,
-                                        style={"flexGrow": "1"},
-                                    ),
-                                ],
-                            ),
-                            html.Div(
-                                id=ID_ELEMENTOS_HTML.UPLOAD_TABELA_ERRO, children=""
+                            gerar_form_importar_planilha(
+                                mes_extracao=mes_extracao, ano_extracao=ano_extracao
                             ),
                         ],
                     ),
@@ -630,35 +660,67 @@ app.layout = [
 
 @callback(
     Output(ID_ELEMENTOS_HTML.UPLOAD_NOME_ARQUIVO, "value"),
+    Input(ID_ELEMENTOS_HTML.UPLOAD_TABELA, "filename"),
+    prevent_initial_call=True,
+)
+def colocar_nome_arquivo_tabela(nome_arquivo: str):
+    return nome_arquivo
+
+
+@callback(
     Output(ID_ELEMENTOS_HTML.AREA_ASSOCIACAO_COLUNAS, "children"),
     Output(ID_ELEMENTOS_HTML.UPLOAD_TABELA_ERRO, "children"),
     Output(ID_ELEMENTOS_HTML.FILTROS, "children", allow_duplicate=True),
     Output(ID_ELEMENTOS_HTML.SECAO_RESULTADOS, "children"),
-    Input(ID_ELEMENTOS_HTML.UPLOAD_TABELA, "contents"),
+    Input(ID_ELEMENTOS_HTML.PROCESSAR_TABELA, "n_clicks"),
+    State(ID_ELEMENTOS_HTML.UPLOAD_TABELA, "contents"),
     State(ID_ELEMENTOS_HTML.UPLOAD_TABELA, "filename"),
+    State(ID_ELEMENTOS_HTML.MES_EXTRACAO, "value"),
+    State(ID_ELEMENTOS_HTML.ANO_EXTRACAO, "value"),
     prevent_initial_call=True,
 )
-def liberar_associacao_de_colunas(conteudo: str, nome_arquivo: str):
+def liberar_associacao_de_colunas(
+    n_clicks: int,
+    conteudo: str | None,
+    nome_arquivo: str,
+    mes_extracao: int | None,
+    ano_extracao: int | None,
+):
     global DF
     DF = pd.DataFrame()
 
-    if nome_arquivo[-4:] == "xlsx":
-        _, con = conteudo.split(",")
+    erros: list[str] = []
+    if conteudo is None:
+        erros.append("O arquivo da tabela parece estar vazio ou não foi escolhido.")
 
-        DF = pd.read_excel(io.BytesIO(base64.b64decode(con)))
-        opcoes = list(DF.columns)
+    if mes_extracao is None or ano_extracao is None:
+        erros.append("Ano e/ou mês de extração não informado.")
+
+    elif nome_arquivo[-4:] != "xlsx":
+        erros.append("Arquivo não está no formato '.xlsx'.")
+
+    if len(erros) > 0:
         return (
-            nome_arquivo,
-            gerar_form_colunas(opcoes, ""),
-            "",
+            [],
+            html.Ul([html.Li(e) for e in erros]),
             [],
             [],
         )
 
+    assert isinstance(conteudo, str)
+    _, con = conteudo.split(",")
+
+    DF = pd.read_excel(io.BytesIO(base64.b64decode(con)))
+    opcoes = list(DF.columns)
+
+    assert isinstance(mes_extracao, int)
+    assert isinstance(ano_extracao, int)
+    data_1, data_2, data_3 = calcular_data_referencia(mes_extracao, ano_extracao)
     return (
-        nome_arquivo,
-        [],
-        "Arquivo não está no formato '.xlsx' ",
+        gerar_form_colunas(
+            data_1, data_2, data_3, opcoes, "", ASSOCIACAO_COLUNAS_VARIAVEIS_PREVIA
+        ),
+        "",
         [],
         [],
     )
@@ -673,6 +735,8 @@ def liberar_associacao_de_colunas(conteudo: str, nome_arquivo: str):
     State(ID_ELEMENTOS_HTML.FILTRO_DIAMETRO_LETRA, "value"),
     State(ID_ELEMENTOS_HTML.FILTRO_GRUPO_FATURAMENTO, "value"),
     State(ID_ELEMENTOS_HTML.FILTRO_PERFIL_IMOVEL, "value"),
+    State(ID_ELEMENTOS_HTML.MES_EXTRACAO, "value"),
+    State(ID_ELEMENTOS_HTML.ANO_EXTRACAO, "value"),
     prevent_initial_call=True,
 )
 def filtrar(
@@ -683,6 +747,8 @@ def filtrar(
     diametro_letra: list[str],
     grupo_faturamento: list[str],
     perfil_imovel_selecionados: list[str],
+    mes_extracao: int,
+    ano_extracao: int,
 ):
     global DF
 
@@ -705,6 +771,7 @@ def filtrar(
         return gerar_html_zero_resultados()
 
     dados = calcular_todos_os_dados_necessarios(filtrado)
+    dados["datas_referencias"] = calcular_data_referencia(mes_extracao, ano_extracao)
     dados_html = gerar_html_dados(**dados)
 
     return dados_html
@@ -714,6 +781,8 @@ def filtrar(
     Output(ID_ELEMENTOS_HTML.FILTROS, "children", allow_duplicate=True),
     Output(ID_ELEMENTOS_HTML.DROPDOWN_ASSOCIACAO_COLUNAS_ERRO, "children"),
     Input(ID_ELEMENTOS_HTML.BOTAO_ASSOCIAR_COLUNAS, "n_clicks"),
+    State(ID_ELEMENTOS_HTML.MES_EXTRACAO, "value"),
+    State(ID_ELEMENTOS_HTML.ANO_EXTRACAO, "value"),
     State(ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["hidrometro"], "value"),
     State(
         ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["situacao_ligacao_agua"],
@@ -805,6 +874,8 @@ def filtrar(
 )
 def associar_colunas(
     n_clicks,
+    mes_extracao: int,
+    ano_extracao: int,
     hidrometro: str,
     situacao_ligacao_agua: str,
     diametro: str,
@@ -860,7 +931,18 @@ def associar_colunas(
 
     if teste_se_todos_valores_sao_nao_nulos:
         global DF
-        preparacao_dados(DF, colunas_associadas_de_cada_variavel)
+
+        data_referencia_1, data_referencia_2, data_referencia_3 = (
+            calcular_data_referencia(mes_extracao, ano_extracao)
+        )
+
+        preparacao_dados(
+            DF,
+            colunas_associadas_de_cada_variavel,
+            data_referencia_1,
+            data_referencia_2,
+            data_referencia_3,
+        )
 
         dados = calcular_dados_necessarios_do_filtro(DF)
 
