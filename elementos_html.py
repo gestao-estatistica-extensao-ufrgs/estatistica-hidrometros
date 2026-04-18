@@ -5,8 +5,8 @@ from enum import StrEnum
 import pandas as pd
 from dash import dcc, html
 import numpy as np
-import plotly.express as px
-from dash.dash_table import DataTable
+import plotly.express as px  # type: ignore
+from dash.dash_table.DataTable import DataTable
 
 NOME_VARIAVEIS: TypeAlias = Literal[
     "hidrometro",
@@ -179,6 +179,49 @@ ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS: dict[
 }
 
 
+def componente_painel_erros(erros: list[str]):
+    if len(erros) < 1:
+        return []
+
+    erros_html = [
+        html.Div(
+            [
+                html.Div(
+                    e,
+                    style={
+                        "padding": "0 2px",
+                    },
+                )
+            ],
+            style={
+                "borderLeft": "solid 1px black",
+                "borderRight": "solid 1px black",
+                "borderBottom": "solid 1px black",
+                "background": "whitesmoke",
+                "fontSize": "0.8rem",
+            },
+        )
+        for e in erros
+    ]
+
+    return html.Div(
+        [
+            html.Div(
+                "Atenção:",
+                style={
+                    "border": "solid 1px black",
+                    "padding": "0 2px",
+                    "background": "yellow",
+                    "fontSize": "0.8rem",
+                    "fontWeight": "bold",
+                },
+            ),
+            *erros_html,
+        ],
+        style={"display": "flex", "flexDirection": "column"},
+    )
+
+
 def gerar_form_importar_planilha(
     mes_extracao: int | None = None,
     ano_extracao: int | None = None,
@@ -189,6 +232,21 @@ def gerar_form_importar_planilha(
 
     if ano_extracao is None:
         ano_extracao = data_padrao.year
+
+    OPCOES_MESES: list[dict[str, str | int]] = [
+        {"value": 1, "label": "Janeiro"},
+        {"value": 2, "label": "Fevereiro"},
+        {"value": 3, "label": "Março"},
+        {"value": 4, "label": "Abril"},
+        {"value": 5, "label": "Maio"},
+        {"value": 6, "label": "Junho"},
+        {"value": 7, "label": "Julho"},
+        {"value": 8, "label": "Agosto"},
+        {"value": 9, "label": "Setembro"},
+        {"value": 10, "label": "Outubro"},
+        {"value": 11, "label": "Novembro"},
+        {"value": 12, "label": "Dezembro"},
+    ]
 
     return html.Div(
         [
@@ -209,20 +267,7 @@ def gerar_form_importar_planilha(
                 [
                     html.Label("Mês da Extração"),
                     dcc.Dropdown(
-                        [
-                            {"value": 1, "label": "Janeiro"},
-                            {"value": 2, "label": "Fevereiro"},
-                            {"value": 3, "label": "Março"},
-                            {"value": 4, "label": "Abril"},
-                            {"value": 5, "label": "Maio"},
-                            {"value": 6, "label": "Junho"},
-                            {"value": 7, "label": "Julho"},
-                            {"value": 8, "label": "Agosto"},
-                            {"value": 9, "label": "Setembro"},
-                            {"value": 10, "label": "Outubro"},
-                            {"value": 11, "label": "Novembro"},
-                            {"value": 12, "label": "Dezembro"},
-                        ],
+                        OPCOES_MESES,  # type: ignore
                         id=ID_ELEMENTOS_HTML.MES_EXTRACAO,
                         value=mes_extracao,
                     ),
