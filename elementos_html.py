@@ -30,6 +30,8 @@ NOME_VARIAVEIS: TypeAlias = Literal[
     "anormalidade_consumo_mes_1",
     "anormalidade_consumo_mes_2",
     "anormalidade_consumo_mes_3",
+    "categoria",
+    "tipo_tarifa_esgoto",
 ]
 
 
@@ -176,6 +178,8 @@ ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS: dict[
     "anormalidade_consumo_mes_1": "associacao_anormalidade_consumo_mes_1",
     "anormalidade_consumo_mes_2": "associacao_anormalidade_consumo_mes_2",
     "anormalidade_consumo_mes_3": "associacao_anormalidade_consumo_mes_3",
+    "categoria": "associacao_categoria",
+    "tipo_tarifa_esgoto": "associacao_tipo_tarifa_esgoto",
 }
 
 
@@ -336,6 +340,10 @@ def gerar_form_colunas(
         "Situação Ligacao Água", "situacao_ligacao_agua"
     )
     col_perfil_imovel = _label_e_dropdown("Perfil do Imóvel", "perfil_imovel")
+    col_categoria = _label_e_dropdown("Categoria", "categoria")
+    col_tipo_tarifa_esgoto = _label_e_dropdown(
+        "Tipo de Tarifa de Esgoto", "tipo_tarifa_esgoto"
+    )
     col_consumo_medio_mes_1 = _label_e_dropdown(
         "Média de Consumo", "media_consumo_mes_1"
     )
@@ -403,6 +411,8 @@ def gerar_form_colunas(
                             col_grupo_leitura,
                             col_situacao_ligacao_agua,
                             col_perfil_imovel,
+                            col_categoria,
+                            col_tipo_tarifa_esgoto,
                             html.Fieldset(
                                 [
                                     html.Legend(

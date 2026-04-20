@@ -55,6 +55,8 @@ if len(sys.argv) > 1:
         "anormalidade_consumo_mes_1": "Anormalidade Consumo 1",
         "anormalidade_consumo_mes_2": "Anormalidade Consumo 2",
         "anormalidade_consumo_mes_3": "Anormalidade Consumo 3",
+        "tipo_tarifa_esgoto": "tipo Tarifa Esgoto",
+        "categoria": "Categoria",
     }
 
     if sys.argv[1] == "-p":
@@ -333,6 +335,14 @@ def filtrar(
         ],
         "value",
     ),
+    State(
+        ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["categoria"],
+        "value",
+    ),
+    State(
+        ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["tipo_tarifa_esgoto"],
+        "value",
+    ),
     prevent_initial_call=True,
 )
 def associar_colunas(
@@ -360,6 +370,8 @@ def associar_colunas(
     anormalidade_consumo_mes_1: str,
     anormalidade_consumo_mes_2: str,
     anormalidade_consumo_mes_3: str,
+    categoria: str,
+    tipo_tarifa_esgoto: str,
 ):
     if n_clicks is None:
         return [], ""
@@ -386,6 +398,8 @@ def associar_colunas(
         "anormalidade_consumo_mes_1": anormalidade_consumo_mes_1,
         "anormalidade_consumo_mes_2": anormalidade_consumo_mes_2,
         "anormalidade_consumo_mes_3": anormalidade_consumo_mes_3,
+        "categoria": categoria,
+        "tipo_tarifa_esgoto": tipo_tarifa_esgoto,
     }
 
     teste_se_todos_valores_sao_nao_nulos = all(

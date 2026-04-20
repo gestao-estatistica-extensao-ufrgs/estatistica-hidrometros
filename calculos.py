@@ -87,6 +87,12 @@ def preparacao_dados(
         relacao_colunas_tabela_inserida_com_dataframe["perfil_imovel"]
     ]
 
+    df["categoria"] = df[relacao_colunas_tabela_inserida_com_dataframe["categoria"]]
+    df["tipo_tarifa_esgoto"] = df[
+        relacao_colunas_tabela_inserida_com_dataframe["tipo_tarifa_esgoto"]
+    ]
+    df.loc[df["tipo_tarifa_esgoto"].isna(), "tipo_tarifa_esgoto"] = "-"
+
     ### Colunas Consumo
     df["data_referencia_1"] = data_referencia_1
     df["data_referencia_2"] = data_referencia_2
