@@ -428,7 +428,9 @@ def associar_colunas(
             "",
         )
 
-    return [], "ERRO: Todas as variáveis devem estar associadas a uma coluna da tabela."
+    return [], componente_painel_erros(
+        ["Todas as variáveis devem estar associadas a uma coluna da tabela"]
+    )
 
 
 @callback(
