@@ -53,6 +53,71 @@ def calcular_data_referencia(mes_extracao: int, ano_extracao: int):
     return (data_referencia_1, data_referencia_2, data_referencia_3)
 
 
+def classificar_consumo_ramal(df: pd.DataFrame):
+    colunas_consumo = (
+        "media_consumo_mes_1",
+        "media_consumo_mes_2",
+        "media_consumo_mes_3",
+    )
+
+    for i, col_consumo in enumerate(colunas_consumo):
+        nome_coluna_classificao = ""
+        if i == 0:
+            nome_coluna_classificao = "consumo_max_mes_1"
+        elif i == 1:
+            nome_coluna_classificao = "consumo_max_mes_2"
+        elif i == 2:
+            nome_coluna_classificao = "consumo_max_mes_3"
+        else:
+            assert False
+
+        df[nome_coluna_classificao] = "Normal"
+        df.loc[
+            (df["diametro_letra"] == "20 - Y") & (df[col_consumo] > 20),
+            nome_coluna_classificao,
+        ] = "Maior"
+        df.loc[
+            (df["diametro_letra"] == "20 - A") & (df[col_consumo] < 21),
+            nome_coluna_classificao,
+        ] = "Menor"
+        df.loc[
+            (df["diametro_letra"] == "20 - A") & (df[col_consumo] > 300),
+            nome_coluna_classificao,
+        ] = "Maior"
+        df.loc[
+            (df["diametro"] == "25MM") & (df[col_consumo] < 301),
+            nome_coluna_classificao,
+        ] = "Menor"
+        df.loc[
+            (df["diametro"] == "25MM") & (df[col_consumo] > 750),
+            nome_coluna_classificao,
+        ] = "Maior"
+        df.loc[
+            (df["diametro"] == "38MM") & (df[col_consumo] < 751),
+            nome_coluna_classificao,
+        ] = "Menor"
+        df.loc[
+            (df["diametro"] == "38MM") & (df[col_consumo] > 1500),
+            nome_coluna_classificao,
+        ] = "Maior"
+        df.loc[
+            (df["diametro"] == "40MM") & (df[col_consumo] < 751),
+            nome_coluna_classificao,
+        ] = "Menor"
+        df.loc[
+            (df["diametro"] == "40MM") & (df[col_consumo] > 1500),
+            nome_coluna_classificao,
+        ] = "Maior"
+        df.loc[
+            (df["diametro"] == "50MM") & (df[col_consumo] < 1501),
+            nome_coluna_classificao,
+        ] = "Menor"
+        df.loc[
+            (df["diametro"] == "50MM") & (df[col_consumo] > 2250),
+            nome_coluna_classificao,
+        ] = "Maior"
+
+
 def preparacao_dados(
     df: pd.DataFrame,
     relacao_colunas_tabela_inserida_com_dataframe: dict[NOME_VARIAVEIS, str],
@@ -60,6 +125,7 @@ def preparacao_dados(
     data_referencia_2: str,
     data_referencia_3: str,
 ):
+    df["ramal"] = df[relacao_colunas_tabela_inserida_com_dataframe["ramal"]]
     df["hidrometro"] = df[relacao_colunas_tabela_inserida_com_dataframe["hidrometro"]]
 
     df["situacao_ligacao_agua"] = df[
@@ -166,6 +232,8 @@ def preparacao_dados(
     df.loc[df["anormalidade_consumo_mes_3"].isna(), "anormalidade_consumo_mes_3"] = (
         "Sem Anormalidade"
     )
+
+    classificar_consumo_ramal(df)
 
     df.drop(
         columns=relacao_colunas_tabela_inserida_com_dataframe.values(),
@@ -401,6 +469,12 @@ def calcular_todos_os_dados_necessarios(df: pd.DataFrame):
         frequencia_anormalidade_consumo_3,
     ) = calcular_frequencia_anormalidade_consumo(df)
 
+    ramais_com_consumo_maior_ou_menor_que_o_esperado = (
+        df[["ramal", "diametro_letra", "consumo_max_mes_1", "media_consumo_mes_1"]],
+        df[["ramal", "diametro_letra", "consumo_max_mes_2", "media_consumo_mes_2"]],
+        df[["ramal", "diametro_letra", "consumo_max_mes_3", "media_consumo_mes_3"]],
+    )
+
     return {
         "df": df,
         "contagem_hidrometros": contagem_hidrometros,
@@ -441,6 +515,7 @@ def calcular_todos_os_dados_necessarios(df: pd.DataFrame):
         "frequencia_anormalidade_consumo_1": frequencia_anormalidade_consumo_1,
         "frequencia_anormalidade_consumo_2": frequencia_anormalidade_consumo_2,
         "frequencia_anormalidade_consumo_3": frequencia_anormalidade_consumo_3,
+        "ramais_com_consumo_maior_ou_menor_que_o_esperado": ramais_com_consumo_maior_ou_menor_que_o_esperado,
     }
 
 

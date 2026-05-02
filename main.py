@@ -20,7 +20,6 @@ from elementos_html import (
 )
 import calculos
 
-
 # -------------------------------------------------------------
 #########################
 ### INICIALIZAÇÃO APP ###
@@ -34,6 +33,7 @@ ASSOCIACAO_COLUNAS_VARIAVEIS_PREVIA: dict[NOME_VARIAVEIS, str] | None = None
 if len(sys.argv) > 1:
 
     ASSOCIACAO_COLUNAS_VARIAVEIS_PREVIA = {
+        "ramal": "Matricula",
         "diametro": "Diametro",
         "data_instalacao": "Data Instalacao",
         "hidrometro": "Hidrometro",
@@ -248,6 +248,7 @@ def filtrar(
     Input(ID_ELEMENTOS_HTML.BOTAO_ASSOCIAR_COLUNAS, "n_clicks"),
     State(ID_ELEMENTOS_HTML.MES_EXTRACAO, "value"),
     State(ID_ELEMENTOS_HTML.ANO_EXTRACAO, "value"),
+    State(ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["ramal"], "value"),
     State(ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["hidrometro"], "value"),
     State(
         ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["situacao_ligacao_agua"],
@@ -349,6 +350,7 @@ def associar_colunas(
     n_clicks,
     mes_extracao: int,
     ano_extracao: int,
+    ramal: str,
     hidrometro: str,
     situacao_ligacao_agua: str,
     diametro: str,
@@ -377,6 +379,7 @@ def associar_colunas(
         return [], ""
 
     colunas_associadas_de_cada_variavel: dict[NOME_VARIAVEIS, str] = {
+        "ramal": ramal,
         "hidrometro": hidrometro,
         "situacao_ligacao_agua": situacao_ligacao_agua,
         "diametro": diametro,
@@ -548,6 +551,18 @@ def concatenar_dados_consumo_mes(
         frequencia_anormalidade_consumo_3,
     ) = calculos.calcular_frequencia_anormalidade_consumo(filtrado)
 
+    ramais_com_consumo_maior_ou_menor_que_o_esperado = (
+        filtrado[
+            ["ramal", "diametro_letra", "consumo_max_mes_1", "media_consumo_mes_1"]
+        ],
+        filtrado[
+            ["ramal", "diametro_letra", "consumo_max_mes_2", "media_consumo_mes_2"]
+        ],
+        filtrado[
+            ["ramal", "diametro_letra", "consumo_max_mes_3", "media_consumo_mes_3"]
+        ],
+    )
+
     return [
         gerar_html_dados_consumo_mes(
             media_do_consumo_medio_mes_1,
@@ -558,6 +573,7 @@ def concatenar_dados_consumo_mes(
             frequencia_consumos_medidos_mes_1,
             frequencia_consumo_faturado_mes_1,
             frequencia_anormalidade_consumo_1,
+            ramais_com_consumo_maior_ou_menor_que_o_esperado[0],
             "Mês 1",
             ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_1,
             limite_consumo_utilizado=valor_limite,
@@ -571,6 +587,7 @@ def concatenar_dados_consumo_mes(
             frequencia_consumos_medidos_mes_2,
             frequencia_consumo_faturado_mes_2,
             frequencia_anormalidade_consumo_2,
+            ramais_com_consumo_maior_ou_menor_que_o_esperado[1],
             "Mês 2",
             ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_2,
             oculto=True,
@@ -585,6 +602,7 @@ def concatenar_dados_consumo_mes(
             frequencia_consumos_medidos_mes_3,
             frequencia_consumo_faturado_mes_3,
             frequencia_anormalidade_consumo_3,
+            ramais_com_consumo_maior_ou_menor_que_o_esperado[2],
             "Mês 3",
             ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_3,
             oculto=True,

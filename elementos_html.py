@@ -9,6 +9,7 @@ import plotly.express as px  # type: ignore
 from dash.dash_table.DataTable import DataTable
 
 NOME_VARIAVEIS: TypeAlias = Literal[
+    "ramal",
     "hidrometro",
     "diametro",
     "data_instalacao",
@@ -157,6 +158,7 @@ ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS: dict[
     NOME_VARIAVEIS,
     str,
 ] = {
+    "ramal": "associacao_col_ramal",
     "hidrometro": "associacao_col_hidrometro",
     "diametro": "associacao_col_diametro",
     "data_instalacao": "associacao_col_data_instalacao",
@@ -332,6 +334,7 @@ def gerar_form_colunas(
         )
         return div_html
 
+    col_ramal = _label_e_dropdown("Ramal", "ramal")
     col_hidrometro = _label_e_dropdown("Hidrômetro", "hidrometro")
     col_diametro = _label_e_dropdown("Diâmetro", "diametro")
     col_data_instalacao = _label_e_dropdown("Data de Instalação", "data_instalacao")
@@ -405,6 +408,7 @@ def gerar_form_colunas(
                 children=[
                     html.Div(
                         children=[
+                            col_ramal,
                             col_hidrometro,
                             col_diametro,
                             col_data_instalacao,
@@ -657,6 +661,9 @@ def gerar_html_dados(
     frequencia_anormalidade_consumo_1,
     frequencia_anormalidade_consumo_2,
     frequencia_anormalidade_consumo_3,
+    ramais_com_consumo_maior_ou_menor_que_o_esperado: tuple[
+        pd.DataFrame, pd.DataFrame, pd.DataFrame
+    ],
 ):
     if idade_media_hidrometros is not np.nan:
         idade_media_hidrometros = f"{idade_media_hidrometros:.2f}"
@@ -841,6 +848,7 @@ def gerar_html_dados(
                                 frequencia_consumos_medidos_mes_1,
                                 frequencia_consumo_faturado_mes_1,
                                 frequencia_anormalidade_consumo_1,
+                                ramais_com_consumo_maior_ou_menor_que_o_esperado[0],
                                 datas_referencias[0],
                                 ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_1,
                             ),
@@ -853,6 +861,7 @@ def gerar_html_dados(
                                 frequencia_consumos_medidos_mes_2,
                                 frequencia_consumo_faturado_mes_2,
                                 frequencia_anormalidade_consumo_2,
+                                ramais_com_consumo_maior_ou_menor_que_o_esperado[1],
                                 datas_referencias[1],
                                 ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_2,
                                 oculto=True,
@@ -866,6 +875,7 @@ def gerar_html_dados(
                                 frequencia_consumos_medidos_mes_3,
                                 frequencia_consumo_faturado_mes_3,
                                 frequencia_anormalidade_consumo_3,
+                                ramais_com_consumo_maior_ou_menor_que_o_esperado[2],
                                 datas_referencias[2],
                                 ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_3,
                                 oculto=True,
@@ -894,6 +904,7 @@ def gerar_html_dados_consumo_mes(
     frequencia_consumos_medidos: pd.Series,
     frequencia_consumo_faturado: pd.Series,
     frequencia_anormalidade_consumo,
+    ramais_com_consumo_maior_ou_menor_que_o_esperado: pd.DataFrame,
     titulo: str,
     id_html_elemento: str,
     limite_consumo_utilizado: int = 130,
@@ -969,6 +980,16 @@ def gerar_html_dados_consumo_mes(
             ),
             DataTable(
                 frequencia_anormalidade_consumo.to_dict("records"),
+                style_cell={"textAlign": "left", "border": "1px solid black"},
+                style_header={
+                    "backgroundColor": "azure",
+                    "font-weight": "bold",
+                    "text-transform": "uppercase",
+                },
+            ),
+            DataTable(
+                ramais_com_consumo_maior_ou_menor_que_o_esperado.to_dict("records"),
+                page_size=10,
                 style_cell={"textAlign": "left", "border": "1px solid black"},
                 style_header={
                     "backgroundColor": "azure",
