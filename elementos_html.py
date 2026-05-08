@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Literal, TypeAlias
 from enum import StrEnum
 
 import pandas as pd
@@ -8,32 +7,7 @@ import numpy as np
 import plotly.express as px  # type: ignore
 from dash.dash_table.DataTable import DataTable
 
-NOME_VARIAVEIS: TypeAlias = Literal[
-    "ramal",
-    "hidrometro",
-    "diametro",
-    "data_instalacao",
-    "grupo_leitura",
-    "situacao_ligacao_agua",
-    "perfil_imovel",
-    "media_consumo_mes_1",
-    "media_consumo_mes_2",
-    "media_consumo_mes_3",
-    "anormalidade_leitura_mes_1",
-    "anormalidade_leitura_mes_2",
-    "anormalidade_leitura_mes_3",
-    "consumo_medido_mes_1",
-    "consumo_medido_mes_2",
-    "consumo_medido_mes_3",
-    "consumo_faturado_mes_1",
-    "consumo_faturado_mes_2",
-    "consumo_faturado_mes_3",
-    "anormalidade_consumo_mes_1",
-    "anormalidade_consumo_mes_2",
-    "anormalidade_consumo_mes_3",
-    "categoria",
-    "tipo_tarifa_esgoto",
-]
+from tipos import NOME_VARIAVEIS
 
 
 class EstilosCSS:
@@ -165,6 +139,7 @@ ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS: dict[
     "grupo_leitura": "associacao_col_grupo_leitura",
     "situacao_ligacao_agua": "associacao_col_situacao_ligacao_agua",
     "perfil_imovel": "associacao_col_perfil_imovel",
+    "contas_vencidas_aberto": "associacao_contas_vencidas_aberto",
     "media_consumo_mes_1": "associacao_media_consumo_mes_1",
     "media_consumo_mes_2": "associacao_media_consumo_mes_2",
     "media_consumo_mes_3": "associacao_media_consumo_mes_3",
@@ -344,6 +319,9 @@ def gerar_form_colunas(
     )
     col_perfil_imovel = _label_e_dropdown("Perfil do Imóvel", "perfil_imovel")
     col_categoria = _label_e_dropdown("Categoria", "categoria")
+    col_contas_vencidas_aberto = _label_e_dropdown(
+        "Contas Vencidas em Aberto", "contas_vencidas_aberto"
+    )
     col_tipo_tarifa_esgoto = _label_e_dropdown(
         "Tipo de Tarifa de Esgoto", "tipo_tarifa_esgoto"
     )
@@ -417,6 +395,7 @@ def gerar_form_colunas(
                             col_perfil_imovel,
                             col_categoria,
                             col_tipo_tarifa_esgoto,
+                            col_contas_vencidas_aberto,
                             html.Fieldset(
                                 [
                                     html.Legend(
@@ -661,6 +640,7 @@ def gerar_html_dados(
     frequencia_anormalidade_consumo_1,
     frequencia_anormalidade_consumo_2,
     frequencia_anormalidade_consumo_3,
+    frequencia_contas_vencidas_aberto,
     ramais_com_consumo_maior_ou_menor_que_o_esperado: tuple[
         pd.DataFrame, pd.DataFrame, pd.DataFrame
     ],
@@ -848,6 +828,7 @@ def gerar_html_dados(
                                 frequencia_consumos_medidos_mes_1,
                                 frequencia_consumo_faturado_mes_1,
                                 frequencia_anormalidade_consumo_1,
+                                frequencia_contas_vencidas_aberto,
                                 ramais_com_consumo_maior_ou_menor_que_o_esperado[0],
                                 datas_referencias[0],
                                 ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_1,
@@ -861,6 +842,7 @@ def gerar_html_dados(
                                 frequencia_consumos_medidos_mes_2,
                                 frequencia_consumo_faturado_mes_2,
                                 frequencia_anormalidade_consumo_2,
+                                frequencia_contas_vencidas_aberto,
                                 ramais_com_consumo_maior_ou_menor_que_o_esperado[1],
                                 datas_referencias[1],
                                 ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_2,
@@ -875,6 +857,7 @@ def gerar_html_dados(
                                 frequencia_consumos_medidos_mes_3,
                                 frequencia_consumo_faturado_mes_3,
                                 frequencia_anormalidade_consumo_3,
+                                frequencia_contas_vencidas_aberto,
                                 ramais_com_consumo_maior_ou_menor_que_o_esperado[2],
                                 datas_referencias[2],
                                 ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_3,
@@ -904,6 +887,7 @@ def gerar_html_dados_consumo_mes(
     frequencia_consumos_medidos: pd.Series,
     frequencia_consumo_faturado: pd.Series,
     frequencia_anormalidade_consumo,
+    frequencia_contas_vencidas_aberto,
     ramais_com_consumo_maior_ou_menor_que_o_esperado: pd.DataFrame,
     titulo: str,
     id_html_elemento: str,
@@ -986,6 +970,29 @@ def gerar_html_dados_consumo_mes(
                     "font-weight": "bold",
                     "text-transform": "uppercase",
                 },
+            ),
+            html.Div(
+                [
+                    dcc.Graph(
+                        figure=px.bar(
+                            x=[
+                                str(x)
+                                for x in frequencia_contas_vencidas_aberto[
+                                    "Contas Vencidas"
+                                ]
+                            ],
+                            y=frequencia_contas_vencidas_aberto[
+                                "Frequência Relativa (%)"
+                            ],
+                            labels={
+                                "y": "Frequência (%)",
+                                "x": "Contas Vencidas em Aberto",
+                            },
+                            title="Gráfico de Contas Vencidas em Aberto",
+                        )
+                    )
+                ],
+                style=EstilosCSS.GRAFICO,
             ),
             DataTable(
                 ramais_com_consumo_maior_ou_menor_que_o_esperado.to_dict("records"),

@@ -5,6 +5,7 @@ import sys
 import pandas as pd
 from dash import Dash, html, callback, Output, Input, State
 
+from tipos import NOME_VARIAVEIS
 from elementos_html import (
     componente_painel_erros,
     gerar_form_colunas,
@@ -16,7 +17,6 @@ from elementos_html import (
     ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS,
     ID_ELEMENTOS_HTML,
     EstilosCSS,
-    NOME_VARIAVEIS,
 )
 import calculos
 
@@ -57,6 +57,7 @@ if len(sys.argv) > 1:
         "anormalidade_consumo_mes_3": "Anormalidade Consumo 3",
         "tipo_tarifa_esgoto": "tipo Tarifa Esgoto",
         "categoria": "Categoria",
+        "contas_vencidas_aberto": "Qtd Contas Vencidas em Aberto",
     }
 
     if sys.argv[1] == "-p":
@@ -344,6 +345,10 @@ def filtrar(
         ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["tipo_tarifa_esgoto"],
         "value",
     ),
+    State(
+        ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["contas_vencidas_aberto"],
+        "value",
+    ),
     prevent_initial_call=True,
 )
 def associar_colunas(
@@ -374,6 +379,7 @@ def associar_colunas(
     anormalidade_consumo_mes_3: str,
     categoria: str,
     tipo_tarifa_esgoto: str,
+    contas_vencidas_aberto: str,
 ):
     if n_clicks is None:
         return [], ""
@@ -403,6 +409,7 @@ def associar_colunas(
         "anormalidade_consumo_mes_3": anormalidade_consumo_mes_3,
         "categoria": categoria,
         "tipo_tarifa_esgoto": tipo_tarifa_esgoto,
+        "contas_vencidas_aberto": contas_vencidas_aberto,
     }
 
     teste_se_todos_valores_sao_nao_nulos = all(
@@ -551,6 +558,10 @@ def concatenar_dados_consumo_mes(
         frequencia_anormalidade_consumo_3,
     ) = calculos.calcular_frequencia_anormalidade_consumo(filtrado)
 
+    frequencia_contas_vencidas_aberto = (
+        calculos.calcular_frequencia_contas_vencidas_aberto(filtrado, valor_limite)
+    )
+
     ramais_com_consumo_maior_ou_menor_que_o_esperado = (
         filtrado[
             ["ramal", "diametro_letra", "consumo_max_mes_1", "media_consumo_mes_1"]
@@ -573,6 +584,7 @@ def concatenar_dados_consumo_mes(
             frequencia_consumos_medidos_mes_1,
             frequencia_consumo_faturado_mes_1,
             frequencia_anormalidade_consumo_1,
+            frequencia_contas_vencidas_aberto,
             ramais_com_consumo_maior_ou_menor_que_o_esperado[0],
             "Mês 1",
             ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_1,
@@ -587,6 +599,7 @@ def concatenar_dados_consumo_mes(
             frequencia_consumos_medidos_mes_2,
             frequencia_consumo_faturado_mes_2,
             frequencia_anormalidade_consumo_2,
+            frequencia_contas_vencidas_aberto,
             ramais_com_consumo_maior_ou_menor_que_o_esperado[1],
             "Mês 2",
             ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_2,
@@ -602,6 +615,7 @@ def concatenar_dados_consumo_mes(
             frequencia_consumos_medidos_mes_3,
             frequencia_consumo_faturado_mes_3,
             frequencia_anormalidade_consumo_3,
+            frequencia_contas_vencidas_aberto,
             ramais_com_consumo_maior_ou_menor_que_o_esperado[2],
             "Mês 3",
             ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_3,
