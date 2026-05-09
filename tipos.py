@@ -13,6 +13,7 @@ NOME_VARIAVEIS: TypeAlias = Literal[
     "grupo_leitura",
     "situacao_ligacao_agua",
     "perfil_imovel",
+    "divida_total_vencida",
     "contas_vencidas_aberto",
     "media_consumo_mes_1",
     "media_consumo_mes_2",
@@ -50,6 +51,7 @@ class ColunasDataframe(StrEnum):
     PERFIL_IMOVEL = "perfil_imovel"
     CATEGORIA = "categoria"
     TIPO_TARIFA_ESGOTO = "tipo_tarifa_esgoto"
+    DIVIDA_TOTAL_VENCIDA = "divida_total_vencida"
     CONTAS_VENCIDAS_ABERTO = "contas_vencidas_aberto"
 
     DATA_REFERENCIA_1 = "data_referencia_1"

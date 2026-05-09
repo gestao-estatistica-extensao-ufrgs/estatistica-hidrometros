@@ -58,6 +58,7 @@ if len(sys.argv) > 1:
         "tipo_tarifa_esgoto": "tipo Tarifa Esgoto",
         "categoria": "Categoria",
         "contas_vencidas_aberto": "Qtd Contas Vencidas em Aberto",
+        "divida_total_vencida": "Divida Total Vencida",
     }
 
     if sys.argv[1] == "-p":
@@ -349,6 +350,10 @@ def filtrar(
         ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["contas_vencidas_aberto"],
         "value",
     ),
+    State(
+        ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["divida_total_vencida"],
+        "value",
+    ),
     prevent_initial_call=True,
 )
 def associar_colunas(
@@ -380,6 +385,7 @@ def associar_colunas(
     categoria: str,
     tipo_tarifa_esgoto: str,
     contas_vencidas_aberto: str,
+    divida_total_vencida: str,
 ):
     if n_clicks is None:
         return [], ""
@@ -410,6 +416,7 @@ def associar_colunas(
         "categoria": categoria,
         "tipo_tarifa_esgoto": tipo_tarifa_esgoto,
         "contas_vencidas_aberto": contas_vencidas_aberto,
+        "divida_total_vencida": divida_total_vencida,
     }
 
     teste_se_todos_valores_sao_nao_nulos = all(
@@ -558,6 +565,9 @@ def concatenar_dados_consumo_mes(
         frequencia_anormalidade_consumo_3,
     ) = calculos.calcular_frequencia_anormalidade_consumo(filtrado)
 
+    frequencia_total_dividas_vencidas = (
+        calculos.calcular_frequencia_total_divida_vencida(filtrado, valor_limite)
+    )
     frequencia_contas_vencidas_aberto = (
         calculos.calcular_frequencia_contas_vencidas_aberto(filtrado, valor_limite)
     )
@@ -586,6 +596,7 @@ def concatenar_dados_consumo_mes(
             frequencia_anormalidade_consumo_1,
             frequencia_contas_vencidas_aberto,
             ramais_com_consumo_maior_ou_menor_que_o_esperado[0],
+            frequencia_total_dividas_vencidas,
             "Mês 1",
             ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_1,
             limite_consumo_utilizado=valor_limite,
@@ -601,6 +612,7 @@ def concatenar_dados_consumo_mes(
             frequencia_anormalidade_consumo_2,
             frequencia_contas_vencidas_aberto,
             ramais_com_consumo_maior_ou_menor_que_o_esperado[1],
+            frequencia_total_dividas_vencidas,
             "Mês 2",
             ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_2,
             oculto=True,
@@ -617,6 +629,7 @@ def concatenar_dados_consumo_mes(
             frequencia_anormalidade_consumo_3,
             frequencia_contas_vencidas_aberto,
             ramais_com_consumo_maior_ou_menor_que_o_esperado[2],
+            frequencia_total_dividas_vencidas,
             "Mês 3",
             ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_3,
             oculto=True,

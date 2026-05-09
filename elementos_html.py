@@ -157,6 +157,7 @@ ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS: dict[
     "anormalidade_consumo_mes_3": "associacao_anormalidade_consumo_mes_3",
     "categoria": "associacao_categoria",
     "tipo_tarifa_esgoto": "associacao_tipo_tarifa_esgoto",
+    "divida_total_vencida": "associacao_divida_total_vencida",
 }
 
 
@@ -319,6 +320,9 @@ def gerar_form_colunas(
     )
     col_perfil_imovel = _label_e_dropdown("Perfil do Imóvel", "perfil_imovel")
     col_categoria = _label_e_dropdown("Categoria", "categoria")
+    col_divida_total_vencida = _label_e_dropdown(
+        "Dívida Total Vencida", "divida_total_vencida"
+    )
     col_contas_vencidas_aberto = _label_e_dropdown(
         "Contas Vencidas em Aberto", "contas_vencidas_aberto"
     )
@@ -395,6 +399,7 @@ def gerar_form_colunas(
                             col_perfil_imovel,
                             col_categoria,
                             col_tipo_tarifa_esgoto,
+                            col_divida_total_vencida,
                             col_contas_vencidas_aberto,
                             html.Fieldset(
                                 [
@@ -644,6 +649,7 @@ def gerar_html_dados(
     ramais_com_consumo_maior_ou_menor_que_o_esperado: tuple[
         pd.DataFrame, pd.DataFrame, pd.DataFrame
     ],
+    frequencia_divida_total_vencida: pd.DataFrame,
 ):
     if idade_media_hidrometros is not np.nan:
         idade_media_hidrometros = f"{idade_media_hidrometros:.2f}"
@@ -830,6 +836,7 @@ def gerar_html_dados(
                                 frequencia_anormalidade_consumo_1,
                                 frequencia_contas_vencidas_aberto,
                                 ramais_com_consumo_maior_ou_menor_que_o_esperado[0],
+                                frequencia_divida_total_vencida,
                                 datas_referencias[0],
                                 ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_1,
                             ),
@@ -844,6 +851,7 @@ def gerar_html_dados(
                                 frequencia_anormalidade_consumo_2,
                                 frequencia_contas_vencidas_aberto,
                                 ramais_com_consumo_maior_ou_menor_que_o_esperado[1],
+                                frequencia_divida_total_vencida,
                                 datas_referencias[1],
                                 ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_2,
                                 oculto=True,
@@ -859,6 +867,7 @@ def gerar_html_dados(
                                 frequencia_anormalidade_consumo_3,
                                 frequencia_contas_vencidas_aberto,
                                 ramais_com_consumo_maior_ou_menor_que_o_esperado[2],
+                                frequencia_divida_total_vencida,
                                 datas_referencias[2],
                                 ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_3,
                                 oculto=True,
@@ -889,6 +898,7 @@ def gerar_html_dados_consumo_mes(
     frequencia_anormalidade_consumo,
     frequencia_contas_vencidas_aberto,
     ramais_com_consumo_maior_ou_menor_que_o_esperado: pd.DataFrame,
+    frequencia_divida_total_vencida: pd.DataFrame,
     titulo: str,
     id_html_elemento: str,
     limite_consumo_utilizado: int = 130,
@@ -970,6 +980,24 @@ def gerar_html_dados_consumo_mes(
                     "font-weight": "bold",
                     "text-transform": "uppercase",
                 },
+            ),
+            html.Div(
+                [
+                    dcc.Graph(
+                        figure=px.bar(
+                            x=frequencia_divida_total_vencida["Dívida Total Vencida"],
+                            y=frequencia_divida_total_vencida[
+                                "Frequência Relativa (%)"
+                            ],
+                            labels={
+                                "y": "Frequência (%)",
+                                "x": "Total Dívida Vencida",
+                            },
+                            title="Gráfico de Dívida Total Vencida",
+                        )
+                    )
+                ],
+                style=EstilosCSS.GRAFICO,
             ),
             html.Div(
                 [

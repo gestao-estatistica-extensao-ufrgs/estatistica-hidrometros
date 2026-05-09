@@ -170,6 +170,21 @@ def preparacao_dados(
         ColunasDataframe.TIPO_TARIFA_ESGOTO,
     ] = "-"
 
+    df[ColunasDataframe.DIVIDA_TOTAL_VENCIDA] = df[
+        relacao_colunas_tabela_inserida_com_dataframe["divida_total_vencida"]
+    ]
+
+    df[ColunasDataframe.DIVIDA_TOTAL_VENCIDA] = df[
+        relacao_colunas_tabela_inserida_com_dataframe["divida_total_vencida"]
+    ]
+    df.loc[
+        df[ColunasDataframe.DIVIDA_TOTAL_VENCIDA].isna(),
+        ColunasDataframe.DIVIDA_TOTAL_VENCIDA,
+    ] = 0
+    df[ColunasDataframe.DIVIDA_TOTAL_VENCIDA] = df[
+        ColunasDataframe.DIVIDA_TOTAL_VENCIDA
+    ].apply(round)
+
     df[ColunasDataframe.CONTAS_VENCIDAS_ABERTO] = df[
         relacao_colunas_tabela_inserida_com_dataframe["contas_vencidas_aberto"]
     ]
@@ -490,6 +505,7 @@ def calcular_todos_os_dados_necessarios(df: pd.DataFrame):
         frequencia_anormalidade_consumo_3,
     ) = calcular_frequencia_anormalidade_consumo(df)
 
+    frequencia_divida_total_vencida = calcular_frequencia_total_divida_vencida(df)
     frequencia_contas_vencidas_aberto = calcular_frequencia_contas_vencidas_aberto(df)
 
     ramais_com_consumo_maior_ou_menor_que_o_esperado = (
@@ -561,6 +577,7 @@ def calcular_todos_os_dados_necessarios(df: pd.DataFrame):
         "frequencia_anormalidade_consumo_3": frequencia_anormalidade_consumo_3,
         "frequencia_contas_vencidas_aberto": frequencia_contas_vencidas_aberto,
         "ramais_com_consumo_maior_ou_menor_que_o_esperado": ramais_com_consumo_maior_ou_menor_que_o_esperado,
+        "frequencia_divida_total_vencida": frequencia_divida_total_vencida,
     }
 
 
@@ -705,5 +722,37 @@ def calcular_frequencia_contas_vencidas_aberto(
         "Frequência Absoluta",
         "Frequência Relativa (%)",
     ]
+
+    return frequencia
+
+
+def calcular_frequencia_total_divida_vencida(
+    df: pd.DataFrame, valor_concatenar: int = 130
+):
+    col = ColunasDataframe.DIVIDA_TOTAL_VENCIDA
+
+    registros_com_valor_menor_igual_a_concatenacao = df[df[col] <= valor_concatenar]
+    frequencia = registros_com_valor_menor_igual_a_concatenacao.groupby(col)[
+        [col]
+    ].count()
+    frequencia.columns = ["Frequência Absoluta"]
+
+    freq_registros_a_concatenar = df[col][df[col] > valor_concatenar].count()
+    frequencia.loc[f"{valor_concatenar}+", "Frequência Absoluta"] = (
+        freq_registros_a_concatenar
+    )
+
+    frequencia["Frequência Relativa (%)"] = (
+        frequencia["Frequência Absoluta"] * 100 / len(df)
+    )
+    frequencia.reset_index(inplace=True)
+
+    frequencia.columns = [
+        "Dívida Total Vencida",
+        "Frequência Absoluta",
+        "Frequência Relativa (%)",
+    ]
+
+    frequencia["Dívida Total Vencida"] = frequencia["Dívida Total Vencida"].apply(str)
 
     return frequencia
