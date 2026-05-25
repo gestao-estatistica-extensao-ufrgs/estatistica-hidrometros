@@ -9,33 +9,84 @@ from dash.dash_table.DataTable import DataTable
 
 from tipos import NOME_VARIAVEIS
 
+_PLOTLY_CORES_BARRAS = ["#1e6091", "#2196c4", "#56b4d3", "#a8d8ea"]
+
+_PLOTLY_DARK_LAYOUT = dict(
+    paper_bgcolor="#1a2235",
+    plot_bgcolor="#1a2235",
+    font_color="#8899aa",
+    xaxis={"gridcolor": "#2a3f5f", "linecolor": "#2a3f5f"},
+    yaxis={"gridcolor": "#2a3f5f", "linecolor": "#2a3f5f"},
+)
+
+_TABELA_DARK = dict(
+    style_cell={
+        "textAlign": "left",
+        "border": "1px solid #2a3f5f",
+        "backgroundColor": "#1a2235",
+        "color": "#ffffff",
+        "padding": "8px 12px",
+    },
+    style_header={
+        "backgroundColor": "#212d45",
+        "fontWeight": "bold",
+        "textTransform": "uppercase",
+        "color": "#ffffff",
+        "border": "1px solid #2a3f5f",
+        "letterSpacing": "0.5px",
+        "fontSize": "0.75rem",
+    },
+    style_data_conditional=[
+        {"if": {"row_index": "odd"}, "backgroundColor": "#1e2a40"},
+    ],
+)
+
 
 class EstilosCSS:
     QUADRO_DADO = {
+        "display": "flex",
+        "flexDirection": "column",
+        "justifyContent": "center",
         "padding": "20px",
-        "backgroundColor": "darkblue",
-        "color": "white",
+        "backgroundColor": "#1a2235",
+        "color": "#ffffff",
         "borderRadius": "12px",
-        "textAlign": "center",
-        "gridColumnStart": "span 2",
-        "border": "1px solid #000080",
+        "gridColumn": "span 2",
+        "border": "1px solid #2a3f5f",
     }
 
     QUADRO_DADO_NUMERO = {
-        "fontSize": "3rem",
+        "fontSize": "2rem",
         "fontWeight": "bold",
-        "marginBottom": "5px",
+        "marginBottom": "4px",
+        "color": "#ffffff",
+    }
+
+    QUADRO_DADO_ICONE = {
+        "fontSize": "1.8rem",
+        "color": "#2196c4",
+        "minWidth": "44px",
+        "textAlign": "center",
+        "lineHeight": "1",
+    }
+
+    QUADRO_DADO_LABEL = {
+        "fontSize": "0.75rem",
+        "color": "#8899aa",
+        "textTransform": "uppercase",
+        "letterSpacing": "0.5px",
     }
 
     TABELA = {"gridColumnStart": "span 6"}
     GRAFICO = {"gridColumnStart": "span 6"}
 
-    CHECKLIST = {"display": "flex", "columnGap": "1px", "flex-wrap": "wrap"}
+    CHECKLIST = {"display": "flex", "columnGap": "1px", "flexWrap": "wrap"}
     CHECKLIST_LABEL = {
-        "border": "1px solid darkblue",
+        "border": "1px solid #2a3f5f",
         "borderRadius": "5px",
         "margin": "2px",
-        "backgroundColor": "azure",
+        "backgroundColor": "#212d45",
+        "color": "#ffffff",
         "fontWeight": "bold",
         "cursor": "pointer",
     }
@@ -45,32 +96,30 @@ class EstilosCSS:
         "gridTemplateColumns": "repeat(auto-fit, minmax(250px, 1fr))",
         "gap": "20px",
         "padding": "25px",
-        "backgroundColor": "#f8f9fa",  # Cinza bem claro profissional
+        "backgroundColor": "#151929",
         "borderRadius": "15px",
-        "border": "1px solid #e9ecef",
-        "boxShadow": "0 4px 6px rgba(0,0,0,0.05)",
+        "border": "1px solid #2a3f5f",
     }
 
     ITEM_FILTRO = {"display": "flex", "flexDirection": "column", "gap": "8px"}
 
     LABEL_FILTRO = {
         "fontWeight": "bold",
-        "fontSize": "0.9rem",
-        "color": "#2c3e50",
+        "fontSize": "0.75rem",
+        "color": "#8899aa",
         "textTransform": "uppercase",
         "letterSpacing": "0.5px",
     }
 
     BOTAO_FILTRAR = {
-        "backgroundColor": "#007bff",
+        "backgroundColor": "#2196c4",
         "color": "white",
         "border": "none",
-        "padding": "12px 35px",
+        "padding": "12px",
         "borderRadius": "8px",
         "fontWeight": "bold",
         "cursor": "pointer",
-        "transition": "0.3s",
-        "boxShadow": "0 4px 15px rgba(0,123,255,0.3)",
+        "width": "100%",
     }
 
     GRID_AREA_DADOS_CONSUMO = {
@@ -117,6 +166,11 @@ class ID_ELEMENTOS_HTML(StrEnum):
     FILTRO_TIPO_TARIFA_ESGOTO = "filtro-tipo-tarifa-esgoto"
     FILTRO_ANORMALIDADE_LEITURA = "filtro-anormalidade-leitura"
     FILTRO_ANORMALIDADE_CONSUMO = "filtro-anormalidade-consumo"
+
+    BOTAO_TOGGLE_FILTROS = "botao-toggle-filtros"
+    BOTAO_FECHAR_FILTROS = "botao-fechar-filtros"
+    PAINEL_FILTROS = "painel-filtros"
+    BACKDROP_FILTROS = "backdrop-filtros"
 
     AREA_ASSOCIACAO_COLUNAS = "area-associacao-colunas"
     DROPDOWN_ASSOCIACAO_COLUNAS_ERRO = "dropdowns-associacao-colunas-erro"
@@ -485,15 +539,15 @@ def gerar_html_filtros(
     valores_unicos_anormalidade_consumo,
 ):
     estilo_fieldset = {
-        "border": "1px solid #c8d6e5",
+        "border": "1px solid #2a3f5f",
         "borderRadius": "8px",
         "padding": "12px 16px",
-        "backgroundColor": "#fff",
+        "backgroundColor": "#1a2235",
     }
     estilo_legend = {
         "fontWeight": "bold",
-        "fontSize": "0.8rem",
-        "color": "#2c3e50",
+        "fontSize": "0.75rem",
+        "color": "#8899aa",
         "textTransform": "uppercase",
         "letterSpacing": "0.5px",
         "padding": "0 6px",
@@ -506,204 +560,164 @@ def gerar_html_filtros(
     }
 
     return [
-        html.Details(
-            style={"border": "1px solid #e9ecef", "borderRadius": "10px", "padding": "10px 16px"},
+        html.Fieldset(
+            style=estilo_fieldset,
             children=[
-                html.Summary(
-                    "Filtros",
-                    style={
-                        "fontWeight": "bold",
-                        "fontSize": "1.1rem",
-                        "color": "#2c3e50",
-                        "cursor": "pointer",
-                        "padding": "6px 0",
-                    },
-                ),
+                html.Legend("Hidrômetro", style=estilo_legend),
                 html.Div(
-                    style={
-                        "display": "grid",
-                        "gridTemplateColumns": "repeat(2, 1fr)",
-                        "gap": "16px",
-                        "marginTop": "15px",
-                    },
+                    style=estilo_grid_interno,
                     children=[
-                        # --- Hidrômetro ---
-                        html.Fieldset(
-                            style=estilo_fieldset,
-                            children=[
-                                html.Legend("Hidrômetro", style=estilo_legend),
-                                html.Div(
-                                    style=estilo_grid_interno,
-                                    children=[
-                                        html.Div([
-                                            html.Label("Diâmetro", style=EstilosCSS.LABEL_FILTRO),
-                                            dcc.Dropdown(
-                                                id=ID_ELEMENTOS_HTML.FILTRO_DIAMETRO,
-                                                options=opcoes_valores_diametro_filtro,
-                                                value=valores_unicos_diametro,
-                                                multi=True,
-                                                placeholder="Selecione...",
-                                            ),
-                                        ], style=EstilosCSS.ITEM_FILTRO),
-                                        html.Div([
-                                            html.Label("Diâmetro + Letra", style=EstilosCSS.LABEL_FILTRO),
-                                            dcc.Dropdown(
-                                                id=ID_ELEMENTOS_HTML.FILTRO_DIAMETRO_LETRA,
-                                                options=opcoes_valores_diametro_letra,
-                                                value=valores_unicos_diametro_letra,
-                                                multi=True,
-                                                placeholder="Selecione...",
-                                            ),
-                                        ], style=EstilosCSS.ITEM_FILTRO),
-                                        html.Div([
-                                            html.Label(
-                                                f"Idade ({valor_minimo_idade} – {valor_maximo_idade} anos)",
-                                                style=EstilosCSS.LABEL_FILTRO,
-                                            ),
-                                            html.Div(
-                                                dcc.RangeSlider(
-                                                    id=ID_ELEMENTOS_HTML.FILTRO_IDADE,
-                                                    min=valor_minimo_idade,
-                                                    max=valor_maximo_idade,
-                                                    step=1,
-                                                    value=[valor_minimo_idade, valor_maximo_idade],
-                                                    marks={
-                                                        str(i): (
-                                                            str(i)
-                                                            if i % 5 == 0
-                                                            or i == valor_minimo_idade
-                                                            or i == valor_maximo_idade
-                                                            else ""
-                                                        )
-                                                        for i in range(valor_minimo_idade, valor_maximo_idade + 1)
-                                                    },
-                                                    tooltip={"placement": "bottom", "always_visible": True},
-                                                ),
-                                                style={"marginTop": "15px"},
-                                            ),
-                                        ], style=EstilosCSS.ITEM_FILTRO | {"gridColumn": "1 / -1"}),
-                                    ],
+                        html.Div([
+                            html.Label("Diâmetro", style=EstilosCSS.LABEL_FILTRO),
+                            dcc.Dropdown(
+                                id=ID_ELEMENTOS_HTML.FILTRO_DIAMETRO,
+                                options=opcoes_valores_diametro_filtro,
+                                value=valores_unicos_diametro,
+                                multi=True,
+                                placeholder="Selecione...",
+                            ),
+                        ], style=EstilosCSS.ITEM_FILTRO),
+                        html.Div([
+                            html.Label("Diâmetro + Letra", style=EstilosCSS.LABEL_FILTRO),
+                            dcc.Dropdown(
+                                id=ID_ELEMENTOS_HTML.FILTRO_DIAMETRO_LETRA,
+                                options=opcoes_valores_diametro_letra,
+                                value=valores_unicos_diametro_letra,
+                                multi=True,
+                                placeholder="Selecione...",
+                            ),
+                        ], style=EstilosCSS.ITEM_FILTRO),
+                        html.Div([
+                            html.Label(
+                                f"Idade ({valor_minimo_idade} – {valor_maximo_idade} anos)",
+                                style=EstilosCSS.LABEL_FILTRO,
+                            ),
+                            html.Div(
+                                dcc.RangeSlider(
+                                    id=ID_ELEMENTOS_HTML.FILTRO_IDADE,
+                                    min=valor_minimo_idade,
+                                    max=valor_maximo_idade,
+                                    step=1,
+                                    value=[valor_minimo_idade, valor_maximo_idade],
+                                    marks={
+                                        str(i): (
+                                            str(i)
+                                            if i % 5 == 0
+                                            or i == valor_minimo_idade
+                                            or i == valor_maximo_idade
+                                            else ""
+                                        )
+                                        for i in range(valor_minimo_idade, valor_maximo_idade + 1)
+                                    },
+                                    tooltip={"placement": "bottom", "always_visible": True},
                                 ),
-                            ],
-                        ),
-                        # --- Ligação / Imóvel ---
-                        html.Fieldset(
-                            style=estilo_fieldset,
-                            children=[
-                                html.Legend("Ligação / Imóvel", style=estilo_legend),
-                                html.Div(
-                                    style=estilo_grid_interno,
-                                    children=[
-                                        html.Div([
-                                            html.Label("Situação Ligação Água", style=EstilosCSS.LABEL_FILTRO),
-                                            dcc.Checklist(
-                                                id=ID_ELEMENTOS_HTML.FILTRO_SITUACAO,
-                                                options=opcoes_valores_situacao_ligacao_agua,
-                                                value=opcoes_selecionadas_situacao_ligacao_agua,
-                                                inline=True,
-                                                labelStyle={"marginRight": "10px", "cursor": "pointer"},
-                                            ),
-                                        ], style=EstilosCSS.ITEM_FILTRO | {"gridColumn": "1 / -1"}),
-                                        html.Div([
-                                            html.Label("Grupo de Faturamento", style=EstilosCSS.LABEL_FILTRO),
-                                            dcc.Dropdown(
-                                                id=ID_ELEMENTOS_HTML.FILTRO_GRUPO_FATURAMENTO,
-                                                options=opcoes_valores_grupo_faturamento,
-                                                value=valores_unicos_grupo_faturamento,
-                                                multi=True,
-                                                placeholder="Selecione...",
-                                            ),
-                                        ], style=EstilosCSS.ITEM_FILTRO),
-                                        html.Div([
-                                            html.Label("Perfil do Imóvel", style=EstilosCSS.LABEL_FILTRO),
-                                            dcc.Dropdown(
-                                                id=ID_ELEMENTOS_HTML.FILTRO_PERFIL_IMOVEL,
-                                                options=opcoes_valores_perfil_imovel,
-                                                value=valores_unicos_perfil_imovel,
-                                                multi=True,
-                                                placeholder="Selecione...",
-                                            ),
-                                        ], style=EstilosCSS.ITEM_FILTRO),
-                                    ],
-                                ),
-                            ],
-                        ),
-                        # --- Tarifação ---
-                        html.Fieldset(
-                            style=estilo_fieldset,
-                            children=[
-                                html.Legend("Tarifação", style=estilo_legend),
-                                html.Div(
-                                    style=estilo_grid_interno,
-                                    children=[
-                                        html.Div([
-                                            html.Label("Categoria", style=EstilosCSS.LABEL_FILTRO),
-                                            dcc.Dropdown(
-                                                id=ID_ELEMENTOS_HTML.FILTRO_CATEGORIA,
-                                                options=opcoes_valores_categoria,
-                                                value=valores_unicos_categoria,
-                                                multi=True,
-                                                placeholder="Selecione...",
-                                            ),
-                                        ], style=EstilosCSS.ITEM_FILTRO),
-                                        html.Div([
-                                            html.Label("Tipo de Tarifa de Esgoto", style=EstilosCSS.LABEL_FILTRO),
-                                            dcc.Dropdown(
-                                                id=ID_ELEMENTOS_HTML.FILTRO_TIPO_TARIFA_ESGOTO,
-                                                options=opcoes_valores_tipo_tarifa_esgoto,
-                                                value=valores_unicos_tipo_tarifa_esgoto,
-                                                multi=True,
-                                                placeholder="Selecione...",
-                                            ),
-                                        ], style=EstilosCSS.ITEM_FILTRO),
-                                    ],
-                                ),
-                            ],
-                        ),
-                        # --- Anormalidades ---
-                        html.Fieldset(
-                            style=estilo_fieldset,
-                            children=[
-                                html.Legend("Anormalidades", style=estilo_legend),
-                                html.Div(
-                                    style=estilo_grid_interno,
-                                    children=[
-                                        html.Div([
-                                            html.Label("Anormalidade de Leitura", style=EstilosCSS.LABEL_FILTRO),
-                                            dcc.Dropdown(
-                                                id=ID_ELEMENTOS_HTML.FILTRO_ANORMALIDADE_LEITURA,
-                                                options=opcoes_valores_anormalidade_leitura,
-                                                value=valores_unicos_anormalidade_leitura,
-                                                multi=True,
-                                                placeholder="Selecione...",
-                                            ),
-                                        ], style=EstilosCSS.ITEM_FILTRO),
-                                        html.Div([
-                                            html.Label("Anormalidade de Consumo", style=EstilosCSS.LABEL_FILTRO),
-                                            dcc.Dropdown(
-                                                id=ID_ELEMENTOS_HTML.FILTRO_ANORMALIDADE_CONSUMO,
-                                                options=opcoes_valores_anormalidade_consumo,
-                                                value=valores_unicos_anormalidade_consumo,
-                                                multi=True,
-                                                placeholder="Selecione...",
-                                            ),
-                                        ], style=EstilosCSS.ITEM_FILTRO),
-                                    ],
-                                ),
-                            ],
-                        ),
+                                style={"marginTop": "15px"},
+                            ),
+                        ], style=EstilosCSS.ITEM_FILTRO | {"gridColumn": "1 / -1"}),
                     ],
                 ),
+            ],
+        ),
+        html.Fieldset(
+            style=estilo_fieldset,
+            children=[
+                html.Legend("Ligação / Imóvel", style=estilo_legend),
                 html.Div(
-                    [
-                        html.Button(
-                            "Aplicar Filtros",
-                            id=ID_ELEMENTOS_HTML.FILTRO_SUBMIT,
-                            type="button",
-                            style=EstilosCSS.BOTAO_FILTRAR,
-                        ),
+                    style=estilo_grid_interno,
+                    children=[
+                        html.Div([
+                            html.Label("Situação Ligação Água", style=EstilosCSS.LABEL_FILTRO),
+                            dcc.Checklist(
+                                id=ID_ELEMENTOS_HTML.FILTRO_SITUACAO,
+                                options=opcoes_valores_situacao_ligacao_agua,
+                                value=opcoes_selecionadas_situacao_ligacao_agua,
+                                inline=True,
+                                labelStyle={"marginRight": "10px", "cursor": "pointer"},
+                            ),
+                        ], style=EstilosCSS.ITEM_FILTRO | {"gridColumn": "1 / -1"}),
+                        html.Div([
+                            html.Label("Grupo de Faturamento", style=EstilosCSS.LABEL_FILTRO),
+                            dcc.Dropdown(
+                                id=ID_ELEMENTOS_HTML.FILTRO_GRUPO_FATURAMENTO,
+                                options=opcoes_valores_grupo_faturamento,
+                                value=valores_unicos_grupo_faturamento,
+                                multi=True,
+                                placeholder="Selecione...",
+                            ),
+                        ], style=EstilosCSS.ITEM_FILTRO),
+                        html.Div([
+                            html.Label("Perfil do Imóvel", style=EstilosCSS.LABEL_FILTRO),
+                            dcc.Dropdown(
+                                id=ID_ELEMENTOS_HTML.FILTRO_PERFIL_IMOVEL,
+                                options=opcoes_valores_perfil_imovel,
+                                value=valores_unicos_perfil_imovel,
+                                multi=True,
+                                placeholder="Selecione...",
+                            ),
+                        ], style=EstilosCSS.ITEM_FILTRO),
                     ],
-                    style={"textAlign": "right", "marginTop": "10px"},
+                ),
+            ],
+        ),
+        html.Fieldset(
+            style=estilo_fieldset,
+            children=[
+                html.Legend("Tarifação", style=estilo_legend),
+                html.Div(
+                    style=estilo_grid_interno,
+                    children=[
+                        html.Div([
+                            html.Label("Categoria", style=EstilosCSS.LABEL_FILTRO),
+                            dcc.Dropdown(
+                                id=ID_ELEMENTOS_HTML.FILTRO_CATEGORIA,
+                                options=opcoes_valores_categoria,
+                                value=valores_unicos_categoria,
+                                multi=True,
+                                placeholder="Selecione...",
+                            ),
+                        ], style=EstilosCSS.ITEM_FILTRO),
+                        html.Div([
+                            html.Label("Tipo de Tarifa de Esgoto", style=EstilosCSS.LABEL_FILTRO),
+                            dcc.Dropdown(
+                                id=ID_ELEMENTOS_HTML.FILTRO_TIPO_TARIFA_ESGOTO,
+                                options=opcoes_valores_tipo_tarifa_esgoto,
+                                value=valores_unicos_tipo_tarifa_esgoto,
+                                multi=True,
+                                placeholder="Selecione...",
+                            ),
+                        ], style=EstilosCSS.ITEM_FILTRO),
+                    ],
+                ),
+            ],
+        ),
+        html.Fieldset(
+            style=estilo_fieldset,
+            children=[
+                html.Legend("Anormalidades", style=estilo_legend),
+                html.Div(
+                    style=estilo_grid_interno,
+                    children=[
+                        html.Div([
+                            html.Label("Anormalidade de Leitura", style=EstilosCSS.LABEL_FILTRO),
+                            dcc.Dropdown(
+                                id=ID_ELEMENTOS_HTML.FILTRO_ANORMALIDADE_LEITURA,
+                                options=opcoes_valores_anormalidade_leitura,
+                                value=valores_unicos_anormalidade_leitura,
+                                multi=True,
+                                placeholder="Selecione...",
+                            ),
+                        ], style=EstilosCSS.ITEM_FILTRO),
+                        html.Div([
+                            html.Label("Anormalidade de Consumo", style=EstilosCSS.LABEL_FILTRO),
+                            dcc.Dropdown(
+                                id=ID_ELEMENTOS_HTML.FILTRO_ANORMALIDADE_CONSUMO,
+                                options=opcoes_valores_anormalidade_consumo,
+                                value=valores_unicos_anormalidade_consumo,
+                                multi=True,
+                                placeholder="Selecione...",
+                            ),
+                        ], style=EstilosCSS.ITEM_FILTRO),
+                    ],
                 ),
             ],
         ),
@@ -773,16 +787,19 @@ def gerar_html_dados(
                 contagem_hidrometros,
                 "Nº Total de Hidrômetros",
                 id_dado_numero=ID_ELEMENTOS_HTML.CONTAGEM_HIDROMETROS,
+                icone="#",
             ),
             gerar_html_quadro_dado(
                 porcentagem_hidrometros_ligados,
-                "Porcentagem de Hidrômetros Ligados",
+                "Hidrômetros Ligados (%)",
                 id_dado_numero=ID_ELEMENTOS_HTML.PORCENTAGEM_HIDROMETOS_LIGADOS,
+                icone="%",
             ),
             gerar_html_quadro_dado(
                 idade_media_hidrometros,
-                "Idade Média dos Hidrômetros",
+                "Idade Média (anos)",
                 id_dado_numero=ID_ELEMENTOS_HTML.IDADE_MEDIA_HIDROMETROS,
+                icone="⌀",
             ),
             html.Div(
                 [
@@ -790,23 +807,27 @@ def gerar_html_dados(
                         figure=px.histogram(
                             df,
                             x=ID_ELEMENTOS_HTML.IDADE_HIDROMETRO,
-                            nbins=30,  # quantidade de classes
+                            nbins=30,
                             labels={
                                 "idade_hidrometro": "Idade do Hidrômetro (anos)",
                                 "count": "Frequência",
                             },
                             opacity=0.75,
+                            color_discrete_sequence=_PLOTLY_CORES_BARRAS,
                         ).update_layout(
                             xaxis=dict(
                                 tickmode="linear",
                                 tick0=0,
-                                dtick=2,  # um "tick" a cada 2 anos
+                                dtick=2,
                                 title="Idade do Hidrômetro (anos)",
+                                gridcolor="#2a3f5f",
+                                linecolor="#2a3f5f",
                             ),
-                            yaxis=dict(
-                                title="Frequência",
-                            ),
+                            yaxis=dict(title="Frequência", gridcolor="#2a3f5f", linecolor="#2a3f5f"),
                             bargap=0.05,
+                            paper_bgcolor="#1a2235",
+                            plot_bgcolor="#1a2235",
+                            font_color="#8899aa",
                         )
                     )
                 ],
@@ -820,38 +841,29 @@ def gerar_html_dados(
                             y=df["grupo_leitura"].value_counts(),
                             labels={"y": "Frequência", "x": "Grupo de Faturamento"},
                             title="Gráfico de Frequência do Grupo de Faturamento",
-                        )
+                            color_discrete_sequence=_PLOTLY_CORES_BARRAS,
+                        ).update_layout(**_PLOTLY_DARK_LAYOUT)
                     )
                 ],
                 style=EstilosCSS.GRAFICO,
             ),
             html.Div(
                 [
-                    html.H3(["Tabela de Frequência de Perfil de Imóvel"]),
-                    DataTable(
-                        freq_perfil_imoveis,
-                        style_cell={"textAlign": "left", "border": "1px solid black"},
-                        style_header={
-                            "backgroundColor": "azure",
-                            "font-weight": "bold",
-                            "text-transform": "uppercase",
-                        },
+                    html.H3(
+                        "Tabela de Frequência de Perfil de Imóvel",
+                        style={"color": "#8899aa", "textTransform": "uppercase", "letterSpacing": "0.5px", "fontSize": "0.85rem", "marginBottom": "8px"},
                     ),
+                    DataTable(freq_perfil_imoveis, **_TABELA_DARK),
                 ],
                 style=EstilosCSS.TABELA,
             ),
             html.Div(
                 [
-                    html.H3(["Tabela de Frequência de Diâmetro em Hidrômetros"]),
-                    DataTable(
-                        freq_hidrometros,
-                        style_cell={"textAlign": "left", "border": "1px solid black"},
-                        style_header={
-                            "backgroundColor": "azure",
-                            "font-weight": "bold",
-                            "text-transform": "uppercase",
-                        },
+                    html.H3(
+                        "Tabela de Frequência de Diâmetro em Hidrômetros",
+                        style={"color": "#8899aa", "textTransform": "uppercase", "letterSpacing": "0.5px", "fontSize": "0.85rem", "marginBottom": "8px"},
                     ),
+                    DataTable(freq_hidrometros, **_TABELA_DARK),
                 ],
                 style=EstilosCSS.TABELA,
             ),
@@ -1038,20 +1050,13 @@ def gerar_html_dados_consumo_mes(
                             y=frequencia_consumos_medios,
                             labels={"y": "Frequência", "x": "Consumo Médio"},
                             title="Gráfico de Consumo Médio",
-                        )
+                            color_discrete_sequence=_PLOTLY_CORES_BARRAS,
+                        ).update_layout(**_PLOTLY_DARK_LAYOUT)
                     )
                 ],
                 style=EstilosCSS.GRAFICO,
             ),
-            DataTable(
-                anormalidade_de_leitura.to_dict("records"),
-                style_cell={"textAlign": "left", "border": "1px solid black"},
-                style_header={
-                    "backgroundColor": "azure",
-                    "font-weight": "bold",
-                    "text-transform": "uppercase",
-                },
-            ),
+            DataTable(anormalidade_de_leitura.to_dict("records"), **_TABELA_DARK),
             html.Div(
                 [
                     dcc.Graph(
@@ -1060,7 +1065,8 @@ def gerar_html_dados_consumo_mes(
                             y=frequencia_consumos_medidos,
                             labels={"y": "Frequência", "x": "Consumo Medido"},
                             title="Gráfico de Consumo Medido",
-                        )
+                            color_discrete_sequence=_PLOTLY_CORES_BARRAS,
+                        ).update_layout(**_PLOTLY_DARK_LAYOUT)
                     )
                 ],
                 style=EstilosCSS.GRAFICO,
@@ -1073,34 +1079,23 @@ def gerar_html_dados_consumo_mes(
                             y=frequencia_consumo_faturado,
                             labels={"y": "Frequência", "x": "Consumo Faturado"},
                             title="Gráfico de Consumo Faturado",
-                        )
+                            color_discrete_sequence=_PLOTLY_CORES_BARRAS,
+                        ).update_layout(**_PLOTLY_DARK_LAYOUT)
                     )
                 ],
                 style=EstilosCSS.GRAFICO,
             ),
-            DataTable(
-                frequencia_anormalidade_consumo.to_dict("records"),
-                style_cell={"textAlign": "left", "border": "1px solid black"},
-                style_header={
-                    "backgroundColor": "azure",
-                    "font-weight": "bold",
-                    "text-transform": "uppercase",
-                },
-            ),
+            DataTable(frequencia_anormalidade_consumo.to_dict("records"), **_TABELA_DARK),
             html.Div(
                 [
                     dcc.Graph(
                         figure=px.bar(
                             x=frequencia_divida_total_vencida["Dívida Total Vencida"],
-                            y=frequencia_divida_total_vencida[
-                                "Frequência Relativa (%)"
-                            ],
-                            labels={
-                                "y": "Frequência (%)",
-                                "x": "Total Dívida Vencida",
-                            },
+                            y=frequencia_divida_total_vencida["Frequência Relativa (%)"],
+                            labels={"y": "Frequência (%)", "x": "Total Dívida Vencida"},
                             title="Gráfico de Dívida Total Vencida",
-                        )
+                            color_discrete_sequence=_PLOTLY_CORES_BARRAS,
+                        ).update_layout(**_PLOTLY_DARK_LAYOUT)
                     )
                 ],
                 style=EstilosCSS.GRAFICO,
@@ -1109,21 +1104,12 @@ def gerar_html_dados_consumo_mes(
                 [
                     dcc.Graph(
                         figure=px.bar(
-                            x=[
-                                str(x)
-                                for x in frequencia_contas_vencidas_aberto[
-                                    "Contas Vencidas"
-                                ]
-                            ],
-                            y=frequencia_contas_vencidas_aberto[
-                                "Frequência Relativa (%)"
-                            ],
-                            labels={
-                                "y": "Frequência (%)",
-                                "x": "Contas Vencidas em Aberto",
-                            },
+                            x=[str(x) for x in frequencia_contas_vencidas_aberto["Contas Vencidas"]],
+                            y=frequencia_contas_vencidas_aberto["Frequência Relativa (%)"],
+                            labels={"y": "Frequência (%)", "x": "Contas Vencidas em Aberto"},
                             title="Gráfico de Contas Vencidas em Aberto",
-                        )
+                            color_discrete_sequence=_PLOTLY_CORES_BARRAS,
+                        ).update_layout(**_PLOTLY_DARK_LAYOUT)
                     )
                 ],
                 style=EstilosCSS.GRAFICO,
@@ -1131,12 +1117,7 @@ def gerar_html_dados_consumo_mes(
             DataTable(
                 ramais_com_consumo_maior_ou_menor_que_o_esperado.to_dict("records"),
                 page_size=10,
-                style_cell={"textAlign": "left", "border": "1px solid black"},
-                style_header={
-                    "backgroundColor": "azure",
-                    "font-weight": "bold",
-                    "text-transform": "uppercase",
-                },
+                **_TABELA_DARK,
             ),
         ],
         style=estilo,
@@ -1149,6 +1130,7 @@ def gerar_html_quadro_dado(
     estilo_extra: dict[str, str] | None = None,
     id_dado_numero: str = "",
     hidden: bool = False,
+    icone: str = "",
 ):
     if estilo_extra is None:
         estilo_extra = {}
@@ -1156,7 +1138,7 @@ def gerar_html_quadro_dado(
     return html.Div(
         [
             html.Div(dado, style=EstilosCSS.QUADRO_DADO_NUMERO, id=id_dado_numero),
-            html.Div(titulo),
+            html.Div(titulo, style=EstilosCSS.QUADRO_DADO_LABEL),
         ],
         style=EstilosCSS.QUADRO_DADO | estilo_extra,
         hidden=hidden,

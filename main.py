@@ -3,7 +3,7 @@ import io
 import sys
 
 import pandas as pd
-from dash import Dash, html, callback, Output, Input, State
+from dash import Dash, html, callback, Output, Input, State, ctx
 
 from tipos import NOME_VARIAVEIS
 from elementos_html import (
@@ -80,37 +80,179 @@ if len(sys.argv) > 1:
 
 app = Dash(suppress_callback_exceptions=True)
 
+_ESTILO_PAINEL_ABERTO = {
+    "position": "fixed",
+    "top": "0",
+    "left": "0",
+    "width": "380px",
+    "height": "100vh",
+    "zIndex": "1001",
+    "display": "flex",
+    "flexDirection": "column",
+    "backgroundColor": "#151929",
+    "borderRight": "1px solid #2a3f5f",
+    "boxShadow": "4px 0 24px rgba(0,0,0,0.6)",
+}
+_ESTILO_PAINEL_FECHADO = {"display": "none"}
+_ESTILO_BACKDROP_ABERTO = {
+    "position": "fixed",
+    "top": "0",
+    "left": "0",
+    "right": "0",
+    "bottom": "0",
+    "zIndex": "1000",
+    "backgroundColor": "rgba(0,0,0,0.5)",
+}
+_ESTILO_BACKDROP_FECHADO = {"display": "none"}
+
 app.layout = [
     html.Div(
         id=ID_ELEMENTOS_HTML.LAYOUT,
         children=[
-            html.Section(
-                id=ID_ELEMENTOS_HTML.AREA_UPLOAD_TABELA,
-                style={"display": "flex", "flexDirection": "column", "gap": "5px"},
+            # Sidebar
+            html.Div(
+                id="sidebar",
                 children=[
-                    html.Div(
-                        style={
-                            "display": "flex",
-                            "flexDirection": "column",
-                            "gap": "2px",
-                        },
+                    html.Section(
+                        id=ID_ELEMENTOS_HTML.AREA_UPLOAD_TABELA,
+                        style={"display": "flex", "flexDirection": "column", "gap": "5px"},
                         children=[
-                            html.H2("Abrir Planilha"),
-                            gerar_form_importar_planilha(
-                                mes_extracao=mes_extracao, ano_extracao=ano_extracao
+                            html.Div(
+                                style={"display": "flex", "flexDirection": "column", "gap": "2px"},
+                                children=[
+                                    html.H2(
+                                        "Abrir Planilha",
+                                        style={
+                                            "color": "#ffffff",
+                                            "fontSize": "0.85rem",
+                                            "textTransform": "uppercase",
+                                            "letterSpacing": "1px",
+                                            "marginBottom": "8px",
+                                        },
+                                    ),
+                                    gerar_form_importar_planilha(
+                                        mes_extracao=mes_extracao, ano_extracao=ano_extracao
+                                    ),
+                                ],
+                            ),
+                            html.Div(
+                                id=ID_ELEMENTOS_HTML.AREA_ASSOCIACAO_COLUNAS,
+                                children=[],
                             ),
                         ],
                     ),
+                    # Botão de filtros fixo no rodapé da sidebar
                     html.Div(
-                        id=ID_ELEMENTOS_HTML.AREA_ASSOCIACAO_COLUNAS,
-                        children=[],
+                        html.Button(
+                            "Filtros",
+                            id=ID_ELEMENTOS_HTML.BOTAO_TOGGLE_FILTROS,
+                            style={
+                                "backgroundColor": "#2196c4",
+                                "color": "white",
+                                "border": "none",
+                                "padding": "14px",
+                                "width": "100%",
+                                "fontWeight": "bold",
+                                "cursor": "pointer",
+                                "fontSize": "0.85rem",
+                                "textTransform": "uppercase",
+                                "letterSpacing": "1px",
+                            },
+                        ),
+                        style={
+                            "marginTop": "auto",
+                            "borderTop": "1px solid #2a3f5f",
+                        },
                     ),
                 ],
             ),
-            html.Section(id=ID_ELEMENTOS_HTML.FILTROS, children=filtro_html),
-            html.Section(
-                id=ID_ELEMENTOS_HTML.SECAO_RESULTADOS,
-                children=dados_html,
+            # Área principal
+            html.Div(
+                id="main-content",
+                children=[
+                    html.Section(
+                        id=ID_ELEMENTOS_HTML.SECAO_RESULTADOS,
+                        children=dados_html,
+                    ),
+                ],
+            ),
+            # Backdrop (fecha o painel ao clicar fora)
+            html.Div(
+                id=ID_ELEMENTOS_HTML.BACKDROP_FILTROS,
+                style=_ESTILO_BACKDROP_FECHADO,
+                n_clicks=0,
+            ),
+            # Painel de filtros (drawer lateral)
+            html.Div(
+                id=ID_ELEMENTOS_HTML.PAINEL_FILTROS,
+                style=_ESTILO_PAINEL_FECHADO,
+                children=[
+                    # Cabeçalho
+                    html.Div(
+                        [
+                            html.Span(
+                                "Filtros",
+                                style={
+                                    "fontWeight": "bold",
+                                    "fontSize": "1rem",
+                                    "color": "#ffffff",
+                                    "textTransform": "uppercase",
+                                    "letterSpacing": "1px",
+                                },
+                            ),
+                            html.Button(
+                                "✕",
+                                id=ID_ELEMENTOS_HTML.BOTAO_FECHAR_FILTROS,
+                                style={
+                                    "background": "none",
+                                    "border": "none",
+                                    "color": "#8899aa",
+                                    "fontSize": "1.4rem",
+                                    "cursor": "pointer",
+                                    "lineHeight": "1",
+                                },
+                            ),
+                        ],
+                        style={
+                            "display": "flex",
+                            "justifyContent": "space-between",
+                            "alignItems": "center",
+                            "padding": "16px 24px",
+                            "borderBottom": "1px solid #2a3f5f",
+                            "backgroundColor": "#151929",
+                        },
+                    ),
+                    # Conteúdo dos filtros (com scroll)
+                    html.Div(
+                        html.Section(id=ID_ELEMENTOS_HTML.FILTROS, children=filtro_html),
+                        style={
+                            "flex": "1",
+                            "overflowY": "auto",
+                            "padding": "24px",
+                        },
+                    ),
+                    # Rodapé com botão aplicar
+                    html.Div(
+                        html.Button(
+                            "Aplicar Filtros",
+                            id=ID_ELEMENTOS_HTML.FILTRO_SUBMIT,
+                            type="button",
+                            style={
+                                "backgroundColor": "#2196c4",
+                                "color": "white",
+                                "border": "none",
+                                "padding": "16px",
+                                "width": "100%",
+                                "fontWeight": "bold",
+                                "cursor": "pointer",
+                                "fontSize": "0.9rem",
+                                "textTransform": "uppercase",
+                                "letterSpacing": "1px",
+                            },
+                        ),
+                        style={"borderTop": "1px solid #2a3f5f"},
+                    ),
+                ],
             ),
         ],
     ),
@@ -120,6 +262,20 @@ app.layout = [
 #################
 ### CALLBACKS ###
 #################
+
+
+@callback(
+    Output(ID_ELEMENTOS_HTML.PAINEL_FILTROS, "style"),
+    Output(ID_ELEMENTOS_HTML.BACKDROP_FILTROS, "style"),
+    Input(ID_ELEMENTOS_HTML.BOTAO_TOGGLE_FILTROS, "n_clicks"),
+    Input(ID_ELEMENTOS_HTML.BOTAO_FECHAR_FILTROS, "n_clicks"),
+    Input(ID_ELEMENTOS_HTML.BACKDROP_FILTROS, "n_clicks"),
+    prevent_initial_call=True,
+)
+def toggle_painel_filtros(_open, _fechar, _backdrop):
+    if ctx.triggered_id == ID_ELEMENTOS_HTML.BOTAO_TOGGLE_FILTROS:
+        return _ESTILO_PAINEL_ABERTO, _ESTILO_BACKDROP_ABERTO
+    return _ESTILO_PAINEL_FECHADO, _ESTILO_BACKDROP_FECHADO
 
 
 @callback(
@@ -193,6 +349,8 @@ def liberar_associacao_de_colunas(
 
 @callback(
     Output(ID_ELEMENTOS_HTML.SECAO_RESULTADOS, "children", allow_duplicate=True),
+    Output(ID_ELEMENTOS_HTML.PAINEL_FILTROS, "style", allow_duplicate=True),
+    Output(ID_ELEMENTOS_HTML.BACKDROP_FILTROS, "style", allow_duplicate=True),
     Input(ID_ELEMENTOS_HTML.FILTRO_SUBMIT, "n_clicks"),
     State(ID_ELEMENTOS_HTML.FILTRO_DIAMETRO, "value"),
     State(ID_ELEMENTOS_HTML.FILTRO_IDADE, "value"),
@@ -257,7 +415,7 @@ def filtrar(
     ]
 
     if filtrado.empty:
-        return gerar_html_zero_resultados()
+        return gerar_html_zero_resultados(), _ESTILO_PAINEL_FECHADO, _ESTILO_BACKDROP_FECHADO
 
     dados = calculos.calcular_todos_os_dados_necessarios(filtrado)
     dados["datas_referencias"] = calculos.calcular_data_referencia(
@@ -265,7 +423,7 @@ def filtrar(
     )
     dados_html = gerar_html_dados(**dados)
 
-    return dados_html
+    return dados_html, _ESTILO_PAINEL_FECHADO, _ESTILO_BACKDROP_FECHADO
 
 
 @callback(

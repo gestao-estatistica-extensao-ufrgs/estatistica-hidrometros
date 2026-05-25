@@ -312,6 +312,13 @@ def calcular_dados_hidrometros_segundo_diametro(
                     y=contagem_idades_hidrometros,
                     labels={"y": "Frequência", "x": "idade"},
                     title=titulo,
+                    color_discrete_sequence=["#1e6091", "#2196c4", "#56b4d3", "#a8d8ea"],
+                ).update_layout(
+                    paper_bgcolor="#1a2235",
+                    plot_bgcolor="#1a2235",
+                    font_color="#8899aa",
+                    xaxis={"gridcolor": "#2a3f5f", "linecolor": "#2a3f5f"},
+                    yaxis={"gridcolor": "#2a3f5f", "linecolor": "#2a3f5f"},
                 )
             )
         ]
