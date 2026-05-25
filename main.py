@@ -200,6 +200,10 @@ def liberar_associacao_de_colunas(
     State(ID_ELEMENTOS_HTML.FILTRO_DIAMETRO_LETRA, "value"),
     State(ID_ELEMENTOS_HTML.FILTRO_GRUPO_FATURAMENTO, "value"),
     State(ID_ELEMENTOS_HTML.FILTRO_PERFIL_IMOVEL, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_CATEGORIA, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_TIPO_TARIFA_ESGOTO, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_ANORMALIDADE_LEITURA, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_ANORMALIDADE_CONSUMO, "value"),
     State(ID_ELEMENTOS_HTML.MES_EXTRACAO, "value"),
     State(ID_ELEMENTOS_HTML.ANO_EXTRACAO, "value"),
     prevent_initial_call=True,
@@ -212,6 +216,10 @@ def filtrar(
     diametro_letra: list[str],
     grupo_faturamento: list[str],
     perfil_imovel_selecionados: list[str],
+    categorias: list[str],
+    tipos_tarifa_esgoto: list[str],
+    anormalidades_leitura: list[str],
+    anormalidades_consumo: list[str],
     mes_extracao: int,
     ano_extracao: int,
 ):
@@ -222,6 +230,10 @@ def filtrar(
     diametro_letra = diametro_letra or []
     grupo_faturamento = grupo_faturamento or []
     perfil_imovel_selecionados = perfil_imovel_selecionados or []
+    categorias = categorias or []
+    tipos_tarifa_esgoto = tipos_tarifa_esgoto or []
+    anormalidades_leitura = anormalidades_leitura or []
+    anormalidades_consumo = anormalidades_consumo or []
 
     filtrado = DF[
         (DF.diametro.isin(limites_diametros))
@@ -230,6 +242,18 @@ def filtrar(
         & (DF.diametro_letra.isin(diametro_letra))
         & (DF.grupo_leitura.isin(grupo_faturamento))
         & (DF.perfil_imovel.isin(perfil_imovel_selecionados))
+        & (DF.categoria.isin(categorias))
+        & (DF.tipo_tarifa_esgoto.isin(tipos_tarifa_esgoto))
+        & (
+            DF.anormalidade_leitura_mes_1.isin(anormalidades_leitura)
+            | DF.anormalidade_leitura_mes_2.isin(anormalidades_leitura)
+            | DF.anormalidade_leitura_mes_3.isin(anormalidades_leitura)
+        )
+        & (
+            DF.anormalidade_consumo_mes_1.isin(anormalidades_consumo)
+            | DF.anormalidade_consumo_mes_2.isin(anormalidades_consumo)
+            | DF.anormalidade_consumo_mes_3.isin(anormalidades_consumo)
+        )
     ]
 
     if filtrado.empty:
@@ -488,6 +512,10 @@ def escolher_aba_consumo_mes(mes_referencia: str):
     State(ID_ELEMENTOS_HTML.FILTRO_DIAMETRO_LETRA, "value"),
     State(ID_ELEMENTOS_HTML.FILTRO_GRUPO_FATURAMENTO, "value"),
     State(ID_ELEMENTOS_HTML.FILTRO_PERFIL_IMOVEL, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_CATEGORIA, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_TIPO_TARIFA_ESGOTO, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_ANORMALIDADE_LEITURA, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_ANORMALIDADE_CONSUMO, "value"),
     prevent_initial_call=True,
 )
 def concatenar_dados_consumo_mes(
@@ -499,6 +527,10 @@ def concatenar_dados_consumo_mes(
     diametro_letra: list[str],
     grupo_faturamento: list[str],
     perfil_imovel_selecionados: list[str],
+    categorias: list[str],
+    tipos_tarifa_esgoto: list[str],
+    anormalidades_leitura: list[str],
+    anormalidades_consumo: list[str],
 ):
     global DF
 
@@ -507,6 +539,10 @@ def concatenar_dados_consumo_mes(
     diametro_letra = diametro_letra or []
     grupo_faturamento = grupo_faturamento or []
     perfil_imovel_selecionados = perfil_imovel_selecionados or []
+    categorias = categorias or []
+    tipos_tarifa_esgoto = tipos_tarifa_esgoto or []
+    anormalidades_leitura = anormalidades_leitura or []
+    anormalidades_consumo = anormalidades_consumo or []
 
     filtrado = DF[
         (DF.diametro.isin(limites_diametros))
@@ -515,6 +551,18 @@ def concatenar_dados_consumo_mes(
         & (DF.diametro_letra.isin(diametro_letra))
         & (DF.grupo_leitura.isin(grupo_faturamento))
         & (DF.perfil_imovel.isin(perfil_imovel_selecionados))
+        & (DF.categoria.isin(categorias))
+        & (DF.tipo_tarifa_esgoto.isin(tipos_tarifa_esgoto))
+        & (
+            DF.anormalidade_leitura_mes_1.isin(anormalidades_leitura)
+            | DF.anormalidade_leitura_mes_2.isin(anormalidades_leitura)
+            | DF.anormalidade_leitura_mes_3.isin(anormalidades_leitura)
+        )
+        & (
+            DF.anormalidade_consumo_mes_1.isin(anormalidades_consumo)
+            | DF.anormalidade_consumo_mes_2.isin(anormalidades_consumo)
+            | DF.anormalidade_consumo_mes_3.isin(anormalidades_consumo)
+        )
     ]
 
     media_do_consumo_medio_mes_1 = filtrado.media_consumo_mes_1.mean()

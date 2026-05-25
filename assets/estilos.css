@@ -62,3 +62,23 @@ h6 {
     column-gap: 10px;
     row-gap: 10px;
 }
+
+/* Accordion de filtros */
+#filtros details > summary {
+    list-style: none;
+    user-select: none;
+}
+#filtros details > summary::-webkit-details-marker {
+    display: none;
+}
+#filtros details > summary::before {
+    content: "▶";
+    display: inline-block;
+    margin-right: 8px;
+    font-size: 0.75rem;
+    transition: transform 0.2s ease;
+    color: #007bff;
+}
+#filtros details[open] > summary::before {
+    transform: rotate(90deg);
+}

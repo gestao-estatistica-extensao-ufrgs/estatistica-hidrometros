@@ -416,6 +416,36 @@ def calcular_dados_necessarios_do_filtro(df: pd.DataFrame):
     valores_unicos_perfil = list(df.perfil_imovel.unique())
     opcoes_perfil = [{"label": v, "value": v} for v in sorted(valores_unicos_perfil)]
 
+    valores_unicos_categoria = list(df.categoria.unique())
+    opcoes_categoria = [{"label": v, "value": v} for v in sorted(valores_unicos_categoria)]
+
+    valores_unicos_tipo_tarifa_esgoto = list(df.tipo_tarifa_esgoto.unique())
+    opcoes_tipo_tarifa_esgoto = [
+        {"label": v, "value": v} for v in sorted(valores_unicos_tipo_tarifa_esgoto)
+    ]
+
+    valores_unicos_anormalidade_leitura = list(
+        pd.concat([
+            df[ColunasDataframe.ANORMALIDADE_LEITURA_MES_1],
+            df[ColunasDataframe.ANORMALIDADE_LEITURA_MES_2],
+            df[ColunasDataframe.ANORMALIDADE_LEITURA_MES_3],
+        ]).unique()
+    )
+    opcoes_anormalidade_leitura = [
+        {"label": v, "value": v} for v in sorted(valores_unicos_anormalidade_leitura)
+    ]
+
+    valores_unicos_anormalidade_consumo = list(
+        pd.concat([
+            df[ColunasDataframe.ANORMALIDADE_CONSUMO_MES_1],
+            df[ColunasDataframe.ANORMALIDADE_CONSUMO_MES_2],
+            df[ColunasDataframe.ANORMALIDADE_CONSUMO_MES_3],
+        ]).unique()
+    )
+    opcoes_anormalidade_consumo = [
+        {"label": v, "value": v} for v in sorted(valores_unicos_anormalidade_consumo)
+    ]
+
     return {
         "opcoes_valores_diametro_filtro": VALORES_DIAMETRO_FILTRO,
         "valores_unicos_diametro": valores_unicos_diametro,
@@ -429,6 +459,14 @@ def calcular_dados_necessarios_do_filtro(df: pd.DataFrame):
         "valores_unicos_grupo_faturamento": valores_unicos_grupo_faturamento,
         "opcoes_valores_perfil_imovel": opcoes_perfil,
         "valores_unicos_perfil_imovel": valores_unicos_perfil,
+        "opcoes_valores_categoria": opcoes_categoria,
+        "valores_unicos_categoria": valores_unicos_categoria,
+        "opcoes_valores_tipo_tarifa_esgoto": opcoes_tipo_tarifa_esgoto,
+        "valores_unicos_tipo_tarifa_esgoto": valores_unicos_tipo_tarifa_esgoto,
+        "opcoes_valores_anormalidade_leitura": opcoes_anormalidade_leitura,
+        "valores_unicos_anormalidade_leitura": valores_unicos_anormalidade_leitura,
+        "opcoes_valores_anormalidade_consumo": opcoes_anormalidade_consumo,
+        "valores_unicos_anormalidade_consumo": valores_unicos_anormalidade_consumo,
     }
 
 
