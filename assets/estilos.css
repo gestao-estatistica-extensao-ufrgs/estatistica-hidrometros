@@ -155,3 +155,12 @@ h1, h2, h3, h4, h5, h6 {
     background-color: var(--bg-input) !important;
     color: var(--texto-principal) !important;
 }
+
+/* Ocultar linha de filtro nativa das DataTables (usamos busca externa) */
+.dash-filter {
+    display: none !important;
+}
+
+tr:has(.dash-filter) {
+    display: none !important;
+}

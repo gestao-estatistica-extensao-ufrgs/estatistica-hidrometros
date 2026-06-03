@@ -3,7 +3,7 @@ import io
 import sys
 
 import pandas as pd
-from dash import Dash, html, callback, Output, Input, State, ctx
+from dash import Dash, html, dcc, callback, Output, Input, State, ctx, MATCH
 
 from tipos import NOME_VARIAVEIS
 from elementos_html import (
@@ -14,6 +14,7 @@ from elementos_html import (
     gerar_html_dados_consumo_mes,
     gerar_html_filtros,
     gerar_html_zero_resultados,
+    _ramais_para_tabela,
     ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS,
     ID_ELEMENTOS_HTML,
     EstilosCSS,
@@ -70,9 +71,10 @@ if len(sys.argv) > 1:
         mes_extracao = 10
         ano_extracao = 2024
 
-        filtro_html = gerar_html_filtros(
-            **calculos.calcular_dados_necessarios_do_filtro(DF)
-        )
+        _dados_filtro = calculos.calcular_dados_necessarios_do_filtro(DF)
+        _dados_filtro.pop("opcoes_valores_anormalidade_leitura", None)
+        _dados_filtro.pop("valores_unicos_anormalidade_leitura", None)
+        filtro_html = gerar_html_filtros(**_dados_filtro)
 
         dados = calculos.calcular_todos_os_dados_necessarios(DF)
         dados["datas_referencias"] = calculos.calcular_data_referencia(10, 2024)
@@ -360,7 +362,6 @@ def liberar_associacao_de_colunas(
     State(ID_ELEMENTOS_HTML.FILTRO_PERFIL_IMOVEL, "value"),
     State(ID_ELEMENTOS_HTML.FILTRO_CATEGORIA, "value"),
     State(ID_ELEMENTOS_HTML.FILTRO_TIPO_TARIFA_ESGOTO, "value"),
-    State(ID_ELEMENTOS_HTML.FILTRO_ANORMALIDADE_LEITURA, "value"),
     State(ID_ELEMENTOS_HTML.FILTRO_ANORMALIDADE_CONSUMO, "value"),
     State(ID_ELEMENTOS_HTML.MES_EXTRACAO, "value"),
     State(ID_ELEMENTOS_HTML.ANO_EXTRACAO, "value"),
@@ -376,7 +377,6 @@ def filtrar(
     perfil_imovel_selecionados: list[str],
     categorias: list[str],
     tipos_tarifa_esgoto: list[str],
-    anormalidades_leitura: list[str],
     anormalidades_consumo: list[str],
     mes_extracao: int,
     ano_extracao: int,
@@ -390,7 +390,6 @@ def filtrar(
     perfil_imovel_selecionados = perfil_imovel_selecionados or []
     categorias = categorias or []
     tipos_tarifa_esgoto = tipos_tarifa_esgoto or []
-    anormalidades_leitura = anormalidades_leitura or []
     anormalidades_consumo = anormalidades_consumo or []
 
     filtrado = DF[
@@ -402,11 +401,6 @@ def filtrar(
         & (DF.perfil_imovel.isin(perfil_imovel_selecionados))
         & (DF.categoria.isin(categorias))
         & (DF.tipo_tarifa_esgoto.isin(tipos_tarifa_esgoto))
-        & (
-            DF.anormalidade_leitura_mes_1.isin(anormalidades_leitura)
-            | DF.anormalidade_leitura_mes_2.isin(anormalidades_leitura)
-            | DF.anormalidade_leitura_mes_3.isin(anormalidades_leitura)
-        )
         & (
             DF.anormalidade_consumo_mes_1.isin(anormalidades_consumo)
             | DF.anormalidade_consumo_mes_2.isin(anormalidades_consumo)
@@ -621,6 +615,8 @@ def associar_colunas(
         )
 
         dados = calculos.calcular_dados_necessarios_do_filtro(DF)
+        dados.pop("opcoes_valores_anormalidade_leitura", None)
+        dados.pop("valores_unicos_anormalidade_leitura", None)
 
         return (
             gerar_html_filtros(**dados),
@@ -672,7 +668,7 @@ def escolher_aba_consumo_mes(mes_referencia: str):
     State(ID_ELEMENTOS_HTML.FILTRO_PERFIL_IMOVEL, "value"),
     State(ID_ELEMENTOS_HTML.FILTRO_CATEGORIA, "value"),
     State(ID_ELEMENTOS_HTML.FILTRO_TIPO_TARIFA_ESGOTO, "value"),
-    State(ID_ELEMENTOS_HTML.FILTRO_ANORMALIDADE_LEITURA, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_LOCAL_ANORM_LEITURA, "value"),
     State(ID_ELEMENTOS_HTML.FILTRO_ANORMALIDADE_CONSUMO, "value"),
     prevent_initial_call=True,
 )
@@ -687,7 +683,7 @@ def concatenar_dados_consumo_mes(
     perfil_imovel_selecionados: list[str],
     categorias: list[str],
     tipos_tarifa_esgoto: list[str],
-    anormalidades_leitura: list[str],
+    anorm_leitura_local: list[str],
     anormalidades_consumo: list[str],
 ):
     global DF
@@ -699,7 +695,7 @@ def concatenar_dados_consumo_mes(
     perfil_imovel_selecionados = perfil_imovel_selecionados or []
     categorias = categorias or []
     tipos_tarifa_esgoto = tipos_tarifa_esgoto or []
-    anormalidades_leitura = anormalidades_leitura or []
+    anorm_leitura_local = anorm_leitura_local or []
     anormalidades_consumo = anormalidades_consumo or []
 
     filtrado = DF[
@@ -712,9 +708,9 @@ def concatenar_dados_consumo_mes(
         & (DF.categoria.isin(categorias))
         & (DF.tipo_tarifa_esgoto.isin(tipos_tarifa_esgoto))
         & (
-            DF.anormalidade_leitura_mes_1.isin(anormalidades_leitura)
-            | DF.anormalidade_leitura_mes_2.isin(anormalidades_leitura)
-            | DF.anormalidade_leitura_mes_3.isin(anormalidades_leitura)
+            DF.anormalidade_leitura_mes_1.isin(anorm_leitura_local)
+            | DF.anormalidade_leitura_mes_2.isin(anorm_leitura_local)
+            | DF.anormalidade_leitura_mes_3.isin(anorm_leitura_local)
         )
         & (
             DF.anormalidade_consumo_mes_1.isin(anormalidades_consumo)
@@ -771,24 +767,12 @@ def concatenar_dados_consumo_mes(
         frequencia_anormalidade_consumo_3,
     ) = calculos.calcular_frequencia_anormalidade_consumo(filtrado)
 
-    frequencia_total_dividas_vencidas = (
-        calculos.calcular_frequencia_total_divida_vencida(filtrado, valor_limite)
-    )
-    frequencia_contas_vencidas_aberto = (
-        calculos.calcular_frequencia_contas_vencidas_aberto(filtrado, valor_limite)
-    )
-
-    ramais_com_consumo_maior_ou_menor_que_o_esperado = (
-        filtrado[
-            ["ramal", "diametro_letra", "consumo_max_mes_1", "media_consumo_mes_1"]
-        ],
-        filtrado[
-            ["ramal", "diametro_letra", "consumo_max_mes_2", "media_consumo_mes_2"]
-        ],
-        filtrado[
-            ["ramal", "diametro_letra", "consumo_max_mes_3", "media_consumo_mes_3"]
-        ],
-    )
+    ramais_mes_1 = filtrado.loc[filtrado.consumo_max_mes_1.isin(["Maior", "Menor"]),
+                                ["ramal", "diametro_letra", "consumo_max_mes_1", "media_consumo_mes_1"]]
+    ramais_mes_2 = filtrado.loc[filtrado.consumo_max_mes_2.isin(["Maior", "Menor"]),
+                                ["ramal", "diametro_letra", "consumo_max_mes_2", "media_consumo_mes_2"]]
+    ramais_mes_3 = filtrado.loc[filtrado.consumo_max_mes_3.isin(["Maior", "Menor"]),
+                                ["ramal", "diametro_letra", "consumo_max_mes_3", "media_consumo_mes_3"]]
 
     return [
         gerar_html_dados_consumo_mes(
@@ -796,15 +780,16 @@ def concatenar_dados_consumo_mes(
             desvio_padrao_consumo_medio_mes_1,
             frequencia_consumo_acima_limite_mes_1,
             frequencia_consumos_medios_mes_1,
-            anormalidade_leitura_mes_1,
             frequencia_consumos_medidos_mes_1,
             frequencia_consumo_faturado_mes_1,
+            anormalidade_leitura_mes_1,
             frequencia_anormalidade_consumo_1,
-            frequencia_contas_vencidas_aberto,
-            ramais_com_consumo_maior_ou_menor_que_o_esperado[0],
-            frequencia_total_dividas_vencidas,
+            ramais_mes_1,
+            "consumo_max_mes_1",
+            "media_consumo_mes_1",
             "Mês 1",
             ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_1,
+            mes_index="mes-1",
             limite_consumo_utilizado=valor_limite,
         ),
         gerar_html_dados_consumo_mes(
@@ -812,15 +797,16 @@ def concatenar_dados_consumo_mes(
             desvio_padrao_consumo_medio_mes_2,
             frequencia_consumo_acima_limite_mes_2,
             frequencia_consumos_medios_mes_2,
-            anormalidade_leitura_mes_2,
             frequencia_consumos_medidos_mes_2,
             frequencia_consumo_faturado_mes_2,
+            anormalidade_leitura_mes_2,
             frequencia_anormalidade_consumo_2,
-            frequencia_contas_vencidas_aberto,
-            ramais_com_consumo_maior_ou_menor_que_o_esperado[1],
-            frequencia_total_dividas_vencidas,
+            ramais_mes_2,
+            "consumo_max_mes_2",
+            "media_consumo_mes_2",
             "Mês 2",
             ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_2,
+            mes_index="mes-2",
             oculto=True,
             limite_consumo_utilizado=valor_limite,
         ),
@@ -829,19 +815,213 @@ def concatenar_dados_consumo_mes(
             desvio_padrao_consumo_medio_mes_3,
             frequencia_consumo_acima_limite_mes_3,
             frequencia_consumos_medios_mes_3,
-            anormalidade_leitura_mes_3,
             frequencia_consumos_medidos_mes_3,
             frequencia_consumo_faturado_mes_3,
+            anormalidade_leitura_mes_3,
             frequencia_anormalidade_consumo_3,
-            frequencia_contas_vencidas_aberto,
-            ramais_com_consumo_maior_ou_menor_que_o_esperado[2],
-            frequencia_total_dividas_vencidas,
+            ramais_mes_3,
+            "consumo_max_mes_3",
+            "media_consumo_mes_3",
             "Mês 3",
             ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_3,
+            mes_index="mes-3",
             oculto=True,
             limite_consumo_utilizado=valor_limite,
         ),
     ]
+
+
+def _filtrar_df(
+    limites_diametros, limites_idade, situacoes, diametro_letra,
+    grupo_faturamento, perfil_imovel_selecionados, categorias,
+    tipos_tarifa_esgoto, anormalidades_consumo,
+):
+    global DF
+    return DF[
+        (DF.diametro.isin(limites_diametros or []))
+        & (DF.idade_hidrometro.between(limites_idade[0], limites_idade[1]))
+        & (DF.situacao_ligacao_agua.isin(situacoes or []))
+        & (DF.diametro_letra.isin(diametro_letra or []))
+        & (DF.grupo_leitura.isin(grupo_faturamento or []))
+        & (DF.perfil_imovel.isin(perfil_imovel_selecionados or []))
+        & (DF.categoria.isin(categorias or []))
+        & (DF.tipo_tarifa_esgoto.isin(tipos_tarifa_esgoto or []))
+        & (
+            DF.anormalidade_consumo_mes_1.isin(anormalidades_consumo or [])
+            | DF.anormalidade_consumo_mes_2.isin(anormalidades_consumo or [])
+            | DF.anormalidade_consumo_mes_3.isin(anormalidades_consumo or [])
+        )
+    ]
+
+
+@callback(
+    Output(ID_ELEMENTOS_HTML.TABELA_RAMAIS_ANORMALIDADE, "data"),
+    Output(ID_ELEMENTOS_HTML.TOTAL_RAMAIS_ANORMALIDADE, "children"),
+    Input(ID_ELEMENTOS_HTML.ESCOLHA_ABA_DADOS_CONSUMO, "value"),
+    Input(ID_ELEMENTOS_HTML.PESQUISA_RAMAIS_ANORMALIDADE, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_DIAMETRO, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_IDADE, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_SITUACAO, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_DIAMETRO_LETRA, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_GRUPO_FATURAMENTO, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_PERFIL_IMOVEL, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_CATEGORIA, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_TIPO_TARIFA_ESGOTO, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_ANORMALIDADE_CONSUMO, "value"),
+    prevent_initial_call=True,
+)
+def atualizar_tabela_ramais_anormalidade(
+    mes,
+    termo,
+    limites_diametros,
+    limites_idade,
+    situacoes,
+    diametro_letra,
+    grupo_faturamento,
+    perfil_imovel_selecionados,
+    categorias,
+    tipos_tarifa_esgoto,
+    anormalidades_consumo,
+):
+    if limites_idade is None:
+        return [], ""
+
+    filtrado = _filtrar_df(
+        limites_diametros, limites_idade, situacoes, diametro_letra,
+        grupo_faturamento, perfil_imovel_selecionados, categorias,
+        tipos_tarifa_esgoto, anormalidades_consumo,
+    )
+
+    mes = mes or "1"
+    col_anorm = f"consumo_max_mes_{mes}"
+    col_consumo = f"media_consumo_mes_{mes}"
+
+    ramais = filtrado.loc[filtrado[col_anorm].isin(["Maior", "Menor"])].copy()
+
+    if termo:
+        mask = (
+            ramais.ramal.astype(str).str.contains(termo, case=False, na=False)
+            | ramais.diametro_letra.astype(str).str.contains(termo, case=False, na=False)
+        )
+        ramais = ramais[mask]
+
+    dados = _ramais_para_tabela(ramais[["ramal", "diametro_letra", col_anorm, col_consumo]], col_anorm, col_consumo)
+    total = f"Total: {len(dados)} ramais"
+    return dados, total
+
+
+@callback(
+    Output(ID_ELEMENTOS_HTML.TABELA_RAMAIS_ANORMALIDADE, "page_size"),
+    Input(ID_ELEMENTOS_HTML.PAGINA_RAMAIS_ANORMALIDADE, "value"),
+    prevent_initial_call=True,
+)
+def atualizar_pagina_tabela_ramais(value):
+    return value or 10
+
+
+@callback(
+    Output({"type": "tabela-anorm-leitura", "index": MATCH}, "page_size"),
+    Input({"type": "pagina-anorm-leitura", "index": MATCH}, "value"),
+    prevent_initial_call=True,
+)
+def pagina_anorm_leitura(value):
+    return value or 10
+
+
+@callback(
+    Output({"type": "tabela-anorm-leitura", "index": MATCH}, "filter_query"),
+    Input({"type": "pesquisa-anorm-leitura", "index": MATCH}, "value"),
+    prevent_initial_call=True,
+)
+def buscar_anorm_leitura(termo):
+    return f'{{Anormalidade}} icontains "{termo}"' if termo else ""
+
+
+@callback(
+    Output({"type": "tabela-anorm-consumo", "index": MATCH}, "page_size"),
+    Input({"type": "pagina-anorm-consumo", "index": MATCH}, "value"),
+    prevent_initial_call=True,
+)
+def pagina_anorm_consumo(value):
+    return value or 10
+
+
+@callback(
+    Output({"type": "tabela-anorm-consumo", "index": MATCH}, "filter_query"),
+    Input({"type": "pesquisa-anorm-consumo", "index": MATCH}, "value"),
+    prevent_initial_call=True,
+)
+def buscar_anorm_consumo(termo):
+    return f'{{Anormalidade}} icontains "{termo}"' if termo else ""
+
+
+@callback(
+    Output({"type": "tabela-ramais-mes", "index": MATCH}, "page_size"),
+    Input({"type": "pagina-ramais-mes", "index": MATCH}, "value"),
+    prevent_initial_call=True,
+)
+def pagina_ramais_mes(value):
+    return value or 10
+
+
+@callback(
+    Output({"type": "tabela-ramais-mes", "index": MATCH}, "filter_query"),
+    Input({"type": "pesquisa-ramais-mes", "index": MATCH}, "value"),
+    prevent_initial_call=True,
+)
+def buscar_ramais_mes(termo):
+    if not termo:
+        return ""
+    return f'{{ramal}} icontains "{termo}" || {{diametro}} icontains "{termo}"'
+
+
+@callback(
+    Output({"type": "download-mes", "index": MATCH}, "data"),
+    Input({"type": "btn-dl-sem", "index": MATCH}, "n_clicks"),
+    Input({"type": "btn-dl-com", "index": MATCH}, "n_clicks"),
+    State(ID_ELEMENTOS_HTML.FILTRO_DIAMETRO, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_IDADE, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_SITUACAO, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_DIAMETRO_LETRA, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_GRUPO_FATURAMENTO, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_PERFIL_IMOVEL, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_CATEGORIA, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_TIPO_TARIFA_ESGOTO, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_ANORMALIDADE_CONSUMO, "value"),
+    prevent_initial_call=True,
+)
+def download_ramais_mes(
+    _n_sem, _n_com,
+    limites_diametros, limites_idade, situacoes, diametro_letra,
+    grupo_faturamento, perfil_imovel_selecionados, categorias,
+    tipos_tarifa_esgoto, anormalidades_consumo,
+):
+    global DF
+    triggered = ctx.triggered_id
+    mes_index = triggered.get("index", "mes-1") if isinstance(triggered, dict) else "mes-1"
+    mes = mes_index.split("-")[1]
+    sem_filtro = isinstance(triggered, dict) and triggered.get("type") == "btn-dl-sem"
+
+    col_anorm = f"consumo_max_mes_{mes}"
+    col_consumo = f"media_consumo_mes_{mes}"
+
+    df_base = DF if sem_filtro else _filtrar_df(
+        limites_diametros, limites_idade, situacoes, diametro_letra,
+        grupo_faturamento, perfil_imovel_selecionados, categorias,
+        tipos_tarifa_esgoto, anormalidades_consumo,
+    )
+
+    df_export = (
+        df_base.loc[df_base[col_anorm].isin(["Maior", "Menor"]),
+                    ["ramal", "diametro_letra", col_anorm, col_consumo]]
+        .rename(columns={
+            "ramal": "Ramal",
+            "diametro_letra": "Diâmetro",
+            col_anorm: "Anormalidade de Consumo",
+            col_consumo: "Consumo Médio",
+        })
+    )
+    return dcc.send_data_frame(df_export.to_excel, f"ramais_anormalidade_mes{mes}.xlsx", index=False)
 
 
 if __name__ == "__main__":

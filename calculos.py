@@ -85,35 +85,35 @@ def classificar_consumo_ramal(df: pd.DataFrame):
             nome_coluna_classificao,
         ] = "Maior"
         df.loc[
-            (df[ColunasDataframe.DIAMETRO] == "25MM") & (df[col_consumo] < 301),
+            (df[ColunasDataframe.DIAMETRO] == 25) & (df[col_consumo] < 301),
             nome_coluna_classificao,
         ] = "Menor"
         df.loc[
-            (df[ColunasDataframe.DIAMETRO] == "25MM") & (df[col_consumo] > 750),
+            (df[ColunasDataframe.DIAMETRO] == 25) & (df[col_consumo] > 750),
             nome_coluna_classificao,
         ] = "Maior"
         df.loc[
-            (df[ColunasDataframe.DIAMETRO] == "38MM") & (df[col_consumo] < 751),
+            (df[ColunasDataframe.DIAMETRO] == 38) & (df[col_consumo] < 751),
             nome_coluna_classificao,
         ] = "Menor"
         df.loc[
-            (df[ColunasDataframe.DIAMETRO] == "38MM") & (df[col_consumo] > 1500),
+            (df[ColunasDataframe.DIAMETRO] == 38) & (df[col_consumo] > 1500),
             nome_coluna_classificao,
         ] = "Maior"
         df.loc[
-            (df[ColunasDataframe.DIAMETRO] == "40MM") & (df[col_consumo] < 751),
+            (df[ColunasDataframe.DIAMETRO] == 40) & (df[col_consumo] < 751),
             nome_coluna_classificao,
         ] = "Menor"
         df.loc[
-            (df[ColunasDataframe.DIAMETRO] == "40MM") & (df[col_consumo] > 1500),
+            (df[ColunasDataframe.DIAMETRO] == 40) & (df[col_consumo] > 1500),
             nome_coluna_classificao,
         ] = "Maior"
         df.loc[
-            (df[ColunasDataframe.DIAMETRO] == "50MM") & (df[col_consumo] < 1501),
+            (df[ColunasDataframe.DIAMETRO] == 50) & (df[col_consumo] < 1501),
             nome_coluna_classificao,
         ] = "Menor"
         df.loc[
-            (df[ColunasDataframe.DIAMETRO] == "50MM") & (df[col_consumo] > 2250),
+            (df[ColunasDataframe.DIAMETRO] == 50) & (df[col_consumo] > 2250),
             nome_coluna_classificao,
         ] = "Maior"
 
@@ -554,29 +554,32 @@ def calcular_todos_os_dados_necessarios(df: pd.DataFrame):
     frequencia_contas_vencidas_aberto = calcular_frequencia_contas_vencidas_aberto(df)
 
     ramais_com_consumo_maior_ou_menor_que_o_esperado = (
-        df[
+        df.loc[
+            df[ColunasDataframe.CONSUMO_MAX_MES_1].isin(["Maior", "Menor"]),
             [
                 ColunasDataframe.RAMAL,
                 ColunasDataframe.DIAMETRO_LETRA,
                 ColunasDataframe.CONSUMO_MAX_MES_1,
                 ColunasDataframe.MEDIA_CONSUMO_MES_1,
-            ]
+            ],
         ],
-        df[
+        df.loc[
+            df[ColunasDataframe.CONSUMO_MAX_MES_2].isin(["Maior", "Menor"]),
             [
                 ColunasDataframe.RAMAL,
                 ColunasDataframe.DIAMETRO_LETRA,
                 ColunasDataframe.CONSUMO_MAX_MES_2,
                 ColunasDataframe.MEDIA_CONSUMO_MES_2,
-            ]
+            ],
         ],
-        df[
+        df.loc[
+            df[ColunasDataframe.CONSUMO_MAX_MES_3].isin(["Maior", "Menor"]),
             [
                 ColunasDataframe.RAMAL,
                 ColunasDataframe.DIAMETRO_LETRA,
                 ColunasDataframe.CONSUMO_MAX_MES_3,
                 ColunasDataframe.MEDIA_CONSUMO_MES_3,
-            ]
+            ],
         ],
     )
 
@@ -656,7 +659,7 @@ def calcular_frequencia_anormalidade_leitura(df: pd.DataFrame):
         contagem.columns = ["Frequência Absoluta"]
         contagem["Frequência Relativa (%)"] = (
             contagem["Frequência Absoluta"] * 100 / len(df)
-        )
+        ).round(2)
         contagem.reset_index(inplace=True)
 
         contagem.columns = [
@@ -727,7 +730,7 @@ def calcular_frequencia_anormalidade_consumo(df: pd.DataFrame):
         contagem.columns = ["Frequência Absoluta"]
         contagem["Frequência Relativa (%)"] = (
             contagem["Frequência Absoluta"] * 100 / len(df)
-        )
+        ).round(2)
         contagem.reset_index(inplace=True)
 
         contagem.columns = [

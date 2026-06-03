@@ -185,6 +185,26 @@ class ID_ELEMENTOS_HTML(StrEnum):
     DADOS_CONSUMO_MES_2 = "dados-consumo-mes-2"
     DADOS_CONSUMO_MES_3 = "dados-consumo-mes-3"
 
+    TABELA_RAMAIS_ANORMALIDADE = "tabela-ramais-anormalidade"
+    PESQUISA_RAMAIS_ANORMALIDADE = "pesquisa-ramais-anormalidade"
+    PAGINA_RAMAIS_ANORMALIDADE = "pagina-ramais-anormalidade"
+    TOTAL_RAMAIS_ANORMALIDADE = "total-ramais-anormalidade"
+    BOTAO_DOWNLOAD_SEM_FILTRO = "botao-download-sem-filtro"
+    BOTAO_DOWNLOAD_COM_FILTRO = "botao-download-com-filtro"
+    DOWNLOAD_RAMAIS = "download-ramais"
+
+    FILTRO_LOCAL_ANORM_LEITURA = "filtro-local-anorm-leitura"
+
+    TABELA_ANORM_LEITURA = "tabela-anorm-leitura"
+    PESQUISA_ANORM_LEITURA = "pesquisa-anorm-leitura"
+    PAGINA_ANORM_LEITURA = "pagina-anorm-leitura"
+    TOTAL_ANORM_LEITURA = "total-anorm-leitura"
+
+    TABELA_ANORM_CONSUMO_FREQ = "tabela-anorm-consumo-freq"
+    PESQUISA_ANORM_CONSUMO_FREQ = "pesquisa-anorm-consumo-freq"
+    PAGINA_ANORM_CONSUMO_FREQ = "pagina-anorm-consumo-freq"
+    TOTAL_ANORM_CONSUMO_FREQ = "total-anorm-consumo-freq"
+
 
 ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS: dict[
     NOME_VARIAVEIS,
@@ -533,8 +553,6 @@ def gerar_html_filtros(
     valores_unicos_categoria,
     opcoes_valores_tipo_tarifa_esgoto,
     valores_unicos_tipo_tarifa_esgoto,
-    opcoes_valores_anormalidade_leitura,
-    valores_unicos_anormalidade_leitura,
     opcoes_valores_anormalidade_consumo,
     valores_unicos_anormalidade_consumo,
 ):
@@ -698,16 +716,6 @@ def gerar_html_filtros(
                     style=estilo_grid_interno,
                     children=[
                         html.Div([
-                            html.Label("Anormalidade de Leitura", style=EstilosCSS.LABEL_FILTRO),
-                            dcc.Dropdown(
-                                id=ID_ELEMENTOS_HTML.FILTRO_ANORMALIDADE_LEITURA,
-                                options=opcoes_valores_anormalidade_leitura,
-                                value=valores_unicos_anormalidade_leitura,
-                                multi=True,
-                                placeholder="Selecione...",
-                            ),
-                        ], style=EstilosCSS.ITEM_FILTRO),
-                        html.Div([
                             html.Label("Anormalidade de Consumo", style=EstilosCSS.LABEL_FILTRO),
                             dcc.Dropdown(
                                 id=ID_ELEMENTOS_HTML.FILTRO_ANORMALIDADE_CONSUMO,
@@ -722,6 +730,15 @@ def gerar_html_filtros(
             ],
         ),
     ]
+
+
+def _ramais_para_tabela(df_ramais: pd.DataFrame, col_anorm: str, col_consumo: str) -> list[dict]:
+    return (
+        df_ramais
+        .rename(columns={"diametro_letra": "diametro", col_anorm: "anormalidade", col_consumo: "consumo_medio"})
+        [["ramal", "diametro", "anormalidade", "consumo_medio"]]
+        .to_dict("records")
+    )
 
 
 def gerar_html_dados(
@@ -780,6 +797,13 @@ def gerar_html_dados(
         porcentagem_hidrometros_ligados = "-"
     else:
         porcentagem_hidrometros_ligados = f"{porcentagem_hidrometros_ligados:.2f}"
+
+    _vals_anorm_leitura = sorted(pd.concat([
+        df["anormalidade_leitura_mes_1"],
+        df["anormalidade_leitura_mes_2"],
+        df["anormalidade_leitura_mes_3"],
+    ]).dropna().unique().tolist())
+    _opcoes_anorm_leitura = [{"label": v, "value": v} for v in _vals_anorm_leitura]
 
     return html.Div(
         [
@@ -911,34 +935,86 @@ def gerar_html_dados(
             ),
             html.Div(
                 children=[
-                    html.H3("Informações Descritivas de Consumo"),
+                    # Cabeçalho da seção
                     html.Div(
-                        children=[
-                            dcc.RadioItems(
-                                {
-                                    "1": f"Data {datas_referencias[0]}",
-                                    "2": f"Data {datas_referencias[1]}",
-                                    "3": f"Data {datas_referencias[2]}",
-                                },
-                                value="1",
-                                inline=True,
-                                id=ID_ELEMENTOS_HTML.ESCOLHA_ABA_DADOS_CONSUMO,
+                        [
+                            html.H3(
+                                "Análise de Consumo",
+                                style={"color": "#ffffff", "fontSize": "1rem", "margin": "0"},
                             ),
-                            html.Div(
-                                children=[
-                                    html.Label("Concatenar Consumo a Partir de: "),
-                                    dcc.Input(
-                                        130,
-                                        "number",
-                                        id=ID_ELEMENTOS_HTML.VALOR_LIMITE_CONCATENAR,
-                                    ),
-                                    html.Button(
-                                        "Concatenar",
-                                        id=ID_ELEMENTOS_HTML.BOTAO_CONCATENAR_CONSUMO,
-                                    ),
-                                ]
+                            html.P(
+                                "Estatísticas de consumo por mês de referência.",
+                                style={"color": "#8899aa", "fontSize": "0.78rem", "margin": "4px 0 0 0"},
                             ),
                         ],
+                        style={"marginBottom": "16px"},
+                    ),
+                    # Painel de controles locais
+                    html.Div(
+                        [
+                            html.Div(
+                                [
+                                    html.Label("Mês de Referência", style=EstilosCSS.LABEL_FILTRO),
+                                    dcc.RadioItems(
+                                        {
+                                            "1": f"{datas_referencias[0]}",
+                                            "2": f"{datas_referencias[1]}",
+                                            "3": f"{datas_referencias[2]}",
+                                        },
+                                        value="1",
+                                        inline=True,
+                                        id=ID_ELEMENTOS_HTML.ESCOLHA_ABA_DADOS_CONSUMO,
+                                        labelStyle={"marginRight": "10px", "cursor": "pointer", "color": "#ffffff"},
+                                    ),
+                                ],
+                                style=EstilosCSS.ITEM_FILTRO,
+                            ),
+                            html.Div(
+                                [
+                                    html.Label("Concatenar consumo a partir de:", style=EstilosCSS.LABEL_FILTRO),
+                                    html.Div(
+                                        [
+                                            dcc.Input(
+                                                130,
+                                                "number",
+                                                id=ID_ELEMENTOS_HTML.VALOR_LIMITE_CONCATENAR,
+                                                style={"backgroundColor": "#212d45", "color": "#ffffff", "border": "1px solid #2a3f5f", "padding": "6px 10px", "width": "90px"},
+                                            ),
+                                            html.Button(
+                                                "Concatenar",
+                                                id=ID_ELEMENTOS_HTML.BOTAO_CONCATENAR_CONSUMO,
+                                                style={"backgroundColor": "#2196c4", "color": "white", "border": "none", "padding": "6px 14px", "fontWeight": "bold", "cursor": "pointer"},
+                                            ),
+                                        ],
+                                        style={"display": "flex", "gap": "8px"},
+                                    ),
+                                ],
+                                style=EstilosCSS.ITEM_FILTRO,
+                            ),
+                            html.Div(
+                                [
+                                    html.Label("Anormalidade de Leitura (filtro local)", style=EstilosCSS.LABEL_FILTRO),
+                                    dcc.Dropdown(
+                                        id=ID_ELEMENTOS_HTML.FILTRO_LOCAL_ANORM_LEITURA,
+                                        options=_opcoes_anorm_leitura,
+                                        value=_vals_anorm_leitura,
+                                        multi=True,
+                                        placeholder="Selecione...",
+                                    ),
+                                ],
+                                style=EstilosCSS.ITEM_FILTRO | {"gridColumn": "1 / -1"},
+                            ),
+                        ],
+                        style={
+                            "display": "grid",
+                            "gridTemplateColumns": "1fr 1fr",
+                            "gap": "16px",
+                            "backgroundColor": "#1a2235",
+                            "border": "1px solid #2a3f5f",
+                            "borderRadius": "8px",
+                            "padding": "16px",
+                            "marginBottom": "12px",
+                        },
                     ),
                     html.Div(
                         id=ID_ELEMENTOS_HTML.AREA_DADOS_CONSUMO_MES,
@@ -948,30 +1024,32 @@ def gerar_html_dados(
                                 desvio_padrao_consumo_medio_mes_1,
                                 frequencia_consumo_acima_limite_mes_1,
                                 frequencia_consumos_medios_mes_1,
-                                anormalidade_leitura_mes_1,
                                 frequencia_consumos_medidos_mes_1,
                                 frequencia_consumo_faturado_mes_1,
+                                anormalidade_leitura_mes_1,
                                 frequencia_anormalidade_consumo_1,
-                                frequencia_contas_vencidas_aberto,
                                 ramais_com_consumo_maior_ou_menor_que_o_esperado[0],
-                                frequencia_divida_total_vencida,
+                                "consumo_max_mes_1",
+                                "media_consumo_mes_1",
                                 datas_referencias[0],
                                 ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_1,
+                                mes_index="mes-1",
                             ),
                             gerar_html_dados_consumo_mes(
                                 media_do_consumo_medio_mes_2,
                                 desvio_padrao_consumo_medio_mes_2,
                                 frequencia_consumo_acima_limite_mes_2,
                                 frequencia_consumos_medios_mes_2,
-                                anormalidade_leitura_mes_2,
                                 frequencia_consumos_medidos_mes_2,
                                 frequencia_consumo_faturado_mes_2,
+                                anormalidade_leitura_mes_2,
                                 frequencia_anormalidade_consumo_2,
-                                frequencia_contas_vencidas_aberto,
                                 ramais_com_consumo_maior_ou_menor_que_o_esperado[1],
-                                frequencia_divida_total_vencida,
+                                "consumo_max_mes_2",
+                                "media_consumo_mes_2",
                                 datas_referencias[1],
                                 ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_2,
+                                mes_index="mes-2",
                                 oculto=True,
                             ),
                             gerar_html_dados_consumo_mes(
@@ -979,15 +1057,16 @@ def gerar_html_dados(
                                 desvio_padrao_consumo_medio_mes_3,
                                 frequencia_consumo_acima_limite_mes_3,
                                 frequencia_consumos_medios_mes_3,
-                                anormalidade_leitura_mes_3,
                                 frequencia_consumos_medidos_mes_3,
                                 frequencia_consumo_faturado_mes_3,
+                                anormalidade_leitura_mes_3,
                                 frequencia_anormalidade_consumo_3,
-                                frequencia_contas_vencidas_aberto,
                                 ramais_com_consumo_maior_ou_menor_que_o_esperado[2],
-                                frequencia_divida_total_vencida,
+                                "consumo_max_mes_3",
+                                "media_consumo_mes_3",
                                 datas_referencias[2],
                                 ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_3,
+                                mes_index="mes-3",
                                 oculto=True,
                             ),
                         ],
@@ -996,8 +1075,12 @@ def gerar_html_dados(
                 style={
                     "display": "flex",
                     "flexDirection": "column",
-                    "gap": "8px",
+                    "gap": "0",
                     "gridColumnStart": "span 6",
+                    "backgroundColor": "#151929",
+                    "border": "1px solid #2a3f5f",
+                    "borderRadius": "12px",
+                    "padding": "20px",
                 },
             ),
         ],
@@ -1005,20 +1088,84 @@ def gerar_html_dados(
     )
 
 
+
+def _caixa_tabela(titulo, id_pagina, id_pesquisa, id_tabela, data, columns, children_extra=None):
+    _ESTILO_BOX = {
+        "gridColumnStart": "span 6",
+        "backgroundColor": "#1a2235",
+        "border": "1px solid #2a3f5f",
+        "borderRadius": "12px",
+        "padding": "20px",
+    }
+    conteudo = [
+        html.H5(
+            titulo,
+            style={"color": "#8899aa", "textTransform": "uppercase", "letterSpacing": "0.5px", "fontSize": "0.82rem", "marginBottom": "10px"},
+        ),
+        html.Div(
+            [
+                html.Div(
+                    [
+                        html.Label("Mostrar", style={"color": "#8899aa", "fontSize": "0.8rem"}),
+                        dcc.Dropdown(
+                            options=[{"label": str(n), "value": n} for n in [10, 25, 50, 100]],
+                            value=10,
+                            id=id_pagina,
+                            clearable=False,
+                            style={"width": "80px", "display": "inline-block"},
+                        ),
+                        html.Label("entradas", style={"color": "#8899aa", "fontSize": "0.8rem"}),
+                    ],
+                    style={"display": "flex", "gap": "8px", "alignItems": "center"},
+                ),
+                html.Div(
+                    [
+                        html.Label("Buscar:", style={"color": "#8899aa", "fontSize": "0.8rem"}),
+                        dcc.Input(
+                            id=id_pesquisa,
+                            type="text",
+                            debounce=True,
+                            placeholder="Filtrar...",
+                            style={"backgroundColor": "#212d45", "color": "#ffffff", "border": "1px solid #2a3f5f", "padding": "5px 10px"},
+                        ),
+                    ],
+                    style={"display": "flex", "gap": "8px", "alignItems": "center"},
+                ),
+            ],
+            style={"display": "flex", "justifyContent": "space-between", "alignItems": "center", "marginBottom": "8px"},
+        ),
+        DataTable(
+            data=data,
+            columns=columns,
+            id=id_tabela,
+            page_size=10,
+            page_action="native",
+            sort_action="native",
+            filter_action="native",
+            **_TABELA_DARK,
+        ),
+    ]
+    if children_extra:
+        conteudo.extend(children_extra)
+
+    return html.Div(conteudo, style=_ESTILO_BOX)
+
+
 def gerar_html_dados_consumo_mes(
     media_consumo_medio: float,
     desvio_padrao: float,
     frequencia_consumo_acima_limite: int,
     frequencia_consumos_medios: pd.Series,
-    anormalidade_de_leitura: pd.DataFrame,
     frequencia_consumos_medidos: pd.Series,
     frequencia_consumo_faturado: pd.Series,
-    frequencia_anormalidade_consumo,
-    frequencia_contas_vencidas_aberto,
-    ramais_com_consumo_maior_ou_menor_que_o_esperado: pd.DataFrame,
-    frequencia_divida_total_vencida: pd.DataFrame,
+    anormalidade_de_leitura: pd.DataFrame,
+    frequencia_anormalidade_consumo: pd.DataFrame,
+    ramais_df: pd.DataFrame,
+    col_anorm_ramais: str,
+    col_consumo_ramais: str,
     titulo: str,
     id_html_elemento: str,
+    mes_index: str,
     limite_consumo_utilizado: int = 130,
     oculto: bool = False,
 ):
@@ -1026,98 +1173,107 @@ def gerar_html_dados_consumo_mes(
     if oculto:
         estilo = {"display": "none"}
 
+    _COLS_ANORM = [{"name": c, "id": c} for c in anormalidade_de_leitura.columns]
+    _COLS_CONSUMO = [{"name": c, "id": c} for c in frequencia_anormalidade_consumo.columns]
+    _COLS_RAMAIS = [
+        {"name": "Ramal", "id": "ramal"},
+        {"name": "Diâmetro", "id": "diametro"},
+        {"name": "Anormalidade", "id": "anormalidade"},
+        {"name": "Consumo Médio", "id": "consumo_medio", "type": "numeric"},
+    ]
+
+    _botoes_download = [
+        html.Div(
+            [
+                html.Button(
+                    "⬇ Download sem filtros",
+                    id={"type": "btn-dl-sem", "index": mes_index},
+                    style={"backgroundColor": "#2196c4", "color": "white", "border": "none", "padding": "8px 16px", "borderRadius": "6px", "fontWeight": "bold", "cursor": "pointer", "fontSize": "0.8rem"},
+                ),
+                html.Button(
+                    "⬇ Download com filtros",
+                    id={"type": "btn-dl-com", "index": mes_index},
+                    style={"backgroundColor": "#2196c4", "color": "white", "border": "none", "padding": "8px 16px", "borderRadius": "6px", "fontWeight": "bold", "cursor": "pointer", "fontSize": "0.8rem"},
+                ),
+                dcc.Download(id={"type": "download-mes", "index": mes_index}),
+            ],
+            style={"display": "flex", "gap": "12px", "marginTop": "14px"},
+        ),
+    ]
+
     return html.Div(
         id=id_html_elemento,
         children=[
             html.H4(titulo, style={"gridColumnStart": "1", "gridColumnEnd": "-1"}),
-            gerar_html_quadro_dado(
-                f"{media_consumo_medio:.2f}",
-                "Média dos Consumos Médios",
-            ),
-            gerar_html_quadro_dado(
-                f"{desvio_padrao:.2f}",
-                "Desvio Padrão dos Consumos Médios",
-            ),
-            gerar_html_quadro_dado(
-                frequencia_consumo_acima_limite,
-                f"Frequência de Consumo maior que {limite_consumo_utilizado}",
-            ),
+            # 3 cards
+            gerar_html_quadro_dado(f"{media_consumo_medio:.2f}", "Consumo Médio"),
+            gerar_html_quadro_dado(f"{desvio_padrao:.2f}", "Desvio Padrão do Consumo Médio"),
+            gerar_html_quadro_dado(frequencia_consumo_acima_limite, f"Frequência de Consumo maior que {limite_consumo_utilizado}"),
+            # Gráfico de Consumo Médio
             html.Div(
-                [
-                    dcc.Graph(
-                        figure=px.bar(
-                            x=[str(x) for x in frequencia_consumos_medios.index],
-                            y=frequencia_consumos_medios,
-                            labels={"y": "Frequência", "x": "Consumo Médio"},
-                            title="Gráfico de Consumo Médio",
-                            color_discrete_sequence=_PLOTLY_CORES_BARRAS,
-                        ).update_layout(**_PLOTLY_DARK_LAYOUT)
-                    )
-                ],
+                [dcc.Graph(
+                    figure=px.bar(
+                        x=[str(x) for x in frequencia_consumos_medios.index],
+                        y=frequencia_consumos_medios,
+                        labels={"y": "Frequência", "x": "Consumo Médio"},
+                        title="Gráfico de Consumo Médio",
+                        color_discrete_sequence=_PLOTLY_CORES_BARRAS,
+                    ).update_layout(**_PLOTLY_DARK_LAYOUT)
+                )],
                 style=EstilosCSS.GRAFICO,
             ),
-            DataTable(anormalidade_de_leitura.to_dict("records"), **_TABELA_DARK),
+            # Box: Anorm Leitura
+            _caixa_tabela(
+                "Tabela de Frequência de Anormalidade de Leitura",
+                id_pagina={"type": "pagina-anorm-leitura", "index": mes_index},
+                id_pesquisa={"type": "pesquisa-anorm-leitura", "index": mes_index},
+                id_tabela={"type": "tabela-anorm-leitura", "index": mes_index},
+                data=anormalidade_de_leitura.to_dict("records"),
+                columns=_COLS_ANORM,
+            ),
+            # Box: Anorm Consumo
+            _caixa_tabela(
+                "Tabela de Frequência de Anormalidade de Consumo",
+                id_pagina={"type": "pagina-anorm-consumo", "index": mes_index},
+                id_pesquisa={"type": "pesquisa-anorm-consumo", "index": mes_index},
+                id_tabela={"type": "tabela-anorm-consumo", "index": mes_index},
+                data=frequencia_anormalidade_consumo.to_dict("records"),
+                columns=_COLS_CONSUMO,
+            ),
+            # Gráficos lado a lado: Consumo Medido e Consumo Faturado
             html.Div(
-                [
-                    dcc.Graph(
-                        figure=px.bar(
-                            x=[str(x) for x in frequencia_consumos_medidos.index],
-                            y=frequencia_consumos_medidos,
-                            labels={"y": "Frequência", "x": "Consumo Medido"},
-                            title="Gráfico de Consumo Medido",
-                            color_discrete_sequence=_PLOTLY_CORES_BARRAS,
-                        ).update_layout(**_PLOTLY_DARK_LAYOUT)
-                    )
-                ],
-                style=EstilosCSS.GRAFICO,
+                [dcc.Graph(
+                    figure=px.bar(
+                        x=[str(x) for x in frequencia_consumos_medidos.index],
+                        y=frequencia_consumos_medidos,
+                        labels={"y": "Frequência", "x": "Consumo Medido"},
+                        title="Gráfico de Consumo Medido",
+                        color_discrete_sequence=_PLOTLY_CORES_BARRAS,
+                    ).update_layout(**_PLOTLY_DARK_LAYOUT)
+                )],
+                style={"gridColumnStart": "span 3"},
             ),
             html.Div(
-                [
-                    dcc.Graph(
-                        figure=px.bar(
-                            x=[str(x) for x in frequencia_consumo_faturado.index],
-                            y=frequencia_consumo_faturado,
-                            labels={"y": "Frequência", "x": "Consumo Faturado"},
-                            title="Gráfico de Consumo Faturado",
-                            color_discrete_sequence=_PLOTLY_CORES_BARRAS,
-                        ).update_layout(**_PLOTLY_DARK_LAYOUT)
-                    )
-                ],
-                style=EstilosCSS.GRAFICO,
+                [dcc.Graph(
+                    figure=px.bar(
+                        x=[str(x) for x in frequencia_consumo_faturado.index],
+                        y=frequencia_consumo_faturado,
+                        labels={"y": "Frequência", "x": "Consumo Faturado"},
+                        title="Gráfico de Consumo Faturado",
+                        color_discrete_sequence=_PLOTLY_CORES_BARRAS,
+                    ).update_layout(**_PLOTLY_DARK_LAYOUT)
+                )],
+                style={"gridColumnStart": "span 3"},
             ),
-            DataTable(frequencia_anormalidade_consumo.to_dict("records"), **_TABELA_DARK),
-            html.Div(
-                [
-                    dcc.Graph(
-                        figure=px.bar(
-                            x=frequencia_divida_total_vencida["Dívida Total Vencida"],
-                            y=frequencia_divida_total_vencida["Frequência Relativa (%)"],
-                            labels={"y": "Frequência (%)", "x": "Total Dívida Vencida"},
-                            title="Gráfico de Dívida Total Vencida",
-                            color_discrete_sequence=_PLOTLY_CORES_BARRAS,
-                        ).update_layout(**_PLOTLY_DARK_LAYOUT)
-                    )
-                ],
-                style=EstilosCSS.GRAFICO,
-            ),
-            html.Div(
-                [
-                    dcc.Graph(
-                        figure=px.bar(
-                            x=[str(x) for x in frequencia_contas_vencidas_aberto["Contas Vencidas"]],
-                            y=frequencia_contas_vencidas_aberto["Frequência Relativa (%)"],
-                            labels={"y": "Frequência (%)", "x": "Contas Vencidas em Aberto"},
-                            title="Gráfico de Contas Vencidas em Aberto",
-                            color_discrete_sequence=_PLOTLY_CORES_BARRAS,
-                        ).update_layout(**_PLOTLY_DARK_LAYOUT)
-                    )
-                ],
-                style=EstilosCSS.GRAFICO,
-            ),
-            DataTable(
-                ramais_com_consumo_maior_ou_menor_que_o_esperado.to_dict("records"),
-                page_size=10,
-                **_TABELA_DARK,
+            # Box: Ramais com consumo fora do esperado + downloads
+            _caixa_tabela(
+                "Tabela de Ramais com Consumo Menor ou Maior do que o Esperado",
+                id_pagina={"type": "pagina-ramais-mes", "index": mes_index},
+                id_pesquisa={"type": "pesquisa-ramais-mes", "index": mes_index},
+                id_tabela={"type": "tabela-ramais-mes", "index": mes_index},
+                data=_ramais_para_tabela(ramais_df, col_anorm_ramais, col_consumo_ramais),
+                columns=_COLS_RAMAIS,
+                children_extra=_botoes_download,
             ),
         ],
         style=estilo,
