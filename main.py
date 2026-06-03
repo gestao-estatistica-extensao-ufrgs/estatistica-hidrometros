@@ -62,7 +62,7 @@ if len(sys.argv) > 1:
     }
 
     if sys.argv[1] == "-p":
-        DF = pd.read_excel("testes/dados_teste/amostra_dados.xlsx")
+        DF = pd.read_excel("testes/dados_teste/amostra_dados.xlsx", engine="calamine")
 
         calculos.preparacao_dados(
             DF, ASSOCIACAO_COLUNAS_VARIAVEIS_PREVIA, "2024-10", "2024-09", "2024-08"
@@ -329,7 +329,7 @@ def liberar_associacao_de_colunas(
     assert isinstance(conteudo, str)
     _, con = conteudo.split(",")
 
-    DF = pd.read_excel(io.BytesIO(base64.b64decode(con)))
+    DF = pd.read_excel(io.BytesIO(base64.b64decode(con)), engine="calamine")
     opcoes = list(DF.columns)
 
     assert isinstance(mes_extracao, int)
