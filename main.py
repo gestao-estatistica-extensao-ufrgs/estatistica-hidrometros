@@ -1024,5 +1024,41 @@ def download_ramais_mes(
     return dcc.send_data_frame(df_export.to_excel, f"ramais_anormalidade_mes{mes}.xlsx", index=False)
 
 
+@callback(
+    Output(ID_ELEMENTOS_HTML.TABELA_PERFIL_IMOVEL, "page_size"),
+    Input(ID_ELEMENTOS_HTML.PAGINA_PERFIL_IMOVEL, "value"),
+    prevent_initial_call=True,
+)
+def pagina_perfil_imovel(value):
+    return value or 5
+
+
+@callback(
+    Output(ID_ELEMENTOS_HTML.TABELA_PERFIL_IMOVEL, "filter_query"),
+    Input(ID_ELEMENTOS_HTML.PESQUISA_PERFIL_IMOVEL, "value"),
+    prevent_initial_call=True,
+)
+def buscar_perfil_imovel(termo):
+    return f'{{"Perfil Imóvel"}} icontains "{termo}"' if termo else ""
+
+
+@callback(
+    Output(ID_ELEMENTOS_HTML.TABELA_DIAMETRO, "page_size"),
+    Input(ID_ELEMENTOS_HTML.PAGINA_DIAMETRO, "value"),
+    prevent_initial_call=True,
+)
+def pagina_diametro(value):
+    return value or 5
+
+
+@callback(
+    Output(ID_ELEMENTOS_HTML.TABELA_DIAMETRO, "filter_query"),
+    Input(ID_ELEMENTOS_HTML.PESQUISA_DIAMETRO, "value"),
+    prevent_initial_call=True,
+)
+def buscar_diametro(termo):
+    return f'{{"Diâmetro"}} icontains "{termo}"' if termo else ""
+
+
 if __name__ == "__main__":
     app.run(debug=True)

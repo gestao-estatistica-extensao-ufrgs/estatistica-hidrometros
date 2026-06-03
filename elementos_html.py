@@ -205,6 +205,13 @@ class ID_ELEMENTOS_HTML(StrEnum):
     PAGINA_ANORM_CONSUMO_FREQ = "pagina-anorm-consumo-freq"
     TOTAL_ANORM_CONSUMO_FREQ = "total-anorm-consumo-freq"
 
+    TABELA_PERFIL_IMOVEL = "tabela-perfil-imovel"
+    PAGINA_PERFIL_IMOVEL = "pagina-perfil-imovel"
+    PESQUISA_PERFIL_IMOVEL = "pesquisa-perfil-imovel"
+    TABELA_DIAMETRO = "tabela-diametro"
+    PAGINA_DIAMETRO = "pagina-diametro"
+    PESQUISA_DIAMETRO = "pesquisa-diametro"
+
 
 ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS: dict[
     NOME_VARIAVEIS,
@@ -805,133 +812,157 @@ def gerar_html_dados(
     ]).dropna().unique().tolist())
     _opcoes_anorm_leitura = [{"label": v, "value": v} for v in _vals_anorm_leitura]
 
+    _ESTILO_CARD_SECAO = {
+        "display": "flex",
+        "flexDirection": "column",
+        "gap": "0",
+        "gridColumnStart": "span 6",
+        "backgroundColor": "#151929",
+        "border": "1px solid #2a3f5f",
+        "borderRadius": "12px",
+        "padding": "20px",
+    }
+
     return html.Div(
         [
-            gerar_html_quadro_dado(
-                contagem_hidrometros,
-                "Nº Total de Hidrômetros",
-                id_dado_numero=ID_ELEMENTOS_HTML.CONTAGEM_HIDROMETROS,
-                icone="#",
-            ),
-            gerar_html_quadro_dado(
-                porcentagem_hidrometros_ligados,
-                "Hidrômetros Ligados (%)",
-                id_dado_numero=ID_ELEMENTOS_HTML.PORCENTAGEM_HIDROMETOS_LIGADOS,
-                icone="%",
-            ),
-            gerar_html_quadro_dado(
-                idade_media_hidrometros,
-                "Idade Média (anos)",
-                id_dado_numero=ID_ELEMENTOS_HTML.IDADE_MEDIA_HIDROMETROS,
-                icone="⌀",
-            ),
             html.Div(
                 [
-                    dcc.Graph(
-                        figure=px.histogram(
-                            df,
-                            x=ID_ELEMENTOS_HTML.IDADE_HIDROMETRO,
-                            nbins=30,
-                            labels={
-                                "idade_hidrometro": "Idade do Hidrômetro (anos)",
-                                "count": "Frequência",
-                            },
-                            opacity=0.75,
-                            color_discrete_sequence=_PLOTLY_CORES_BARRAS,
-                        ).update_layout(
-                            xaxis=dict(
-                                tickmode="linear",
-                                tick0=0,
-                                dtick=2,
-                                title="Idade do Hidrômetro (anos)",
-                                gridcolor="#2a3f5f",
-                                linecolor="#2a3f5f",
+                    html.Div(
+                        [
+                            html.H3(
+                                "Análise Descritiva",
+                                style={"color": "#ffffff", "fontSize": "1rem", "margin": "0"},
                             ),
-                            yaxis=dict(title="Frequência", gridcolor="#2a3f5f", linecolor="#2a3f5f"),
-                            bargap=0.05,
-                            paper_bgcolor="#1a2235",
-                            plot_bgcolor="#1a2235",
-                            font_color="#8899aa",
-                        )
-                    )
-                ],
-                style=EstilosCSS.GRAFICO,
-            ),
-            html.Div(
-                [
-                    dcc.Graph(
-                        figure=px.bar(
-                            x=df["grupo_leitura"].value_counts().index,
-                            y=df["grupo_leitura"].value_counts(),
-                            labels={"y": "Frequência", "x": "Grupo de Faturamento"},
-                            title="Gráfico de Frequência do Grupo de Faturamento",
-                            color_discrete_sequence=_PLOTLY_CORES_BARRAS,
-                        ).update_layout(**_PLOTLY_DARK_LAYOUT)
-                    )
-                ],
-                style=EstilosCSS.GRAFICO,
-            ),
-            html.Div(
-                [
-                    html.H3(
-                        "Tabela de Frequência de Perfil de Imóvel",
-                        style={"color": "#8899aa", "textTransform": "uppercase", "letterSpacing": "0.5px", "fontSize": "0.85rem", "marginBottom": "8px"},
+                        ],
+                        style={"marginBottom": "16px"},
                     ),
-                    DataTable(freq_perfil_imoveis, **_TABELA_DARK),
-                ],
-                style=EstilosCSS.TABELA,
-            ),
-            html.Div(
-                [
-                    html.H3(
-                        "Tabela de Frequência de Diâmetro em Hidrômetros",
-                        style={"color": "#8899aa", "textTransform": "uppercase", "letterSpacing": "0.5px", "fontSize": "0.85rem", "marginBottom": "8px"},
+                    html.Div(
+                        [
+                            gerar_html_quadro_dado(
+                                contagem_hidrometros,
+                                "Nº Total de Hidrômetros",
+                                id_dado_numero=ID_ELEMENTOS_HTML.CONTAGEM_HIDROMETROS,
+                                icone="#",
+                            ),
+                            gerar_html_quadro_dado(
+                                porcentagem_hidrometros_ligados,
+                                "Hidrômetros Ligados (%)",
+                                id_dado_numero=ID_ELEMENTOS_HTML.PORCENTAGEM_HIDROMETOS_LIGADOS,
+                                icone="%",
+                            ),
+                            gerar_html_quadro_dado(
+                                idade_media_hidrometros,
+                                "Idade Média (anos)",
+                                id_dado_numero=ID_ELEMENTOS_HTML.IDADE_MEDIA_HIDROMETROS,
+                                icone="⌀",
+                            ),
+                            html.Div(
+                                [
+                                    dcc.Graph(
+                                        figure=px.bar(
+                                            x=df["idade_hidrometro"].value_counts().sort_index().index,
+                                            y=df["idade_hidrometro"].value_counts().sort_index(),
+                                            labels={"x": "Idade do Hidrômetro (anos)", "y": "Frequência"},
+                                            color_discrete_sequence=_PLOTLY_CORES_BARRAS,
+                                        ).update_layout(
+                                            title="Gráfico de Frequência de Idade dos Hidrômetros",
+                                            xaxis=dict(
+                                                tickmode="linear",
+                                                tick0=0,
+                                                dtick=1,
+                                                title="Idade do Hidrômetro (anos)",
+                                                gridcolor="#2a3f5f",
+                                                linecolor="#2a3f5f",
+                                            ),
+                                            yaxis=dict(title="Frequência", gridcolor="#2a3f5f", linecolor="#2a3f5f"),
+                                            bargap=0.05,
+                                            paper_bgcolor="#1a2235",
+                                            plot_bgcolor="#1a2235",
+                                            font_color="#8899aa",
+                                        )
+                                    )
+                                ],
+                                style=EstilosCSS.GRAFICO,
+                            ),
+                            html.Div(
+                                [
+                                    dcc.Graph(
+                                        figure=px.bar(
+                                            x=df["grupo_leitura"].value_counts().rename(index=lambda v: v.upper().replace("GRUPO-", "")).sort_index(key=lambda x: x.astype(int)).index,
+                                            y=df["grupo_leitura"].value_counts().rename(index=lambda v: v.upper().replace("GRUPO-", "")).sort_index(key=lambda x: x.astype(int)),
+                                            labels={"y": "Frequência", "x": "Grupo de Faturamento"},
+                                            title="Gráfico de Frequência do Grupo de Faturamento",
+                                            color_discrete_sequence=_PLOTLY_CORES_BARRAS,
+                                        ).update_layout(**_PLOTLY_DARK_LAYOUT)
+                                    )
+                                ],
+                                style=EstilosCSS.GRAFICO,
+                            ),
+                            _caixa_tabela(
+                                "Tabela de Frequência de Perfil de Imóvel",
+                                id_pagina=ID_ELEMENTOS_HTML.PAGINA_PERFIL_IMOVEL,
+                                id_pesquisa=ID_ELEMENTOS_HTML.PESQUISA_PERFIL_IMOVEL,
+                                id_tabela=ID_ELEMENTOS_HTML.TABELA_PERFIL_IMOVEL,
+                                data=freq_perfil_imoveis,
+                                columns=[{"name": k, "id": k} for k in freq_perfil_imoveis[0].keys()] if freq_perfil_imoveis else [],
+                                page_size_default=5,
+                            ),
+                            _caixa_tabela(
+                                "Tabela de Frequência de Diâmetro em Hidrômetros",
+                                id_pagina=ID_ELEMENTOS_HTML.PAGINA_DIAMETRO,
+                                id_pesquisa=ID_ELEMENTOS_HTML.PESQUISA_DIAMETRO,
+                                id_tabela=ID_ELEMENTOS_HTML.TABELA_DIAMETRO,
+                                data=freq_hidrometros,
+                                columns=[{"name": k, "id": k} for k in freq_hidrometros[0].keys()] if freq_hidrometros else [],
+                                page_size_default=5,
+                            ),
+                            gerar_html_quadro_dado(
+                                idade_media_20MM,
+                                "Idade Média dos Hidrômetros com 20MM",
+                                id_dado_numero=ID_ELEMENTOS_HTML.IDADE_MEDIA_HIDROMETROS_20MM,
+                            ),
+                            gerar_html_quadro_dado(
+                                idade_media_25MM,
+                                "Idade Média dos Hidrômetros com 25MM",
+                                id_dado_numero=ID_ELEMENTOS_HTML.IDADE_MEDIA_HIDROMETROS_25MM,
+                            ),
+                            gerar_html_quadro_dado(
+                                idade_media_acima_25MM,
+                                "Idade Média dos Hidrômetros com mais de 25MM",
+                                id_dado_numero=ID_ELEMENTOS_HTML.IDADE_MEDIA_HIDROMETROS_ACIMA_25MM,
+                            ),
+                            gerar_html_quadro_dado(
+                                idade_desvio_padrao_20MM,
+                                "Desvio Padrão da Idade dos Hidrômetros com 20MM",
+                                id_dado_numero=ID_ELEMENTOS_HTML.IDADE_DESVIO_PADRAO_20MM,
+                            ),
+                            gerar_html_quadro_dado(
+                                idade_desvio_padrao_25MM,
+                                "Desvio Padrão da Idade dos Hidrômetros com 25MM",
+                                id_dado_numero=ID_ELEMENTOS_HTML.IDADE_DESVIO_PADRAO_25MM,
+                            ),
+                            gerar_html_quadro_dado(
+                                idade_desvio_padrao_acima_25MM,
+                                "Desvio Padrão da Idade dos Hidrômetros com mais de 25MM",
+                                id_dado_numero=ID_ELEMENTOS_HTML.IDADE_DESVIO_PADRAO_ACIMA_25MM,
+                            ),
+                            html.Div(
+                                grafico_idades_hidrometros_20MM,
+                                style=EstilosCSS.GRAFICO,
+                            ),
+                            html.Div(
+                                grafico_idades_hidrometros_25MM,
+                                style=EstilosCSS.GRAFICO,
+                            ),
+                            html.Div(
+                                grafico_idades_hidrometros_acima_de_25MM,
+                                style=EstilosCSS.GRAFICO,
+                            ),
+                        ],
+                        style=EstilosCSS.GRID_AREA_DADOS_CONSUMO,
                     ),
-                    DataTable(freq_hidrometros, **_TABELA_DARK),
                 ],
-                style=EstilosCSS.TABELA,
-            ),
-            gerar_html_quadro_dado(
-                idade_media_20MM,
-                "Idade Média dos Hidrômetros com 20MM",
-                id_dado_numero=ID_ELEMENTOS_HTML.IDADE_MEDIA_HIDROMETROS_20MM,
-            ),
-            gerar_html_quadro_dado(
-                idade_media_25MM,
-                "Idade Média dos Hidrômetros com 25MM",
-                id_dado_numero=ID_ELEMENTOS_HTML.IDADE_MEDIA_HIDROMETROS_25MM,
-            ),
-            gerar_html_quadro_dado(
-                idade_media_acima_25MM,
-                "Idade Média dos Hidrômetros com mais de 25MM",
-                id_dado_numero=ID_ELEMENTOS_HTML.IDADE_MEDIA_HIDROMETROS_ACIMA_25MM,
-            ),
-            gerar_html_quadro_dado(
-                idade_desvio_padrao_20MM,
-                "Desvio Padrão da Idade dos Hidrômetros com 20MM",
-                id_dado_numero=ID_ELEMENTOS_HTML.IDADE_DESVIO_PADRAO_20MM,
-            ),
-            gerar_html_quadro_dado(
-                idade_desvio_padrao_25MM,
-                "Desvio Padrão da Idade dos Hidrômetros com 25MM",
-                id_dado_numero=ID_ELEMENTOS_HTML.IDADE_DESVIO_PADRAO_25MM,
-            ),
-            gerar_html_quadro_dado(
-                idade_desvio_padrao_acima_25MM,
-                "Desvio Padrão da Idade dos Hidrômetros com mais de 25MM",
-                id_dado_numero=ID_ELEMENTOS_HTML.IDADE_DESVIO_PADRAO_ACIMA_25MM,
-            ),
-            html.Div(
-                grafico_idades_hidrometros_20MM,
-                style=EstilosCSS.GRAFICO,
-            ),
-            html.Div(
-                grafico_idades_hidrometros_25MM,
-                style=EstilosCSS.GRAFICO,
-            ),
-            html.Div(
-                grafico_idades_hidrometros_acima_de_25MM,
-                style=EstilosCSS.GRAFICO,
+                style=_ESTILO_CARD_SECAO,
             ),
             html.Div(
                 children=[
@@ -1089,7 +1120,7 @@ def gerar_html_dados(
 
 
 
-def _caixa_tabela(titulo, id_pagina, id_pesquisa, id_tabela, data, columns, children_extra=None):
+def _caixa_tabela(titulo, id_pagina, id_pesquisa, id_tabela, data, columns, children_extra=None, page_size_default=10):
     _ESTILO_BOX = {
         "gridColumnStart": "span 6",
         "backgroundColor": "#1a2235",
@@ -1108,8 +1139,8 @@ def _caixa_tabela(titulo, id_pagina, id_pesquisa, id_tabela, data, columns, chil
                     [
                         html.Label("Mostrar", style={"color": "#8899aa", "fontSize": "0.8rem"}),
                         dcc.Dropdown(
-                            options=[{"label": str(n), "value": n} for n in [10, 25, 50, 100]],
-                            value=10,
+                            options=[{"label": str(n), "value": n} for n in [5, 10, 25, 50, 100]],
+                            value=page_size_default,
                             id=id_pagina,
                             clearable=False,
                             style={"width": "80px", "display": "inline-block"},
@@ -1138,7 +1169,7 @@ def _caixa_tabela(titulo, id_pagina, id_pesquisa, id_tabela, data, columns, chil
             data=data,
             columns=columns,
             id=id_tabela,
-            page_size=10,
+            page_size=page_size_default,
             page_action="native",
             sort_action="native",
             filter_action="native",

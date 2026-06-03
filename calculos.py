@@ -299,7 +299,7 @@ def calcular_dados_hidrometros_segundo_diametro(
         idade_media = f"{idade_media:.2f}"
         idade_desvio_padrao = f"{idade_desvio_padrao:.2f}"
 
-        contagem_idades_hidrometros = hidrometros.idade_hidrometro.value_counts()
+        contagem_idades_hidrometros = hidrometros.idade_hidrometro.value_counts().sort_index()
 
         titulo = f"Idade Hidrômetros de {diametro}MM"
         if diametro == "25+":
@@ -317,7 +317,7 @@ def calcular_dados_hidrometros_segundo_diametro(
                     paper_bgcolor="#1a2235",
                     plot_bgcolor="#1a2235",
                     font_color="#8899aa",
-                    xaxis={"gridcolor": "#2a3f5f", "linecolor": "#2a3f5f"},
+                    xaxis={"gridcolor": "#2a3f5f", "linecolor": "#2a3f5f", "dtick": 1, "tickmode": "linear"},
                     yaxis={"gridcolor": "#2a3f5f", "linecolor": "#2a3f5f"},
                 )
             )
