@@ -1,6 +1,6 @@
 .Select-value {
-    background-color: #2a3f5f !important;
-    border-color: #2a3f5f !important;
+    background-color: #2f6db0 !important;
+    border-color: #2f6db0 !important;
     color: #ffffff !important;
 }
 
@@ -9,15 +9,16 @@
 }
 
 .Select-value-icon {
-    color: #8899aa !important;
-    border-color: #2a3f5f !important;
+    color: rgba(255,255,255,0.7) !important;
+    border-color: rgba(255,255,255,0.3) !important;
 }
 
 .VirtualizedSelectOption {
-    background-color: #212d45 !important;
-    color: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #252a31 !important;
 }
 
 .VirtualizedSelectFocusedOption {
-    background-color: #2a3f5f !important;
+    background-color: rgba(47,109,176,.09) !important;
+    color: #2f6db0 !important;
 }

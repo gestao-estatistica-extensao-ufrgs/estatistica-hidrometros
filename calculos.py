@@ -159,12 +159,19 @@ def preparacao_dados(
         relacao_colunas_tabela_inserida_com_dataframe["perfil_imovel"]
     ]
 
-    df[ColunasDataframe.CATEGORIA] = df[
-        relacao_colunas_tabela_inserida_com_dataframe["categoria"]
-    ]
-    df[ColunasDataframe.TIPO_TARIFA_ESGOTO] = df[
-        relacao_colunas_tabela_inserida_com_dataframe["tipo_tarifa_esgoto"]
-    ]
+    if "categoria" in relacao_colunas_tabela_inserida_com_dataframe:
+        df[ColunasDataframe.CATEGORIA] = df[
+            relacao_colunas_tabela_inserida_com_dataframe["categoria"]
+        ]
+    else:
+        df[ColunasDataframe.CATEGORIA] = "-"
+
+    if "tipo_tarifa_esgoto" in relacao_colunas_tabela_inserida_com_dataframe:
+        df[ColunasDataframe.TIPO_TARIFA_ESGOTO] = df[
+            relacao_colunas_tabela_inserida_com_dataframe["tipo_tarifa_esgoto"]
+        ]
+    else:
+        df[ColunasDataframe.TIPO_TARIFA_ESGOTO] = "-"
     df.loc[
         df[ColunasDataframe.TIPO_TARIFA_ESGOTO].isna(),
         ColunasDataframe.TIPO_TARIFA_ESGOTO,
@@ -312,13 +319,13 @@ def calcular_dados_hidrometros_segundo_diametro(
                     y=contagem_idades_hidrometros,
                     labels={"y": "Frequência", "x": "idade"},
                     title=titulo,
-                    color_discrete_sequence=["#1e6091", "#2196c4", "#56b4d3", "#a8d8ea"],
+                    color_discrete_sequence=["#4f80b8", "#2f6db0", "#7fa8d1", "#b0c8e8"],
                 ).update_layout(
-                    paper_bgcolor="#1a2235",
-                    plot_bgcolor="#1a2235",
-                    font_color="#8899aa",
-                    xaxis={"gridcolor": "#2a3f5f", "linecolor": "#2a3f5f", "dtick": 1, "tickmode": "linear"},
-                    yaxis={"gridcolor": "#2a3f5f", "linecolor": "#2a3f5f"},
+                    paper_bgcolor="#ffffff",
+                    plot_bgcolor="#ffffff",
+                    font_color="#5d6570",
+                    xaxis={"gridcolor": "#dde0e5", "linecolor": "#c6cad1", "dtick": 1, "tickmode": "linear"},
+                    yaxis={"gridcolor": "#dde0e5", "linecolor": "#c6cad1"},
                 )
             )
         ]

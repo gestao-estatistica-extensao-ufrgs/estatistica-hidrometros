@@ -1,12 +1,17 @@
 :root {
-    --bg-geral: #0f1520;
-    --bg-sidebar: #151929;
-    --bg-card: #1a2235;
-    --bg-input: #212d45;
-    --texto-principal: #ffffff;
-    --texto-secundario: #8899aa;
-    --borda: #2a3f5f;
-    --destaque: #2196c4;
+    --bg-geral: #eceef1;
+    --bg-sidebar: #ffffff;
+    --bg-card: #ffffff;
+    --bg-card-2: #f5f6f8;
+    --bg-input: #f7f8fa;
+    --texto-principal: #252a31;
+    --texto-secundario: #5d6570;
+    --texto-fraco: #8b929c;
+    --borda: #dde0e5;
+    --borda-forte: #c6cad1;
+    --destaque: #2f6db0;
+    --destaque-suave: rgba(47,109,176,.09);
+    --cor-barra: #4f80b8;
 }
 
 * {
@@ -14,9 +19,12 @@
 }
 
 body {
-    font-family: sans-serif;
+    font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
     background-color: var(--bg-geral);
     color: var(--texto-principal);
+    font-size: 13px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
     margin: 0;
     padding: 0;
 }
@@ -27,32 +35,71 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    grid-template-rows: 46px calc(100vh - 46px);
+    height: 100vh;
+    overflow: hidden;
+}
+
+#topbar {
+    grid-column: 1 / 3;
     display: flex;
-    min-height: 100vh;
+    align-items: stretch;
+    background-color: var(--bg-sidebar);
+    border-bottom: 1px solid var(--borda);
+    z-index: 6;
+}
+
+.nav-tab {
+    padding: 0 15px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    font-size: 12.5px;
+    color: var(--texto-secundario);
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: none;
+    cursor: pointer;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    white-space: nowrap;
+}
+
+.nav-tab:hover {
+    color: var(--texto-principal);
+}
+
+.nav-tab.ativo {
+    color: var(--texto-principal);
+    border-bottom: 2px solid var(--destaque);
 }
 
 #sidebar {
-    width: 280px;
-    min-width: 280px;
     background-color: var(--bg-sidebar);
     border-right: 1px solid var(--borda);
     display: flex;
     flex-direction: column;
-    position: sticky;
-    top: 0;
-    height: 100vh;
     overflow-y: auto;
 }
 
 #main-content {
-    flex: 1;
     overflow-x: hidden;
+    overflow-y: auto;
     padding: 20px;
     background-color: var(--bg-geral);
 }
 
+#rodape {
+    padding: 14px 0;
+    border-top: 1px solid var(--borda);
+    font-size: 11px;
+    color: var(--texto-fraco);
+    font-variant-numeric: tabular-nums;
+    margin-top: 20px;
+}
+
 #area-upload-tabela {
-    padding: 16px;
     border-bottom: 1px solid var(--borda);
 }
 
@@ -96,7 +143,7 @@ h1, h2, h3, h4, h5, h6 {
     transform: rotate(90deg);
 }
 
-/* Dark theme: Dash Dropdown */
+/* Dash Dropdown — tema claro */
 .Select-control,
 .Select--multi .Select-control {
     background-color: var(--bg-input) !important;
@@ -111,35 +158,35 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .Select-menu-outer {
-    background-color: var(--bg-input) !important;
+    background-color: var(--bg-card) !important;
     border-color: var(--borda) !important;
     z-index: 999 !important;
 }
 
 .Select-option {
-    background-color: var(--bg-input) !important;
+    background-color: var(--bg-card) !important;
     color: var(--texto-principal) !important;
 }
 
 .Select-option.is-focused,
 .Select-option:hover {
-    background-color: var(--destaque) !important;
-    color: #fff !important;
+    background-color: var(--destaque-suave) !important;
+    color: var(--destaque) !important;
 }
 
 .Select-arrow-zone .Select-arrow {
-    border-top-color: var(--texto-secundario) !important;
+    border-top-color: var(--texto-fraco) !important;
 }
 
 .Select-multi-value-wrapper .Select-value {
     background-color: var(--destaque) !important;
-    border-color: var(--borda) !important;
+    border-color: var(--destaque) !important;
     color: #fff !important;
 }
 
 /* Range slider */
 .rc-slider-rail {
-    background-color: var(--borda) !important;
+    background-color: var(--borda-forte) !important;
 }
 
 .rc-slider-track {
@@ -152,9 +199,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .rc-slider-tooltip-inner {
-    background-color: var(--bg-input) !important;
-    color: var(--texto-principal) !important;
+    background-color: var(--destaque) !important;
+    color: #ffffff !important;
 }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-thumb { background: var(--borda-forte); border: 3px solid var(--bg-geral); }
+::-webkit-scrollbar-track { background: transparent; }
 
 /* Ocultar linha de filtro nativa das DataTables (usamos busca externa) */
 .dash-filter {

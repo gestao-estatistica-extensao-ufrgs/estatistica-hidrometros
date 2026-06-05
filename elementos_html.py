@@ -9,35 +9,37 @@ from dash.dash_table.DataTable import DataTable
 
 from tipos import NOME_VARIAVEIS
 
-_PLOTLY_CORES_BARRAS = ["#1e6091", "#2196c4", "#56b4d3", "#a8d8ea"]
+_PLOTLY_CORES_BARRAS = ["#4f80b8", "#2f6db0", "#7fa8d1", "#b0c8e8"]
 
 _PLOTLY_DARK_LAYOUT = dict(
-    paper_bgcolor="#1a2235",
-    plot_bgcolor="#1a2235",
-    font_color="#8899aa",
-    xaxis={"gridcolor": "#2a3f5f", "linecolor": "#2a3f5f"},
-    yaxis={"gridcolor": "#2a3f5f", "linecolor": "#2a3f5f"},
+    paper_bgcolor="#ffffff",
+    plot_bgcolor="#ffffff",
+    font_color="#5d6570",
+    xaxis={"gridcolor": "#dde0e5", "linecolor": "#c6cad1"},
+    yaxis={"gridcolor": "#dde0e5", "linecolor": "#c6cad1"},
 )
 
 _TABELA_DARK = dict(
     style_cell={
         "textAlign": "left",
-        "border": "1px solid #2a3f5f",
-        "backgroundColor": "#1a2235",
-        "color": "#ffffff",
-        "padding": "8px 12px",
+        "border": "1px solid #dde0e5",
+        "backgroundColor": "#ffffff",
+        "color": "#252a31",
+        "padding": "9px 15px",
+        "fontSize": "12.5px",
+        "fontFamily": '"Segoe UI", system-ui, sans-serif',
     },
     style_header={
-        "backgroundColor": "#212d45",
-        "fontWeight": "bold",
+        "backgroundColor": "#f5f6f8",
+        "fontWeight": "600",
         "textTransform": "uppercase",
-        "color": "#ffffff",
-        "border": "1px solid #2a3f5f",
-        "letterSpacing": "0.5px",
-        "fontSize": "0.75rem",
+        "color": "#5d6570",
+        "border": "1px solid #dde0e5",
+        "letterSpacing": "0.05em",
+        "fontSize": "11px",
     },
     style_data_conditional=[
-        {"if": {"row_index": "odd"}, "backgroundColor": "#1e2a40"},
+        {"if": {"state": "active"}, "backgroundColor": "rgba(47,109,176,.09)", "border": "1px solid #dde0e5"},
     ],
 )
 
@@ -46,35 +48,37 @@ class EstilosCSS:
     QUADRO_DADO = {
         "display": "flex",
         "flexDirection": "column",
-        "justifyContent": "center",
-        "padding": "20px",
-        "backgroundColor": "#1a2235",
-        "color": "#ffffff",
-        "borderRadius": "12px",
+        "justifyContent": "flex-start",
+        "padding": "14px 16px",
+        "backgroundColor": "#ffffff",
+        "color": "#252a31",
         "gridColumn": "span 2",
-        "border": "1px solid #2a3f5f",
+        "borderRight": "1px solid #dde0e5",
+        "borderBottom": "1px solid #dde0e5",
     }
 
     QUADRO_DADO_NUMERO = {
-        "fontSize": "2rem",
-        "fontWeight": "bold",
-        "marginBottom": "4px",
-        "color": "#ffffff",
+        "fontSize": "28px",
+        "fontWeight": "500",
+        "letterSpacing": "-.02em",
+        "lineHeight": "1",
+        "marginBottom": "0",
+        "color": "#252a31",
+        "fontVariantNumeric": "tabular-nums",
     }
 
     QUADRO_DADO_ICONE = {
-        "fontSize": "1.8rem",
-        "color": "#2196c4",
-        "minWidth": "44px",
+        "fontSize": "1.2rem",
+        "color": "#2f6db0",
+        "minWidth": "32px",
         "textAlign": "center",
         "lineHeight": "1",
     }
 
     QUADRO_DADO_LABEL = {
-        "fontSize": "0.75rem",
-        "color": "#8899aa",
-        "textTransform": "uppercase",
-        "letterSpacing": "0.5px",
+        "fontSize": "11.5px",
+        "color": "#5d6570",
+        "marginBottom": "9px",
     }
 
     TABELA = {"gridColumnStart": "span 6"}
@@ -82,44 +86,44 @@ class EstilosCSS:
 
     CHECKLIST = {"display": "flex", "columnGap": "1px", "flexWrap": "wrap"}
     CHECKLIST_LABEL = {
-        "border": "1px solid #2a3f5f",
-        "borderRadius": "5px",
+        "border": "1px solid #dde0e5",
+        "borderRadius": "3px",
         "margin": "2px",
-        "backgroundColor": "#212d45",
-        "color": "#ffffff",
-        "fontWeight": "bold",
+        "backgroundColor": "#f7f8fa",
+        "color": "#252a31",
+        "fontWeight": "500",
         "cursor": "pointer",
     }
 
     CONTAINER_FILTROS = {
         "display": "grid",
         "gridTemplateColumns": "repeat(auto-fit, minmax(250px, 1fr))",
-        "gap": "20px",
-        "padding": "25px",
-        "backgroundColor": "#151929",
-        "borderRadius": "15px",
-        "border": "1px solid #2a3f5f",
+        "gap": "16px",
+        "padding": "18px",
+        "backgroundColor": "#f5f6f8",
+        "border": "1px solid #dde0e5",
     }
 
-    ITEM_FILTRO = {"display": "flex", "flexDirection": "column", "gap": "8px"}
+    ITEM_FILTRO = {"display": "flex", "flexDirection": "column", "gap": "6px"}
 
     LABEL_FILTRO = {
-        "fontWeight": "bold",
-        "fontSize": "0.75rem",
-        "color": "#8899aa",
+        "fontWeight": "600",
+        "fontSize": "11px",
+        "color": "#5d6570",
         "textTransform": "uppercase",
-        "letterSpacing": "0.5px",
+        "letterSpacing": "0.1em",
     }
 
     BOTAO_FILTRAR = {
-        "backgroundColor": "#2196c4",
+        "backgroundColor": "#2f6db0",
         "color": "white",
         "border": "none",
-        "padding": "12px",
-        "borderRadius": "8px",
-        "fontWeight": "bold",
+        "padding": "10px",
+        "fontWeight": "500",
         "cursor": "pointer",
         "width": "100%",
+        "fontFamily": '"Segoe UI", system-ui, sans-serif',
+        "fontSize": "12.5px",
     }
 
     GRID_AREA_DADOS_CONSUMO = {
@@ -211,6 +215,15 @@ class ID_ELEMENTOS_HTML(StrEnum):
     TABELA_DIAMETRO = "tabela-diametro"
     PAGINA_DIAMETRO = "pagina-diametro"
     PESQUISA_DIAMETRO = "pesquisa-diametro"
+
+    TAB_DESCRITIVA = "tab-descritiva"
+    TAB_CONSUMO = "tab-consumo"
+    SECAO_DESCRITIVA = "secao-descritiva"
+    SECAO_CONSUMO_CARD = "secao-consumo-card"
+    META_REGISTROS = "meta-registros"
+    META_REFERENCIA = "meta-referencia"
+    NOME_ARQUIVO_TOPBAR = "nome-arquivo-topbar"
+    RODAPE = "rodape"
 
 
 ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS: dict[
@@ -315,45 +328,84 @@ def gerar_form_importar_planilha(
         {"value": 12, "label": "Dezembro"},
     ]
 
+    _label = {"fontSize": "11px", "color": "#5d6570", "display": "block", "marginBottom": "5px"}
+    _btn_style = {
+        "backgroundColor": "#2f6db0",
+        "color": "#ffffff",
+        "border": "none",
+        "padding": "10px",
+        "width": "100%",
+        "fontWeight": "500",
+        "cursor": "pointer",
+        "fontSize": "12.5px",
+        "borderRadius": "4px",
+        "fontFamily": '"Segoe UI", system-ui, sans-serif',
+        "letterSpacing": "0.02em",
+    }
+
     return html.Div(
         [
+            html.Span("Arquivo de extração", style=_label),
             dcc.Upload(
                 id=ID_ELEMENTOS_HTML.UPLOAD_TABELA,
-                style={"display": "flex"},
-                children=[
-                    html.Button("Escolher", type="button"),
-                    dcc.Input(
-                        None,
-                        id=ID_ELEMENTOS_HTML.UPLOAD_NOME_ARQUIVO,
-                        readOnly=True,
-                        style={"flexGrow": "1"},
-                    ),
-                ],
+                children=html.Div(
+                    [
+                        html.Span(
+                            "Escolher arquivo .xlsx",
+                            style={"color": "#2f6db0", "fontWeight": "500", "fontSize": "12.5px"},
+                        ),
+                        html.Br(),
+                        html.Span(
+                            "arraste o arquivo ou clique",
+                            style={"color": "#8b929c", "fontSize": "11px"},
+                        ),
+                    ],
+                    style={"textAlign": "center", "padding": "18px 12px"},
+                ),
+                style={
+                    "border": "1.5px dashed #c6cad1",
+                    "borderRadius": "4px",
+                    "cursor": "pointer",
+                    "marginBottom": "3px",
+                },
+            ),
+            html.Span(
+                id=ID_ELEMENTOS_HTML.UPLOAD_NOME_ARQUIVO,
+                style={"fontSize": "11px", "color": "#2f6db0", "display": "block", "minHeight": "16px", "marginBottom": "10px"},
             ),
             html.Div(
                 [
-                    html.Label("Mês da Extração"),
-                    dcc.Dropdown(
-                        OPCOES_MESES,  # type: ignore
-                        id=ID_ELEMENTOS_HTML.MES_EXTRACAO,
-                        value=mes_extracao,
+                    html.Div(
+                        [
+                            html.Label("Mês de extração", style=_label),
+                            dcc.Dropdown(
+                                OPCOES_MESES,  # type: ignore
+                                id=ID_ELEMENTOS_HTML.MES_EXTRACAO,
+                                value=mes_extracao,
+                                clearable=False,
+                            ),
+                        ],
+                        style={"flex": "2"},
                     ),
-                    html.Label("Ano da Extração"),
-                    dcc.Dropdown(
-                        [ano for ano in range(ano_extracao - 20, ano_extracao + 1)],
-                        id=ID_ELEMENTOS_HTML.ANO_EXTRACAO,
-                        value=ano_extracao,
+                    html.Div(
+                        [
+                            html.Label("Ano", style=_label),
+                            dcc.Dropdown(
+                                list(range(ano_extracao - 20, ano_extracao + 1)),
+                                id=ID_ELEMENTOS_HTML.ANO_EXTRACAO,
+                                value=ano_extracao,
+                                clearable=False,
+                            ),
+                        ],
+                        style={"flex": "1"},
                     ),
-                ]
+                ],
+                style={"display": "flex", "gap": "8px", "alignItems": "flex-start", "marginBottom": "12px"},
             ),
-            html.Button("Processar Planilha", id=ID_ELEMENTOS_HTML.PROCESSAR_TABELA),
-            html.Div(id=ID_ELEMENTOS_HTML.UPLOAD_TABELA_ERRO, children=""),
+            html.Button("Processar planilha", id=ID_ELEMENTOS_HTML.PROCESSAR_TABELA, style=_btn_style),
+            html.Div(id=ID_ELEMENTOS_HTML.UPLOAD_TABELA_ERRO, children="", style={"marginTop": "6px"}),
         ],
-        style={
-            "display": "flex",
-            "flexDirection": "column",
-            "gap": "2px",
-        },
+        style={"display": "flex", "flexDirection": "column"},
     )
 
 
@@ -388,7 +440,9 @@ def gerar_form_colunas(
                 dcc.Dropdown(
                     id=id_select,
                     options=opcoes_dropdowns,
-                    value=valores_pre_selecionados.get(coluna_necessaria, None),
+                    value=valores_pre_selecionados.get(coluna_necessaria, None)
+                    if valores_pre_selecionados.get(coluna_necessaria) in opcoes_dropdowns
+                    else None,
                 ),
             ],
             style={"display": "flex", "flexDirection": "column", "gap": "1px"},
@@ -404,15 +458,11 @@ def gerar_form_colunas(
         "Situação Ligacao Água", "situacao_ligacao_agua"
     )
     col_perfil_imovel = _label_e_dropdown("Perfil do Imóvel", "perfil_imovel")
-    col_categoria = _label_e_dropdown("Categoria", "categoria")
     col_divida_total_vencida = _label_e_dropdown(
         "Dívida Total Vencida", "divida_total_vencida"
     )
     col_contas_vencidas_aberto = _label_e_dropdown(
         "Contas Vencidas em Aberto", "contas_vencidas_aberto"
-    )
-    col_tipo_tarifa_esgoto = _label_e_dropdown(
-        "Tipo de Tarifa de Esgoto", "tipo_tarifa_esgoto"
     )
     col_consumo_medio_mes_1 = _label_e_dropdown(
         "Média de Consumo", "media_consumo_mes_1"
@@ -462,82 +512,115 @@ def gerar_form_colunas(
         "Anormalidade de Consumo", "anormalidade_consumo_mes_3"
     )
 
+    _label = {"fontSize": "11px", "color": "#5d6570", "display": "block", "marginBottom": "5px"}
+    _fieldset = {
+        "border": "1px solid #dde0e5",
+        "borderRadius": "4px",
+        "padding": "10px 12px 12px",
+        "display": "flex",
+        "flexDirection": "column",
+        "gap": "8px",
+    }
+    _legend = {
+        "fontSize": "10px",
+        "fontWeight": "600",
+        "letterSpacing": "0.08em",
+        "color": "#5d6570",
+        "textTransform": "uppercase",
+        "padding": "0 4px",
+    }
+    _btn_style = {
+        "backgroundColor": "#2f6db0",
+        "color": "#ffffff",
+        "border": "none",
+        "padding": "10px",
+        "width": "100%",
+        "fontWeight": "500",
+        "cursor": "pointer",
+        "fontSize": "12.5px",
+        "borderRadius": "4px",
+        "fontFamily": '"Segoe UI", system-ui, sans-serif',
+        "letterSpacing": "0.02em",
+    }
+
+    def _styled_label_dropdown(label_dropdown_div):
+        label, dropdown = label_dropdown_div.children
+        label.style = _label
+        return label_dropdown_div
+
     return html.Form(
-        style={
-            "display": "flex",
-            "flexDirection": "column",
-            "gap": "2px",
-        },
+        style={"display": "flex", "flexDirection": "column"},
         children=[
-            html.H3("Associar Colunas com Variáveis"),
+            html.Div(
+                "ASSOCIAR COLUNAS",
+                style={
+                    "fontSize": "10px",
+                    "fontWeight": "600",
+                    "letterSpacing": "0.12em",
+                    "color": "#5d6570",
+                    "padding": "14px 16px 12px",
+                    "borderTop": "1px solid #dde0e5",
+                    "borderBottom": "1px solid #dde0e5",
+                },
+            ),
             html.Div(
                 id=ID_ELEMENTOS_HTML.DROPDOWN_ASSOCIACAO_COLUNAS,
+                style={"padding": "14px 16px", "display": "flex", "flexDirection": "column", "gap": "8px"},
                 children=[
-                    html.Div(
+                    _styled_label_dropdown(col_ramal),
+                    _styled_label_dropdown(col_hidrometro),
+                    _styled_label_dropdown(col_diametro),
+                    _styled_label_dropdown(col_data_instalacao),
+                    _styled_label_dropdown(col_grupo_leitura),
+                    _styled_label_dropdown(col_situacao_ligacao_agua),
+                    _styled_label_dropdown(col_perfil_imovel),
+                    _styled_label_dropdown(col_divida_total_vencida),
+                    _styled_label_dropdown(col_contas_vencidas_aberto),
+                    html.Fieldset(
+                        style=_fieldset,
                         children=[
-                            col_ramal,
-                            col_hidrometro,
-                            col_diametro,
-                            col_data_instalacao,
-                            col_grupo_leitura,
-                            col_situacao_ligacao_agua,
-                            col_perfil_imovel,
-                            col_categoria,
-                            col_tipo_tarifa_esgoto,
-                            col_divida_total_vencida,
-                            col_contas_vencidas_aberto,
-                            html.Fieldset(
-                                [
-                                    html.Legend(
-                                        f"Dados de {data_referencia_1}",
-                                        style={"fontWeight": "bold"},
-                                    ),
-                                    col_consumo_medio_mes_1,
-                                    col_anormalidade_leitura_mes_1,
-                                    col_consumo_medido_mes_1,
-                                    col_consumo_faturado_mes_1,
-                                    col_anormalidade_consumo_mes_1,
-                                ],
-                            ),
-                            html.Fieldset(
-                                [
-                                    html.Legend(
-                                        f"Dados de {data_referencia_2}",
-                                        style={"fontWeight": "bold"},
-                                    ),
-                                    col_consumo_medio_mes_2,
-                                    col_anormalidade_leitura_mes_2,
-                                    col_consumo_medido_mes_2,
-                                    col_consumo_faturado_mes_2,
-                                    col_anormalidade_consumo_mes_2,
-                                ],
-                            ),
-                            html.Fieldset(
-                                [
-                                    html.Legend(
-                                        f"Dados de {data_referencia_3}",
-                                        style={"fontWeight": "bold"},
-                                    ),
-                                    col_consumo_medio_mes_3,
-                                    col_anormalidade_leitura_mes_3,
-                                    col_consumo_medido_mes_3,
-                                    col_consumo_faturado_mes_3,
-                                    col_anormalidade_consumo_mes_3,
-                                ],
-                            ),
-                        ]
+                            html.Legend(f"Dados de {data_referencia_1}", style=_legend),
+                            _styled_label_dropdown(col_consumo_medio_mes_1),
+                            _styled_label_dropdown(col_anormalidade_leitura_mes_1),
+                            _styled_label_dropdown(col_consumo_medido_mes_1),
+                            _styled_label_dropdown(col_consumo_faturado_mes_1),
+                            _styled_label_dropdown(col_anormalidade_consumo_mes_1),
+                        ],
+                    ),
+                    html.Fieldset(
+                        style=_fieldset,
+                        children=[
+                            html.Legend(f"Dados de {data_referencia_2}", style=_legend),
+                            _styled_label_dropdown(col_consumo_medio_mes_2),
+                            _styled_label_dropdown(col_anormalidade_leitura_mes_2),
+                            _styled_label_dropdown(col_consumo_medido_mes_2),
+                            _styled_label_dropdown(col_consumo_faturado_mes_2),
+                            _styled_label_dropdown(col_anormalidade_consumo_mes_2),
+                        ],
+                    ),
+                    html.Fieldset(
+                        style=_fieldset,
+                        children=[
+                            html.Legend(f"Dados de {data_referencia_3}", style=_legend),
+                            _styled_label_dropdown(col_consumo_medio_mes_3),
+                            _styled_label_dropdown(col_anormalidade_leitura_mes_3),
+                            _styled_label_dropdown(col_consumo_medido_mes_3),
+                            _styled_label_dropdown(col_consumo_faturado_mes_3),
+                            _styled_label_dropdown(col_anormalidade_consumo_mes_3),
+                        ],
+                    ),
+                    html.Button(
+                        id=ID_ELEMENTOS_HTML.BOTAO_ASSOCIAR_COLUNAS,
+                        type="button",
+                        children="Associar colunas",
+                        style=_btn_style,
+                    ),
+                    html.Div(
+                        id=ID_ELEMENTOS_HTML.DROPDOWN_ASSOCIACAO_COLUNAS_ERRO,
+                        children=erro,
+                        style={"fontSize": "11px", "color": "#c0392b"},
                     ),
                 ],
-            ),
-            html.Div(
-                html.Button(
-                    id=ID_ELEMENTOS_HTML.BOTAO_ASSOCIAR_COLUNAS,
-                    type="button",
-                    children="Associar Colunas",
-                )
-            ),
-            html.Div(
-                id=ID_ELEMENTOS_HTML.DROPDOWN_ASSOCIACAO_COLUNAS_ERRO, children=erro
             ),
         ],
     )
@@ -564,17 +647,16 @@ def gerar_html_filtros(
     valores_unicos_anormalidade_consumo,
 ):
     estilo_fieldset = {
-        "border": "1px solid #2a3f5f",
-        "borderRadius": "8px",
+        "border": "1px solid #dde0e5",
         "padding": "12px 16px",
-        "backgroundColor": "#1a2235",
+        "backgroundColor": "#f5f6f8",
     }
     estilo_legend = {
-        "fontWeight": "bold",
-        "fontSize": "0.75rem",
-        "color": "#8899aa",
+        "fontWeight": "600",
+        "fontSize": "11px",
+        "color": "#5d6570",
         "textTransform": "uppercase",
-        "letterSpacing": "0.5px",
+        "letterSpacing": "0.1em",
         "padding": "0 6px",
     }
     estilo_grid_interno = {
@@ -817,44 +899,74 @@ def gerar_html_dados(
         "flexDirection": "column",
         "gap": "0",
         "gridColumnStart": "span 6",
-        "backgroundColor": "#151929",
-        "border": "1px solid #2a3f5f",
-        "borderRadius": "12px",
+        "backgroundColor": "#ffffff",
+        "border": "1px solid #dde0e5",
         "padding": "20px",
     }
 
     return html.Div(
         [
             html.Div(
-                [
+                id=ID_ELEMENTOS_HTML.SECAO_DESCRITIVA,
+                children=[
                     html.Div(
                         [
+                            html.Div(
+                                "Diagnóstico dos hidrômetros",
+                                style={"fontSize": "11px", "letterSpacing": ".13em", "textTransform": "uppercase", "color": "#8b929c", "marginBottom": "5px"},
+                            ),
                             html.H3(
                                 "Análise Descritiva",
-                                style={"color": "#ffffff", "fontSize": "1rem", "margin": "0"},
+                                style={"color": "#252a31", "fontSize": "19px", "fontWeight": "600", "letterSpacing": "-.01em", "margin": "0"},
+                            ),
+                            html.P(
+                                "Caracterização dos hidrômetros instalados por idade, perfil de imóvel e diâmetro.",
+                                style={"color": "#5d6570", "fontSize": "12px", "margin": "5px 0 0 0"},
                             ),
                         ],
-                        style={"marginBottom": "16px"},
+                        style={"marginBottom": "20px", "paddingBottom": "16px", "borderBottom": "1px solid #dde0e5"},
                     ),
                     html.Div(
                         [
-                            gerar_html_quadro_dado(
-                                contagem_hidrometros,
-                                "Nº Total de Hidrômetros",
-                                id_dado_numero=ID_ELEMENTOS_HTML.CONTAGEM_HIDROMETROS,
-                                icone="#",
-                            ),
-                            gerar_html_quadro_dado(
-                                porcentagem_hidrometros_ligados,
-                                "Hidrômetros Ligados (%)",
-                                id_dado_numero=ID_ELEMENTOS_HTML.PORCENTAGEM_HIDROMETOS_LIGADOS,
-                                icone="%",
-                            ),
-                            gerar_html_quadro_dado(
-                                idade_media_hidrometros,
-                                "Idade Média (anos)",
-                                id_dado_numero=ID_ELEMENTOS_HTML.IDADE_MEDIA_HIDROMETROS,
-                                icone="⌀",
+                            # KPI strip — 3 colunas horizontais
+                            html.Div(
+                                [
+                                    html.Div(
+                                        [
+                                            html.Div("Total de hidrômetros", style=EstilosCSS.QUADRO_DADO_LABEL),
+                                            html.Div(contagem_hidrometros, id=ID_ELEMENTOS_HTML.CONTAGEM_HIDROMETROS, style=EstilosCSS.QUADRO_DADO_NUMERO),
+                                        ],
+                                        style={"padding": "14px 16px", "borderRight": "1px solid #dde0e5"},
+                                    ),
+                                    html.Div(
+                                        [
+                                            html.Div("Hidrômetros ligados", style=EstilosCSS.QUADRO_DADO_LABEL),
+                                            html.Div(
+                                                [html.Span(porcentagem_hidrometros_ligados, id=ID_ELEMENTOS_HTML.PORCENTAGEM_HIDROMETOS_LIGADOS, style=EstilosCSS.QUADRO_DADO_NUMERO), html.Span("%", style={"fontSize": "15px", "color": "#5d6570", "marginLeft": "4px", "fontWeight": "400"})],
+                                                style={"display": "flex", "alignItems": "baseline", "gap": "0"},
+                                            ),
+                                        ],
+                                        style={"padding": "14px 16px", "borderRight": "1px solid #dde0e5"},
+                                    ),
+                                    html.Div(
+                                        [
+                                            html.Div("Idade média dos hidrômetros", style=EstilosCSS.QUADRO_DADO_LABEL),
+                                            html.Div(
+                                                [html.Span(idade_media_hidrometros, id=ID_ELEMENTOS_HTML.IDADE_MEDIA_HIDROMETROS, style=EstilosCSS.QUADRO_DADO_NUMERO), html.Span("anos", style={"fontSize": "15px", "color": "#5d6570", "marginLeft": "4px", "fontWeight": "400"})],
+                                                style={"display": "flex", "alignItems": "baseline"},
+                                            ),
+                                        ],
+                                        style={"padding": "14px 16px"},
+                                    ),
+                                ],
+                                style={
+                                    "display": "grid",
+                                    "gridTemplateColumns": "repeat(3, 1fr)",
+                                    "border": "1px solid #dde0e5",
+                                    "backgroundColor": "#ffffff",
+                                    "gridColumnStart": "span 6",
+                                    "marginBottom": "16px",
+                                },
                             ),
                             html.Div(
                                 [
@@ -865,24 +977,14 @@ def gerar_html_dados(
                                             labels={"x": "Idade do Hidrômetro (anos)", "y": "Frequência"},
                                             color_discrete_sequence=_PLOTLY_CORES_BARRAS,
                                         ).update_layout(
-                                            title="Gráfico de Frequência de Idade dos Hidrômetros",
-                                            xaxis=dict(
-                                                tickmode="linear",
-                                                tick0=0,
-                                                dtick=1,
-                                                title="Idade do Hidrômetro (anos)",
-                                                gridcolor="#2a3f5f",
-                                                linecolor="#2a3f5f",
-                                            ),
-                                            yaxis=dict(title="Frequência", gridcolor="#2a3f5f", linecolor="#2a3f5f"),
-                                            bargap=0.05,
-                                            paper_bgcolor="#1a2235",
-                                            plot_bgcolor="#1a2235",
-                                            font_color="#8899aa",
+                                            title="Frequência de idade dos hidrômetros",
+                                            xaxis=dict(tickmode="linear", tick0=0, dtick=5, title="Idade do Hidrômetro (anos)", gridcolor="#dde0e5", linecolor="#c6cad1"),
+                                            yaxis=dict(title="Frequência", gridcolor="#dde0e5", linecolor="#c6cad1"),
+                                            bargap=0.05, paper_bgcolor="#ffffff", plot_bgcolor="#ffffff", font_color="#5d6570",
                                         )
                                     )
                                 ],
-                                style=EstilosCSS.GRAFICO,
+                                style={"gridColumnStart": "span 3"},
                             ),
                             html.Div(
                                 [
@@ -891,12 +993,12 @@ def gerar_html_dados(
                                             x=df["grupo_leitura"].value_counts().rename(index=lambda v: v.upper().replace("GRUPO-", "")).sort_index(key=lambda x: x.astype(int)).index,
                                             y=df["grupo_leitura"].value_counts().rename(index=lambda v: v.upper().replace("GRUPO-", "")).sort_index(key=lambda x: x.astype(int)),
                                             labels={"y": "Frequência", "x": "Grupo de Faturamento"},
-                                            title="Gráfico de Frequência do Grupo de Faturamento",
+                                            title="Frequência do grupo de faturamento",
                                             color_discrete_sequence=_PLOTLY_CORES_BARRAS,
                                         ).update_layout(**_PLOTLY_DARK_LAYOUT)
                                     )
                                 ],
-                                style=EstilosCSS.GRAFICO,
+                                style={"gridColumnStart": "span 3"},
                             ),
                             _caixa_tabela(
                                 "Tabela de Frequência de Perfil de Imóvel",
@@ -916,35 +1018,27 @@ def gerar_html_dados(
                                 columns=[{"name": k, "id": k} for k in freq_hidrometros[0].keys()] if freq_hidrometros else [],
                                 page_size_default=5,
                             ),
-                            gerar_html_quadro_dado(
-                                idade_media_20MM,
-                                "Idade Média dos Hidrômetros com 20MM",
-                                id_dado_numero=ID_ELEMENTOS_HTML.IDADE_MEDIA_HIDROMETROS_20MM,
-                            ),
-                            gerar_html_quadro_dado(
-                                idade_media_25MM,
-                                "Idade Média dos Hidrômetros com 25MM",
-                                id_dado_numero=ID_ELEMENTOS_HTML.IDADE_MEDIA_HIDROMETROS_25MM,
-                            ),
-                            gerar_html_quadro_dado(
-                                idade_media_acima_25MM,
-                                "Idade Média dos Hidrômetros com mais de 25MM",
-                                id_dado_numero=ID_ELEMENTOS_HTML.IDADE_MEDIA_HIDROMETROS_ACIMA_25MM,
-                            ),
-                            gerar_html_quadro_dado(
-                                idade_desvio_padrao_20MM,
-                                "Desvio Padrão da Idade dos Hidrômetros com 20MM",
-                                id_dado_numero=ID_ELEMENTOS_HTML.IDADE_DESVIO_PADRAO_20MM,
-                            ),
-                            gerar_html_quadro_dado(
-                                idade_desvio_padrao_25MM,
-                                "Desvio Padrão da Idade dos Hidrômetros com 25MM",
-                                id_dado_numero=ID_ELEMENTOS_HTML.IDADE_DESVIO_PADRAO_25MM,
-                            ),
-                            gerar_html_quadro_dado(
-                                idade_desvio_padrao_acima_25MM,
-                                "Desvio Padrão da Idade dos Hidrômetros com mais de 25MM",
-                                id_dado_numero=ID_ELEMENTOS_HTML.IDADE_DESVIO_PADRAO_ACIMA_25MM,
+                            # Stats grid — idade por faixa de diâmetro
+                            html.Div(
+                                [
+                                    html.Div(
+                                        "Idade por faixa de diâmetro — média / desvio padrão",
+                                        style={"gridColumn": "1 / -1", "fontSize": "11px", "letterSpacing": ".1em", "textTransform": "uppercase", "color": "#8b929c", "padding": "11px 15px 9px", "borderBottom": "1px solid #dde0e5"},
+                                    ),
+                                    html.Div([html.Div([html.Span(idade_media_20MM, id=ID_ELEMENTOS_HTML.IDADE_MEDIA_HIDROMETROS_20MM, style={"fontSize": "22px", "fontWeight": "500", "fontVariantNumeric": "tabular-nums"}), html.Span("anos", style={"fontSize": "12px", "color": "#5d6570", "marginLeft": "4px"})], style={"display": "flex", "alignItems": "baseline"}), html.Div("Idade média · 20 mm", style={"fontSize": "11.5px", "color": "#5d6570", "marginTop": "6px"})], style={"padding": "14px 15px", "borderRight": "1px solid #dde0e5", "borderBottom": "1px solid #dde0e5"}),
+                                    html.Div([html.Div([html.Span(idade_media_25MM, id=ID_ELEMENTOS_HTML.IDADE_MEDIA_HIDROMETROS_25MM, style={"fontSize": "22px", "fontWeight": "500", "fontVariantNumeric": "tabular-nums"}), html.Span("anos", style={"fontSize": "12px", "color": "#5d6570", "marginLeft": "4px"})], style={"display": "flex", "alignItems": "baseline"}), html.Div("Idade média · 25 mm", style={"fontSize": "11.5px", "color": "#5d6570", "marginTop": "6px"})], style={"padding": "14px 15px", "borderRight": "1px solid #dde0e5", "borderBottom": "1px solid #dde0e5"}),
+                                    html.Div([html.Div([html.Span(idade_media_acima_25MM, id=ID_ELEMENTOS_HTML.IDADE_MEDIA_HIDROMETROS_ACIMA_25MM, style={"fontSize": "22px", "fontWeight": "500", "fontVariantNumeric": "tabular-nums"}), html.Span("anos", style={"fontSize": "12px", "color": "#5d6570", "marginLeft": "4px"})], style={"display": "flex", "alignItems": "baseline"}), html.Div("Idade média · acima de 25 mm", style={"fontSize": "11.5px", "color": "#5d6570", "marginTop": "6px"})], style={"padding": "14px 15px", "borderBottom": "1px solid #dde0e5"}),
+                                    html.Div([html.Div([html.Span(idade_desvio_padrao_20MM, id=ID_ELEMENTOS_HTML.IDADE_DESVIO_PADRAO_20MM, style={"fontSize": "22px", "fontWeight": "500", "fontVariantNumeric": "tabular-nums"}), html.Span("anos", style={"fontSize": "12px", "color": "#5d6570", "marginLeft": "4px"})], style={"display": "flex", "alignItems": "baseline"}), html.Div("Desvio padrão · 20 mm", style={"fontSize": "11.5px", "color": "#5d6570", "marginTop": "6px"})], style={"padding": "14px 15px", "borderRight": "1px solid #dde0e5"}),
+                                    html.Div([html.Div([html.Span(idade_desvio_padrao_25MM, id=ID_ELEMENTOS_HTML.IDADE_DESVIO_PADRAO_25MM, style={"fontSize": "22px", "fontWeight": "500", "fontVariantNumeric": "tabular-nums"}), html.Span("anos", style={"fontSize": "12px", "color": "#5d6570", "marginLeft": "4px"})], style={"display": "flex", "alignItems": "baseline"}), html.Div("Desvio padrão · 25 mm", style={"fontSize": "11.5px", "color": "#5d6570", "marginTop": "6px"})], style={"padding": "14px 15px", "borderRight": "1px solid #dde0e5"}),
+                                    html.Div([html.Div([html.Span(idade_desvio_padrao_acima_25MM, id=ID_ELEMENTOS_HTML.IDADE_DESVIO_PADRAO_ACIMA_25MM, style={"fontSize": "22px", "fontWeight": "500", "fontVariantNumeric": "tabular-nums"}), html.Span("anos", style={"fontSize": "12px", "color": "#5d6570", "marginLeft": "4px"})], style={"display": "flex", "alignItems": "baseline"}), html.Div("Desvio padrão · acima de 25 mm", style={"fontSize": "11.5px", "color": "#5d6570", "marginTop": "6px"})], style={"padding": "14px 15px"}),
+                                ],
+                                style={
+                                    "display": "grid",
+                                    "gridTemplateColumns": "repeat(3, 1fr)",
+                                    "border": "1px solid #dde0e5",
+                                    "backgroundColor": "#ffffff",
+                                    "gridColumnStart": "span 6",
+                                },
                             ),
                             html.Div(
                                 grafico_idades_hidrometros_20MM,
@@ -965,20 +1059,25 @@ def gerar_html_dados(
                 style=_ESTILO_CARD_SECAO,
             ),
             html.Div(
+                id=ID_ELEMENTOS_HTML.SECAO_CONSUMO_CARD,
                 children=[
                     # Cabeçalho da seção
                     html.Div(
                         [
+                            html.Div(
+                                "Comportamento de consumo",
+                                style={"fontSize": "11px", "letterSpacing": ".13em", "textTransform": "uppercase", "color": "#8b929c", "marginBottom": "5px"},
+                            ),
                             html.H3(
                                 "Análise de Consumo",
-                                style={"color": "#ffffff", "fontSize": "1rem", "margin": "0"},
+                                style={"color": "#252a31", "fontSize": "19px", "fontWeight": "600", "letterSpacing": "-.01em", "margin": "0"},
                             ),
                             html.P(
                                 "Estatísticas de consumo por mês de referência.",
-                                style={"color": "#8899aa", "fontSize": "0.78rem", "margin": "4px 0 0 0"},
+                                style={"color": "#5d6570", "fontSize": "12px", "margin": "5px 0 0 0"},
                             ),
                         ],
-                        style={"marginBottom": "16px"},
+                        style={"marginBottom": "20px", "paddingBottom": "16px", "borderBottom": "1px solid #dde0e5"},
                     ),
                     # Painel de controles locais
                     html.Div(
@@ -995,7 +1094,7 @@ def gerar_html_dados(
                                         value="1",
                                         inline=True,
                                         id=ID_ELEMENTOS_HTML.ESCOLHA_ABA_DADOS_CONSUMO,
-                                        labelStyle={"marginRight": "10px", "cursor": "pointer", "color": "#ffffff"},
+                                        labelStyle={"marginRight": "10px", "cursor": "pointer", "color": "#252a31"},
                                     ),
                                 ],
                                 style=EstilosCSS.ITEM_FILTRO,
@@ -1009,12 +1108,12 @@ def gerar_html_dados(
                                                 130,
                                                 "number",
                                                 id=ID_ELEMENTOS_HTML.VALOR_LIMITE_CONCATENAR,
-                                                style={"backgroundColor": "#212d45", "color": "#ffffff", "border": "1px solid #2a3f5f", "padding": "6px 10px", "width": "90px"},
+                                                style={"backgroundColor": "#f7f8fa", "color": "#252a31", "border": "1px solid #dde0e5", "padding": "6px 10px", "width": "90px"},
                                             ),
                                             html.Button(
                                                 "Concatenar",
                                                 id=ID_ELEMENTOS_HTML.BOTAO_CONCATENAR_CONSUMO,
-                                                style={"backgroundColor": "#2196c4", "color": "white", "border": "none", "padding": "6px 14px", "fontWeight": "bold", "cursor": "pointer"},
+                                                style={"backgroundColor": "#2f6db0", "color": "white", "border": "none", "padding": "6px 14px", "fontWeight": "500", "cursor": "pointer", "fontFamily": '"Segoe UI", system-ui, sans-serif'},
                                             ),
                                         ],
                                         style={"display": "flex", "gap": "8px"},
@@ -1040,9 +1139,8 @@ def gerar_html_dados(
                             "display": "grid",
                             "gridTemplateColumns": "1fr 1fr",
                             "gap": "16px",
-                            "backgroundColor": "#1a2235",
-                            "border": "1px solid #2a3f5f",
-                            "borderRadius": "8px",
+                            "backgroundColor": "#f5f6f8",
+                            "border": "1px solid #dde0e5",
                             "padding": "16px",
                             "marginBottom": "12px",
                         },
@@ -1104,13 +1202,12 @@ def gerar_html_dados(
                     ),
                 ],
                 style={
-                    "display": "flex",
+                    "display": "none",
                     "flexDirection": "column",
                     "gap": "0",
                     "gridColumnStart": "span 6",
-                    "backgroundColor": "#151929",
-                    "border": "1px solid #2a3f5f",
-                    "borderRadius": "12px",
+                    "backgroundColor": "#ffffff",
+                    "border": "1px solid #dde0e5",
                     "padding": "20px",
                 },
             ),
@@ -1123,21 +1220,20 @@ def gerar_html_dados(
 def _caixa_tabela(titulo, id_pagina, id_pesquisa, id_tabela, data, columns, children_extra=None, page_size_default=10):
     _ESTILO_BOX = {
         "gridColumnStart": "span 6",
-        "backgroundColor": "#1a2235",
-        "border": "1px solid #2a3f5f",
-        "borderRadius": "12px",
-        "padding": "20px",
+        "backgroundColor": "#ffffff",
+        "border": "1px solid #dde0e5",
+        "padding": "0",
     }
     conteudo = [
-        html.H5(
+        html.Div(
             titulo,
-            style={"color": "#8899aa", "textTransform": "uppercase", "letterSpacing": "0.5px", "fontSize": "0.82rem", "marginBottom": "10px"},
+            style={"fontWeight": "600", "fontSize": "13px", "color": "#252a31", "padding": "12px 15px 11px", "borderBottom": "1px solid #dde0e5"},
         ),
         html.Div(
             [
                 html.Div(
                     [
-                        html.Label("Mostrar", style={"color": "#8899aa", "fontSize": "0.8rem"}),
+                        html.Label("Mostrar", style={"color": "#5d6570", "fontSize": "11.5px"}),
                         dcc.Dropdown(
                             options=[{"label": str(n), "value": n} for n in [5, 10, 25, 50, 100]],
                             value=page_size_default,
@@ -1145,25 +1241,25 @@ def _caixa_tabela(titulo, id_pagina, id_pesquisa, id_tabela, data, columns, chil
                             clearable=False,
                             style={"width": "80px", "display": "inline-block"},
                         ),
-                        html.Label("entradas", style={"color": "#8899aa", "fontSize": "0.8rem"}),
+                        html.Label("entradas", style={"color": "#5d6570", "fontSize": "11.5px"}),
                     ],
                     style={"display": "flex", "gap": "8px", "alignItems": "center"},
                 ),
                 html.Div(
                     [
-                        html.Label("Buscar:", style={"color": "#8899aa", "fontSize": "0.8rem"}),
+                        html.Label("Buscar:", style={"color": "#5d6570", "fontSize": "11.5px"}),
                         dcc.Input(
                             id=id_pesquisa,
                             type="text",
                             debounce=True,
                             placeholder="Filtrar...",
-                            style={"backgroundColor": "#212d45", "color": "#ffffff", "border": "1px solid #2a3f5f", "padding": "5px 10px"},
+                            style={"backgroundColor": "#f7f8fa", "color": "#252a31", "border": "1px solid #dde0e5", "padding": "4px 10px", "fontSize": "11.5px"},
                         ),
                     ],
                     style={"display": "flex", "gap": "8px", "alignItems": "center"},
                 ),
             ],
-            style={"display": "flex", "justifyContent": "space-between", "alignItems": "center", "marginBottom": "8px"},
+            style={"display": "flex", "justifyContent": "space-between", "alignItems": "center", "padding": "10px 15px", "borderBottom": "1px solid #dde0e5"},
         ),
         DataTable(
             data=data,
@@ -1219,27 +1315,41 @@ def gerar_html_dados_consumo_mes(
                 html.Button(
                     "⬇ Download sem filtros",
                     id={"type": "btn-dl-sem", "index": mes_index},
-                    style={"backgroundColor": "#2196c4", "color": "white", "border": "none", "padding": "8px 16px", "borderRadius": "6px", "fontWeight": "bold", "cursor": "pointer", "fontSize": "0.8rem"},
+                    style={"backgroundColor": "#ffffff", "color": "#252a31", "border": "1px solid #dde0e5", "padding": "7px 15px", "fontWeight": "400", "cursor": "pointer", "fontSize": "12.5px", "display": "flex", "alignItems": "center", "gap": "7px"},
                 ),
                 html.Button(
                     "⬇ Download com filtros",
                     id={"type": "btn-dl-com", "index": mes_index},
-                    style={"backgroundColor": "#2196c4", "color": "white", "border": "none", "padding": "8px 16px", "borderRadius": "6px", "fontWeight": "bold", "cursor": "pointer", "fontSize": "0.8rem"},
+                    style={"backgroundColor": "#2f6db0", "color": "white", "border": "1px solid #2f6db0", "padding": "7px 15px", "fontWeight": "500", "cursor": "pointer", "fontSize": "12.5px", "display": "flex", "alignItems": "center", "gap": "7px"},
                 ),
                 dcc.Download(id={"type": "download-mes", "index": mes_index}),
             ],
-            style={"display": "flex", "gap": "12px", "marginTop": "14px"},
+            style={"display": "flex", "gap": "10px", "padding": "12px 15px", "borderTop": "1px solid #dde0e5"},
         ),
     ]
 
     return html.Div(
         id=id_html_elemento,
         children=[
-            html.H4(titulo, style={"gridColumnStart": "1", "gridColumnEnd": "-1"}),
-            # 3 cards
-            gerar_html_quadro_dado(f"{media_consumo_medio:.2f}", "Consumo Médio"),
-            gerar_html_quadro_dado(f"{desvio_padrao:.2f}", "Desvio Padrão do Consumo Médio"),
-            gerar_html_quadro_dado(frequencia_consumo_acima_limite, f"Frequência de Consumo maior que {limite_consumo_utilizado}"),
+            html.H4(titulo, style={"gridColumnStart": "1", "gridColumnEnd": "-1", "color": "#252a31", "fontSize": "14px", "fontWeight": "600"}),
+            # KPI strip consumo
+            html.Div(
+                [
+                    html.Div(
+                        [html.Div("Consumo Médio", style=EstilosCSS.QUADRO_DADO_LABEL), html.Div([html.Span(f"{media_consumo_medio:.2f}", style=EstilosCSS.QUADRO_DADO_NUMERO), html.Span("m³", style={"fontSize": "15px", "color": "#5d6570", "marginLeft": "4px", "fontWeight": "400"})], style={"display": "flex", "alignItems": "baseline"})],
+                        style={"padding": "14px 16px", "borderRight": "1px solid #dde0e5"},
+                    ),
+                    html.Div(
+                        [html.Div("Desvio Padrão do Consumo Médio", style=EstilosCSS.QUADRO_DADO_LABEL), html.Div([html.Span(f"{desvio_padrao:.2f}", style=EstilosCSS.QUADRO_DADO_NUMERO), html.Span("m³", style={"fontSize": "15px", "color": "#5d6570", "marginLeft": "4px", "fontWeight": "400"})], style={"display": "flex", "alignItems": "baseline"})],
+                        style={"padding": "14px 16px", "borderRight": "1px solid #dde0e5"},
+                    ),
+                    html.Div(
+                        [html.Div(f"Consumo maior que {limite_consumo_utilizado} m³", style=EstilosCSS.QUADRO_DADO_LABEL), html.Div([html.Span(frequencia_consumo_acima_limite, style=EstilosCSS.QUADRO_DADO_NUMERO), html.Span("ramais", style={"fontSize": "15px", "color": "#5d6570", "marginLeft": "4px", "fontWeight": "400"})], style={"display": "flex", "alignItems": "baseline"})],
+                        style={"padding": "14px 16px"},
+                    ),
+                ],
+                style={"display": "grid", "gridTemplateColumns": "repeat(3, 1fr)", "border": "1px solid #dde0e5", "backgroundColor": "#ffffff", "gridColumnStart": "span 6"},
+            ),
             # Gráfico de Consumo Médio
             html.Div(
                 [dcc.Graph(

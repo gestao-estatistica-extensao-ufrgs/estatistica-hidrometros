@@ -3,7 +3,7 @@ import io
 import sys
 
 import pandas as pd
-from dash import Dash, html, dcc, callback, Output, Input, State, ctx, MATCH
+from dash import Dash, html, dcc, callback, Output, Input, State, ctx, MATCH, no_update
 
 from tipos import NOME_VARIAVEIS
 from elementos_html import (
@@ -56,8 +56,6 @@ if len(sys.argv) > 1:
         "anormalidade_consumo_mes_1": "Anormalidade Consumo 1",
         "anormalidade_consumo_mes_2": "Anormalidade Consumo 2",
         "anormalidade_consumo_mes_3": "Anormalidade Consumo 3",
-        "tipo_tarifa_esgoto": "tipo Tarifa Esgoto",
-        "categoria": "Categoria",
         "contas_vencidas_aberto": "Qtd Contas Vencidas em Aberto",
         "divida_total_vencida": "Divida Total Vencida",
     }
@@ -80,7 +78,22 @@ if len(sys.argv) > 1:
         dados["datas_referencias"] = calculos.calcular_data_referencia(10, 2024)
         dados_html = gerar_html_dados(**dados)
 
+_meta_registros = str(len(DF)) if not DF.empty else "—"
+_meta_referencia = dados["datas_referencias"][0] if not DF.empty else "—"  # type: ignore[possibly-undefined]
+_meta_rodape = f"amostra_dados.xlsx · {len(DF)} registros · referência {dados['datas_referencias'][0]}" if not DF.empty else "—"  # type: ignore[possibly-undefined]
+_meta_nome_arquivo = "amostra_dados.xlsx" if not DF.empty else "—"
+
 app = Dash(suppress_callback_exceptions=True)
+
+_ESTILO_SECAO_VISIVEL = {
+    "display": "flex",
+    "flexDirection": "column",
+    "gap": "0",
+    "gridColumnStart": "span 6",
+    "backgroundColor": "#ffffff",
+    "border": "1px solid #dde0e5",
+    "padding": "20px",
+}
 
 _ESTILO_PAINEL_ABERTO = {
     "position": "fixed",
@@ -91,9 +104,9 @@ _ESTILO_PAINEL_ABERTO = {
     "zIndex": "1001",
     "display": "flex",
     "flexDirection": "column",
-    "backgroundColor": "#151929",
-    "borderRight": "1px solid #2a3f5f",
-    "boxShadow": "4px 0 24px rgba(0,0,0,0.6)",
+    "backgroundColor": "#ffffff",
+    "borderRight": "1px solid #dde0e5",
+    "boxShadow": "4px 0 24px rgba(0,0,0,0.15)",
 }
 _ESTILO_PAINEL_FECHADO = {"display": "none"}
 _ESTILO_BACKDROP_ABERTO = {
@@ -111,31 +124,69 @@ app.layout = [
     html.Div(
         id=ID_ELEMENTOS_HTML.LAYOUT,
         children=[
+            # Top navigation bar
+            html.Div(
+                id="topbar",
+                children=[
+                    html.Div(
+                        [
+                            html.Span("Base de dados", style={"fontSize": "10px", "color": "#8b929c", "lineHeight": "1.3", "display": "block"}),
+                            html.Span(_meta_nome_arquivo, id=ID_ELEMENTOS_HTML.NOME_ARQUIVO_TOPBAR, style={"fontSize": "12px", "lineHeight": "1.3", "fontVariantNumeric": "tabular-nums"}),
+                        ],
+                        style={"display": "flex", "flexDirection": "column", "justifyContent": "center", "padding": "0 16px", "borderRight": "1px solid #dde0e5", "width": "280px", "minWidth": "280px"},
+                    ),
+                    html.Nav(
+                        [
+                            html.Button("Análise descritiva", id=ID_ELEMENTOS_HTML.TAB_DESCRITIVA, n_clicks=0, className="nav-tab ativo"),
+                            html.Button("Análise de consumo", id=ID_ELEMENTOS_HTML.TAB_CONSUMO, n_clicks=0, className="nav-tab"),
+                        ],
+                        style={"display": "flex", "alignItems": "stretch", "flex": "1", "padding": "0 4px 0 14px"},
+                    ),
+                    html.Div(
+                        [
+                            html.Div(
+                                [
+                                    html.Span("Registros", style={"fontSize": "10px", "color": "#8b929c", "lineHeight": "1.3", "display": "block"}),
+                                    html.Span(_meta_registros, id=ID_ELEMENTOS_HTML.META_REGISTROS, style={"fontSize": "12px", "lineHeight": "1.3", "fontVariantNumeric": "tabular-nums"}),
+                                ],
+                                style={"padding": "0 15px", "display": "flex", "flexDirection": "column", "justifyContent": "center", "borderLeft": "1px solid #dde0e5"},
+                            ),
+                            html.Div(
+                                [
+                                    html.Span("Referência", style={"fontSize": "10px", "color": "#8b929c", "lineHeight": "1.3", "display": "block"}),
+                                    html.Span(_meta_referencia, id=ID_ELEMENTOS_HTML.META_REFERENCIA, style={"fontSize": "12px", "lineHeight": "1.3", "fontVariantNumeric": "tabular-nums"}),
+                                ],
+                                style={"padding": "0 15px", "display": "flex", "flexDirection": "column", "justifyContent": "center", "borderLeft": "1px solid #dde0e5"},
+                            ),
+                        ],
+                        style={"marginLeft": "auto", "display": "flex", "alignItems": "stretch"},
+                    ),
+                ],
+            ),
             # Sidebar
             html.Div(
                 id="sidebar",
                 children=[
                     html.Section(
                         id=ID_ELEMENTOS_HTML.AREA_UPLOAD_TABELA,
-                        style={"display": "flex", "flexDirection": "column", "gap": "5px"},
+                        style={"display": "flex", "flexDirection": "column"},
                         children=[
                             html.Div(
-                                style={"display": "flex", "flexDirection": "column", "gap": "2px"},
-                                children=[
-                                    html.H2(
-                                        "Abrir Planilha",
-                                        style={
-                                            "color": "#ffffff",
-                                            "fontSize": "0.85rem",
-                                            "textTransform": "uppercase",
-                                            "letterSpacing": "1px",
-                                            "marginBottom": "8px",
-                                        },
-                                    ),
-                                    gerar_form_importar_planilha(
-                                        mes_extracao=mes_extracao, ano_extracao=ano_extracao
-                                    ),
-                                ],
+                                "ABRIR PLANILHA",
+                                style={
+                                    "fontSize": "10px",
+                                    "fontWeight": "600",
+                                    "letterSpacing": "0.12em",
+                                    "color": "#5d6570",
+                                    "padding": "14px 16px 12px",
+                                    "borderBottom": "1px solid #dde0e5",
+                                },
+                            ),
+                            html.Div(
+                                gerar_form_importar_planilha(
+                                    mes_extracao=mes_extracao, ano_extracao=ano_extracao
+                                ),
+                                style={"padding": "14px 16px"},
                             ),
                             html.Div(
                                 id=ID_ELEMENTOS_HTML.AREA_ASSOCIACAO_COLUNAS,
@@ -149,16 +200,17 @@ app.layout = [
                             "Filtros",
                             id=ID_ELEMENTOS_HTML.BOTAO_TOGGLE_FILTROS,
                             style={
-                                "backgroundColor": "#2196c4",
+                                "backgroundColor": "#2f6db0",
                                 "color": "white",
                                 "border": "none",
                                 "padding": "14px",
                                 "width": "100%",
-                                "fontWeight": "bold",
+                                "fontWeight": "500",
                                 "cursor": "pointer",
-                                "fontSize": "0.85rem",
+                                "fontSize": "12.5px",
                                 "textTransform": "uppercase",
-                                "letterSpacing": "1px",
+                                "letterSpacing": "0.08em",
+                                "fontFamily": '"Segoe UI", system-ui, sans-serif',
                             },
                         ),
                         style={
@@ -175,6 +227,10 @@ app.layout = [
                     html.Section(
                         id=ID_ELEMENTOS_HTML.SECAO_RESULTADOS,
                         children=dados_html,
+                    ),
+                    html.Div(
+                        _meta_rodape,
+                        id=ID_ELEMENTOS_HTML.RODAPE,
                     ),
                 ],
             ),
@@ -195,11 +251,11 @@ app.layout = [
                             html.Span(
                                 "Filtros",
                                 style={
-                                    "fontWeight": "bold",
-                                    "fontSize": "1rem",
-                                    "color": "#ffffff",
+                                    "fontWeight": "600",
+                                    "fontSize": "13px",
+                                    "color": "#252a31",
                                     "textTransform": "uppercase",
-                                    "letterSpacing": "1px",
+                                    "letterSpacing": "0.1em",
                                 },
                             ),
                             html.Button(
@@ -208,8 +264,8 @@ app.layout = [
                                 style={
                                     "background": "none",
                                     "border": "none",
-                                    "color": "#8899aa",
-                                    "fontSize": "1.4rem",
+                                    "color": "#8b929c",
+                                    "fontSize": "1.2rem",
                                     "cursor": "pointer",
                                     "lineHeight": "1",
                                 },
@@ -220,8 +276,8 @@ app.layout = [
                             "justifyContent": "space-between",
                             "alignItems": "center",
                             "padding": "16px 24px",
-                            "borderBottom": "1px solid #2a3f5f",
-                            "backgroundColor": "#151929",
+                            "borderBottom": "1px solid #dde0e5",
+                            "backgroundColor": "#ffffff",
                         },
                     ),
                     # Conteúdo dos filtros (com scroll)
@@ -240,19 +296,20 @@ app.layout = [
                             id=ID_ELEMENTOS_HTML.FILTRO_SUBMIT,
                             type="button",
                             style={
-                                "backgroundColor": "#2196c4",
+                                "backgroundColor": "#2f6db0",
                                 "color": "white",
                                 "border": "none",
                                 "padding": "16px",
                                 "width": "100%",
-                                "fontWeight": "bold",
+                                "fontWeight": "500",
                                 "cursor": "pointer",
-                                "fontSize": "0.9rem",
+                                "fontSize": "12.5px",
                                 "textTransform": "uppercase",
-                                "letterSpacing": "1px",
+                                "letterSpacing": "0.08em",
+                                "fontFamily": '"Segoe UI", system-ui, sans-serif',
                             },
                         ),
-                        style={"borderTop": "1px solid #2a3f5f"},
+                        style={"borderTop": "1px solid #dde0e5"},
                     ),
                 ],
             ),
@@ -281,12 +338,13 @@ def toggle_painel_filtros(_open, _fechar, _backdrop):
 
 
 @callback(
-    Output(ID_ELEMENTOS_HTML.UPLOAD_NOME_ARQUIVO, "value"),
+    Output(ID_ELEMENTOS_HTML.UPLOAD_NOME_ARQUIVO, "children"),
+    Output(ID_ELEMENTOS_HTML.NOME_ARQUIVO_TOPBAR, "children"),
     Input(ID_ELEMENTOS_HTML.UPLOAD_TABELA, "filename"),
     prevent_initial_call=True,
 )
 def colocar_nome_arquivo_tabela(nome_arquivo: str):
-    return nome_arquivo
+    return nome_arquivo, nome_arquivo or "—"
 
 
 @callback(
@@ -353,6 +411,11 @@ def liberar_associacao_de_colunas(
     Output(ID_ELEMENTOS_HTML.SECAO_RESULTADOS, "children", allow_duplicate=True),
     Output(ID_ELEMENTOS_HTML.PAINEL_FILTROS, "style", allow_duplicate=True),
     Output(ID_ELEMENTOS_HTML.BACKDROP_FILTROS, "style", allow_duplicate=True),
+    Output(ID_ELEMENTOS_HTML.META_REGISTROS, "children"),
+    Output(ID_ELEMENTOS_HTML.META_REFERENCIA, "children"),
+    Output(ID_ELEMENTOS_HTML.RODAPE, "children"),
+    Output(ID_ELEMENTOS_HTML.TAB_DESCRITIVA, "className"),
+    Output(ID_ELEMENTOS_HTML.TAB_CONSUMO, "className"),
     Input(ID_ELEMENTOS_HTML.FILTRO_SUBMIT, "n_clicks"),
     State(ID_ELEMENTOS_HTML.FILTRO_DIAMETRO, "value"),
     State(ID_ELEMENTOS_HTML.FILTRO_IDADE, "value"),
@@ -409,7 +472,7 @@ def filtrar(
     ]
 
     if filtrado.empty:
-        return gerar_html_zero_resultados(), _ESTILO_PAINEL_FECHADO, _ESTILO_BACKDROP_FECHADO
+        return gerar_html_zero_resultados(), _ESTILO_PAINEL_FECHADO, _ESTILO_BACKDROP_FECHADO, "0", "—", "0 registros", "nav-tab ativo", "nav-tab"
 
     dados = calculos.calcular_todos_os_dados_necessarios(filtrado)
     dados["datas_referencias"] = calculos.calcular_data_referencia(
@@ -417,12 +480,21 @@ def filtrar(
     )
     dados_html = gerar_html_dados(**dados)
 
-    return dados_html, _ESTILO_PAINEL_FECHADO, _ESTILO_BACKDROP_FECHADO
+    ref = dados["datas_referencias"][0]
+    n = str(len(filtrado))
+    rodape = f"{n} registros · referência {ref}"
+    return dados_html, _ESTILO_PAINEL_FECHADO, _ESTILO_BACKDROP_FECHADO, n, ref, rodape, "nav-tab ativo", "nav-tab"
 
 
 @callback(
     Output(ID_ELEMENTOS_HTML.FILTROS, "children", allow_duplicate=True),
     Output(ID_ELEMENTOS_HTML.DROPDOWN_ASSOCIACAO_COLUNAS_ERRO, "children"),
+    Output(ID_ELEMENTOS_HTML.SECAO_RESULTADOS, "children", allow_duplicate=True),
+    Output(ID_ELEMENTOS_HTML.META_REGISTROS, "children", allow_duplicate=True),
+    Output(ID_ELEMENTOS_HTML.META_REFERENCIA, "children", allow_duplicate=True),
+    Output(ID_ELEMENTOS_HTML.RODAPE, "children", allow_duplicate=True),
+    Output(ID_ELEMENTOS_HTML.TAB_DESCRITIVA, "className", allow_duplicate=True),
+    Output(ID_ELEMENTOS_HTML.TAB_CONSUMO, "className", allow_duplicate=True),
     Input(ID_ELEMENTOS_HTML.BOTAO_ASSOCIAR_COLUNAS, "n_clicks"),
     State(ID_ELEMENTOS_HTML.MES_EXTRACAO, "value"),
     State(ID_ELEMENTOS_HTML.ANO_EXTRACAO, "value"),
@@ -515,14 +587,6 @@ def filtrar(
         "value",
     ),
     State(
-        ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["categoria"],
-        "value",
-    ),
-    State(
-        ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["tipo_tarifa_esgoto"],
-        "value",
-    ),
-    State(
         ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["contas_vencidas_aberto"],
         "value",
     ),
@@ -558,13 +622,13 @@ def associar_colunas(
     anormalidade_consumo_mes_1: str,
     anormalidade_consumo_mes_2: str,
     anormalidade_consumo_mes_3: str,
-    categoria: str,
-    tipo_tarifa_esgoto: str,
     contas_vencidas_aberto: str,
     divida_total_vencida: str,
 ):
+    _sem_alteracao = (no_update,) * 6
+
     if n_clicks is None:
-        return [], ""
+        return [], "", *_sem_alteracao
 
     colunas_associadas_de_cada_variavel: dict[NOME_VARIAVEIS, str] = {
         "ramal": ramal,
@@ -589,8 +653,6 @@ def associar_colunas(
         "anormalidade_consumo_mes_1": anormalidade_consumo_mes_1,
         "anormalidade_consumo_mes_2": anormalidade_consumo_mes_2,
         "anormalidade_consumo_mes_3": anormalidade_consumo_mes_3,
-        "categoria": categoria,
-        "tipo_tarifa_esgoto": tipo_tarifa_esgoto,
         "contas_vencidas_aberto": contas_vencidas_aberto,
         "divida_total_vencida": divida_total_vencida,
     }
@@ -606,26 +668,48 @@ def associar_colunas(
             calculos.calcular_data_referencia(mes_extracao, ano_extracao)
         )
 
-        calculos.preparacao_dados(
-            DF,
-            colunas_associadas_de_cada_variavel,
-            data_referencia_1,
-            data_referencia_2,
-            data_referencia_3,
-        )
+        try:
+            calculos.preparacao_dados(
+                DF,
+                colunas_associadas_de_cada_variavel,
+                data_referencia_1,
+                data_referencia_2,
+                data_referencia_3,
+            )
+        except KeyError as e:
+            colunas_disponiveis = list(DF.columns)
+            return [], componente_painel_erros(
+                [f"Coluna não encontrada: {e}. Colunas disponíveis: {colunas_disponiveis}"]
+            ), *_sem_alteracao
 
-        dados = calculos.calcular_dados_necessarios_do_filtro(DF)
-        dados.pop("opcoes_valores_anormalidade_leitura", None)
-        dados.pop("valores_unicos_anormalidade_leitura", None)
+        dados_filtro = calculos.calcular_dados_necessarios_do_filtro(DF)
+        dados_filtro.pop("opcoes_valores_anormalidade_leitura", None)
+        dados_filtro.pop("valores_unicos_anormalidade_leitura", None)
+
+        dados = calculos.calcular_todos_os_dados_necessarios(DF)
+        dados["datas_referencias"] = calculos.calcular_data_referencia(
+            mes_extracao, ano_extracao
+        )
+        dados_html = gerar_html_dados(**dados)
+
+        ref = dados["datas_referencias"][0]
+        n = str(len(DF))
+        rodape = f"{n} registros · referência {ref}"
 
         return (
-            gerar_html_filtros(**dados),
+            gerar_html_filtros(**dados_filtro),
             "",
+            dados_html,
+            n,
+            ref,
+            rodape,
+            "nav-tab ativo",
+            "nav-tab",
         )
 
     return [], componente_painel_erros(
         ["Todas as variáveis devem estar associadas a uma coluna da tabela"]
-    )
+    ), *_sem_alteracao
 
 
 @callback(
@@ -1058,6 +1142,21 @@ def pagina_diametro(value):
 )
 def buscar_diametro(termo):
     return f'{{"Diâmetro"}} icontains "{termo}"' if termo else ""
+
+
+@callback(
+    Output(ID_ELEMENTOS_HTML.SECAO_DESCRITIVA, "style"),
+    Output(ID_ELEMENTOS_HTML.SECAO_CONSUMO_CARD, "style"),
+    Output(ID_ELEMENTOS_HTML.TAB_DESCRITIVA, "className", allow_duplicate=True),
+    Output(ID_ELEMENTOS_HTML.TAB_CONSUMO, "className", allow_duplicate=True),
+    Input(ID_ELEMENTOS_HTML.TAB_DESCRITIVA, "n_clicks"),
+    Input(ID_ELEMENTOS_HTML.TAB_CONSUMO, "n_clicks"),
+    prevent_initial_call=True,
+)
+def alternar_abas_principais(_d, _c):
+    if ctx.triggered_id == ID_ELEMENTOS_HTML.TAB_CONSUMO:
+        return {"display": "none"}, _ESTILO_SECAO_VISIVEL, "nav-tab", "nav-tab ativo"
+    return _ESTILO_SECAO_VISIVEL, {"display": "none"}, "nav-tab ativo", "nav-tab"
 
 
 if __name__ == "__main__":
