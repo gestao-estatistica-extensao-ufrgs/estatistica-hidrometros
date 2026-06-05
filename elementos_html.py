@@ -990,8 +990,8 @@ def gerar_html_dados(
                                 [
                                     dcc.Graph(
                                         figure=px.bar(
-                                            x=df["grupo_leitura"].value_counts().rename(index=lambda v: v.upper().replace("GRUPO-", "")).sort_index(key=lambda x: x.astype(int)).index,
-                                            y=df["grupo_leitura"].value_counts().rename(index=lambda v: v.upper().replace("GRUPO-", "")).sort_index(key=lambda x: x.astype(int)),
+                                            x=df["grupo_leitura"].value_counts().rename(index=lambda v: str(v).upper().replace("GRUPO-", "")).sort_index(key=lambda x: x.astype(int)).index,
+                                            y=df["grupo_leitura"].value_counts().rename(index=lambda v: str(v).upper().replace("GRUPO-", "")).sort_index(key=lambda x: x.astype(int)),
                                             labels={"y": "Frequência", "x": "Grupo de Faturamento"},
                                             title="Frequência do grupo de faturamento",
                                             color_discrete_sequence=_PLOTLY_CORES_BARRAS,
