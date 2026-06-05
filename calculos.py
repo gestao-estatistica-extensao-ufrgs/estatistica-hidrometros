@@ -125,26 +125,22 @@ def preparacao_dados(
     data_referencia_2: str,
     data_referencia_3: str,
 ):
-    df[ColunasDataframe.RAMAL] = df[
-        relacao_colunas_tabela_inserida_com_dataframe["ramal"]
-    ]
-    df[ColunasDataframe.HIDROMETRO] = df[
-        relacao_colunas_tabela_inserida_com_dataframe["hidrometro"]
-    ]
+    relacao_temp = {var: f"__orig_{var}__" for var in relacao_colunas_tabela_inserida_com_dataframe}
+    df.rename(
+        columns={col: relacao_temp[var] for var, col in relacao_colunas_tabela_inserida_com_dataframe.items()},
+        inplace=True,
+    )
 
-    df[ColunasDataframe.SITUACAO_LIGACAO_AGUA] = df[
-        relacao_colunas_tabela_inserida_com_dataframe["situacao_ligacao_agua"]
-    ]
+    df[ColunasDataframe.RAMAL] = df[relacao_temp["ramal"]]
+    df[ColunasDataframe.HIDROMETRO] = df[relacao_temp["hidrometro"]]
 
-    df[ColunasDataframe.DIAMETRO] = df[
-        relacao_colunas_tabela_inserida_com_dataframe["diametro"]
-    ].apply(padronizacao_diametro)
+    df[ColunasDataframe.SITUACAO_LIGACAO_AGUA] = df[relacao_temp["situacao_ligacao_agua"]]
+
+    df[ColunasDataframe.DIAMETRO] = df[relacao_temp["diametro"]].apply(padronizacao_diametro)
 
     df[ColunasDataframe.DIAMETRO_LETRA] = df.apply(diametro_e_letra_codigo, axis=1)
 
-    df[ColunasDataframe.DATA_INSTALACAO] = df[
-        relacao_colunas_tabela_inserida_com_dataframe["data_instalacao"]
-    ]
+    df[ColunasDataframe.DATA_INSTALACAO] = df[relacao_temp["data_instalacao"]]
     tempo_instalacao_ate_agora = (
         pd.Timestamp.now() - df[ColunasDataframe.DATA_INSTALACAO]
     )
@@ -152,24 +148,16 @@ def preparacao_dados(
         lambda x: int(round(x.days / 365, 0))
     )
 
-    df[ColunasDataframe.GRUPO_LEITURA] = df[
-        relacao_colunas_tabela_inserida_com_dataframe["grupo_leitura"]
-    ]
-    df[ColunasDataframe.PERFIL_IMOVEL] = df[
-        relacao_colunas_tabela_inserida_com_dataframe["perfil_imovel"]
-    ]
+    df[ColunasDataframe.GRUPO_LEITURA] = df[relacao_temp["grupo_leitura"]]
+    df[ColunasDataframe.PERFIL_IMOVEL] = df[relacao_temp["perfil_imovel"]]
 
-    if "categoria" in relacao_colunas_tabela_inserida_com_dataframe:
-        df[ColunasDataframe.CATEGORIA] = df[
-            relacao_colunas_tabela_inserida_com_dataframe["categoria"]
-        ]
+    if "categoria" in relacao_temp:
+        df[ColunasDataframe.CATEGORIA] = df[relacao_temp["categoria"]]
     else:
         df[ColunasDataframe.CATEGORIA] = "-"
 
-    if "tipo_tarifa_esgoto" in relacao_colunas_tabela_inserida_com_dataframe:
-        df[ColunasDataframe.TIPO_TARIFA_ESGOTO] = df[
-            relacao_colunas_tabela_inserida_com_dataframe["tipo_tarifa_esgoto"]
-        ]
+    if "tipo_tarifa_esgoto" in relacao_temp:
+        df[ColunasDataframe.TIPO_TARIFA_ESGOTO] = df[relacao_temp["tipo_tarifa_esgoto"]]
     else:
         df[ColunasDataframe.TIPO_TARIFA_ESGOTO] = "-"
     df.loc[
@@ -177,13 +165,8 @@ def preparacao_dados(
         ColunasDataframe.TIPO_TARIFA_ESGOTO,
     ] = "-"
 
-    df[ColunasDataframe.DIVIDA_TOTAL_VENCIDA] = df[
-        relacao_colunas_tabela_inserida_com_dataframe["divida_total_vencida"]
-    ]
-
-    df[ColunasDataframe.DIVIDA_TOTAL_VENCIDA] = df[
-        relacao_colunas_tabela_inserida_com_dataframe["divida_total_vencida"]
-    ]
+    df[ColunasDataframe.DIVIDA_TOTAL_VENCIDA] = df[relacao_temp["divida_total_vencida"]]
+    df[ColunasDataframe.DIVIDA_TOTAL_VENCIDA] = df[relacao_temp["divida_total_vencida"]]
     df.loc[
         df[ColunasDataframe.DIVIDA_TOTAL_VENCIDA].isna(),
         ColunasDataframe.DIVIDA_TOTAL_VENCIDA,
@@ -192,85 +175,53 @@ def preparacao_dados(
         ColunasDataframe.DIVIDA_TOTAL_VENCIDA
     ].apply(round)
 
-    df[ColunasDataframe.CONTAS_VENCIDAS_ABERTO] = df[
-        relacao_colunas_tabela_inserida_com_dataframe["contas_vencidas_aberto"]
-    ]
+    df[ColunasDataframe.CONTAS_VENCIDAS_ABERTO] = df[relacao_temp["contas_vencidas_aberto"]]
 
     ### Colunas Consumo
     df[ColunasDataframe.DATA_REFERENCIA_1] = data_referencia_1
     df[ColunasDataframe.DATA_REFERENCIA_2] = data_referencia_2
     df[ColunasDataframe.DATA_REFERENCIA_3] = data_referencia_3
 
-    df[ColunasDataframe.MEDIA_CONSUMO_MES_1] = df[
-        relacao_colunas_tabela_inserida_com_dataframe["media_consumo_mes_1"]
-    ]
-    df[ColunasDataframe.MEDIA_CONSUMO_MES_2] = df[
-        relacao_colunas_tabela_inserida_com_dataframe["media_consumo_mes_2"]
-    ]
-    df[ColunasDataframe.MEDIA_CONSUMO_MES_3] = df[
-        relacao_colunas_tabela_inserida_com_dataframe["media_consumo_mes_3"]
-    ]
+    df[ColunasDataframe.MEDIA_CONSUMO_MES_1] = df[relacao_temp["media_consumo_mes_1"]]
+    df[ColunasDataframe.MEDIA_CONSUMO_MES_2] = df[relacao_temp["media_consumo_mes_2"]]
+    df[ColunasDataframe.MEDIA_CONSUMO_MES_3] = df[relacao_temp["media_consumo_mes_3"]]
 
-    df[ColunasDataframe.ANORMALIDADE_LEITURA_MES_1] = df[
-        relacao_colunas_tabela_inserida_com_dataframe["anormalidade_leitura_mes_1"]
-    ]
+    df[ColunasDataframe.ANORMALIDADE_LEITURA_MES_1] = df[relacao_temp["anormalidade_leitura_mes_1"]]
     # TODO: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value 'Sem Anormalidade' has dtype incompatible with float64, please explicitly cast to a compatible dtype first.
     df.loc[
         df[ColunasDataframe.ANORMALIDADE_LEITURA_MES_1].isna(),
         ColunasDataframe.ANORMALIDADE_LEITURA_MES_1,
     ] = "Sem Anormalidade"
-    df[ColunasDataframe.ANORMALIDADE_LEITURA_MES_2] = df[
-        relacao_colunas_tabela_inserida_com_dataframe["anormalidade_leitura_mes_2"]
-    ]
+    df[ColunasDataframe.ANORMALIDADE_LEITURA_MES_2] = df[relacao_temp["anormalidade_leitura_mes_2"]]
     df.loc[
         df[ColunasDataframe.ANORMALIDADE_LEITURA_MES_2].isna(),
         ColunasDataframe.ANORMALIDADE_LEITURA_MES_2,
     ] = "Sem Anormalidade"
-    df[ColunasDataframe.ANORMALIDADE_LEITURA_MES_3] = df[
-        relacao_colunas_tabela_inserida_com_dataframe["anormalidade_leitura_mes_3"]
-    ]
+    df[ColunasDataframe.ANORMALIDADE_LEITURA_MES_3] = df[relacao_temp["anormalidade_leitura_mes_3"]]
     df.loc[
         df[ColunasDataframe.ANORMALIDADE_LEITURA_MES_3].isna(),
         ColunasDataframe.ANORMALIDADE_LEITURA_MES_3,
     ] = "Sem Anormalidade"
 
-    df[ColunasDataframe.CONSUMO_MEDIDO_MES_1] = df[
-        relacao_colunas_tabela_inserida_com_dataframe["consumo_medido_mes_1"]
-    ]
-    df[ColunasDataframe.CONSUMO_MEDIDO_MES_2] = df[
-        relacao_colunas_tabela_inserida_com_dataframe["consumo_medido_mes_2"]
-    ]
-    df[ColunasDataframe.CONSUMO_MEDIDO_MES_3] = df[
-        relacao_colunas_tabela_inserida_com_dataframe["consumo_medido_mes_3"]
-    ]
+    df[ColunasDataframe.CONSUMO_MEDIDO_MES_1] = df[relacao_temp["consumo_medido_mes_1"]]
+    df[ColunasDataframe.CONSUMO_MEDIDO_MES_2] = df[relacao_temp["consumo_medido_mes_2"]]
+    df[ColunasDataframe.CONSUMO_MEDIDO_MES_3] = df[relacao_temp["consumo_medido_mes_3"]]
 
-    df[ColunasDataframe.CONSUMO_FATURADO_MES_1] = df[
-        relacao_colunas_tabela_inserida_com_dataframe["consumo_faturado_mes_1"]
-    ]
-    df[ColunasDataframe.CONSUMO_FATURADO_MES_2] = df[
-        relacao_colunas_tabela_inserida_com_dataframe["consumo_faturado_mes_2"]
-    ]
-    df[ColunasDataframe.CONSUMO_FATURADO_MES_3] = df[
-        relacao_colunas_tabela_inserida_com_dataframe["consumo_faturado_mes_3"]
-    ]
+    df[ColunasDataframe.CONSUMO_FATURADO_MES_1] = df[relacao_temp["consumo_faturado_mes_1"]]
+    df[ColunasDataframe.CONSUMO_FATURADO_MES_2] = df[relacao_temp["consumo_faturado_mes_2"]]
+    df[ColunasDataframe.CONSUMO_FATURADO_MES_3] = df[relacao_temp["consumo_faturado_mes_3"]]
 
-    df[ColunasDataframe.ANORMALIDADE_CONSUMO_MES_1] = df[
-        relacao_colunas_tabela_inserida_com_dataframe["anormalidade_consumo_mes_1"]
-    ]
+    df[ColunasDataframe.ANORMALIDADE_CONSUMO_MES_1] = df[relacao_temp["anormalidade_consumo_mes_1"]]
     df.loc[
         df[ColunasDataframe.ANORMALIDADE_CONSUMO_MES_1].isna(),
         ColunasDataframe.ANORMALIDADE_CONSUMO_MES_1,
     ] = "Sem Anormalidade"
-    df[ColunasDataframe.ANORMALIDADE_CONSUMO_MES_2] = df[
-        relacao_colunas_tabela_inserida_com_dataframe["anormalidade_consumo_mes_2"]
-    ]
+    df[ColunasDataframe.ANORMALIDADE_CONSUMO_MES_2] = df[relacao_temp["anormalidade_consumo_mes_2"]]
     df.loc[
         df[ColunasDataframe.ANORMALIDADE_CONSUMO_MES_2].isna(),
         ColunasDataframe.ANORMALIDADE_CONSUMO_MES_2,
     ] = "Sem Anormalidade"
-    df[ColunasDataframe.ANORMALIDADE_CONSUMO_MES_3] = df[
-        relacao_colunas_tabela_inserida_com_dataframe["anormalidade_consumo_mes_3"]
-    ]
+    df[ColunasDataframe.ANORMALIDADE_CONSUMO_MES_3] = df[relacao_temp["anormalidade_consumo_mes_3"]]
     df.loc[
         df[ColunasDataframe.ANORMALIDADE_CONSUMO_MES_3].isna(),
         ColunasDataframe.ANORMALIDADE_CONSUMO_MES_3,
@@ -279,7 +230,7 @@ def preparacao_dados(
     classificar_consumo_ramal(df)
 
     df.drop(
-        columns=relacao_colunas_tabela_inserida_com_dataframe.values(),
+        columns=[col for col in relacao_temp.values() if col in df.columns],
         inplace=True,
     )
 
