@@ -130,36 +130,123 @@ app.layout = [
                 children=[
                     html.Div(
                         [
-                            html.Span("Base de dados", style={"fontSize": "10px", "color": "#8b929c", "lineHeight": "1.3", "display": "block"}),
-                            html.Span(_meta_nome_arquivo, id=ID_ELEMENTOS_HTML.NOME_ARQUIVO_TOPBAR, style={"fontSize": "12px", "lineHeight": "1.3", "fontVariantNumeric": "tabular-nums"}),
+                            html.Span(
+                                "Base de dados",
+                                style={
+                                    "fontSize": "10px",
+                                    "color": "#8b929c",
+                                    "lineHeight": "1.3",
+                                    "display": "block",
+                                },
+                            ),
+                            html.Span(
+                                _meta_nome_arquivo,
+                                id=ID_ELEMENTOS_HTML.NOME_ARQUIVO_TOPBAR,
+                                style={
+                                    "fontSize": "12px",
+                                    "lineHeight": "1.3",
+                                    "fontVariantNumeric": "tabular-nums",
+                                },
+                            ),
                         ],
-                        style={"display": "flex", "flexDirection": "column", "justifyContent": "center", "padding": "0 16px", "borderRight": "1px solid #dde0e5", "width": "280px", "minWidth": "280px"},
+                        style={
+                            "display": "flex",
+                            "flexDirection": "column",
+                            "justifyContent": "center",
+                            "padding": "0 16px",
+                            "borderRight": "1px solid #dde0e5",
+                            "width": "280px",
+                            "minWidth": "280px",
+                        },
                     ),
                     html.Nav(
                         [
-                            html.Button("Análise descritiva", id=ID_ELEMENTOS_HTML.TAB_DESCRITIVA, n_clicks=0, className="nav-tab ativo"),
-                            html.Button("Análise de consumo", id=ID_ELEMENTOS_HTML.TAB_CONSUMO, n_clicks=0, className="nav-tab"),
+                            html.Button(
+                                "Análise descritiva",
+                                id=ID_ELEMENTOS_HTML.TAB_DESCRITIVA,
+                                n_clicks=0,
+                                className="nav-tab ativo",
+                            ),
+                            html.Button(
+                                "Análise de consumo",
+                                id=ID_ELEMENTOS_HTML.TAB_CONSUMO,
+                                n_clicks=0,
+                                className="nav-tab",
+                            ),
                         ],
-                        style={"display": "flex", "alignItems": "stretch", "flex": "1", "padding": "0 4px 0 14px"},
+                        style={
+                            "display": "flex",
+                            "alignItems": "stretch",
+                            "flex": "1",
+                            "padding": "0 4px 0 14px",
+                        },
                     ),
                     html.Div(
                         [
                             html.Div(
                                 [
-                                    html.Span("Registros", style={"fontSize": "10px", "color": "#8b929c", "lineHeight": "1.3", "display": "block"}),
-                                    html.Span(_meta_registros, id=ID_ELEMENTOS_HTML.META_REGISTROS, style={"fontSize": "12px", "lineHeight": "1.3", "fontVariantNumeric": "tabular-nums"}),
+                                    html.Span(
+                                        "Registros",
+                                        style={
+                                            "fontSize": "10px",
+                                            "color": "#8b929c",
+                                            "lineHeight": "1.3",
+                                            "display": "block",
+                                        },
+                                    ),
+                                    html.Span(
+                                        _meta_registros,
+                                        id=ID_ELEMENTOS_HTML.META_REGISTROS,
+                                        style={
+                                            "fontSize": "12px",
+                                            "lineHeight": "1.3",
+                                            "fontVariantNumeric": "tabular-nums",
+                                        },
+                                    ),
                                 ],
-                                style={"padding": "0 15px", "display": "flex", "flexDirection": "column", "justifyContent": "center", "borderLeft": "1px solid #dde0e5"},
+                                style={
+                                    "padding": "0 15px",
+                                    "display": "flex",
+                                    "flexDirection": "column",
+                                    "justifyContent": "center",
+                                    "borderLeft": "1px solid #dde0e5",
+                                },
                             ),
                             html.Div(
                                 [
-                                    html.Span("Referência", style={"fontSize": "10px", "color": "#8b929c", "lineHeight": "1.3", "display": "block"}),
-                                    html.Span(_meta_referencia, id=ID_ELEMENTOS_HTML.META_REFERENCIA, style={"fontSize": "12px", "lineHeight": "1.3", "fontVariantNumeric": "tabular-nums"}),
+                                    html.Span(
+                                        "Referência",
+                                        style={
+                                            "fontSize": "10px",
+                                            "color": "#8b929c",
+                                            "lineHeight": "1.3",
+                                            "display": "block",
+                                        },
+                                    ),
+                                    html.Span(
+                                        _meta_referencia,
+                                        id=ID_ELEMENTOS_HTML.META_REFERENCIA,
+                                        style={
+                                            "fontSize": "12px",
+                                            "lineHeight": "1.3",
+                                            "fontVariantNumeric": "tabular-nums",
+                                        },
+                                    ),
                                 ],
-                                style={"padding": "0 15px", "display": "flex", "flexDirection": "column", "justifyContent": "center", "borderLeft": "1px solid #dde0e5"},
+                                style={
+                                    "padding": "0 15px",
+                                    "display": "flex",
+                                    "flexDirection": "column",
+                                    "justifyContent": "center",
+                                    "borderLeft": "1px solid #dde0e5",
+                                },
                             ),
                         ],
-                        style={"marginLeft": "auto", "display": "flex", "alignItems": "stretch"},
+                        style={
+                            "marginLeft": "auto",
+                            "display": "flex",
+                            "alignItems": "stretch",
+                        },
                     ),
                 ],
             ),
@@ -282,7 +369,9 @@ app.layout = [
                     ),
                     # Conteúdo dos filtros (com scroll)
                     html.Div(
-                        html.Section(id=ID_ELEMENTOS_HTML.FILTROS, children=filtro_html),
+                        html.Section(
+                            id=ID_ELEMENTOS_HTML.FILTROS, children=filtro_html
+                        ),
                         style={
                             "flex": "1",
                             "overflowY": "auto",
@@ -472,7 +561,16 @@ def filtrar(
     ]
 
     if filtrado.empty:
-        return gerar_html_zero_resultados(), _ESTILO_PAINEL_FECHADO, _ESTILO_BACKDROP_FECHADO, "0", "—", "0 registros", "nav-tab ativo", "nav-tab"
+        return (
+            gerar_html_zero_resultados(),
+            _ESTILO_PAINEL_FECHADO,
+            _ESTILO_BACKDROP_FECHADO,
+            "0",
+            "—",
+            "0 registros",
+            "nav-tab ativo",
+            "nav-tab",
+        )
 
     dados = calculos.calcular_todos_os_dados_necessarios(filtrado)
     dados["datas_referencias"] = calculos.calcular_data_referencia(
@@ -483,7 +581,16 @@ def filtrar(
     ref = dados["datas_referencias"][0]
     n = str(len(filtrado))
     rodape = f"{n} registros · referência {ref}"
-    return dados_html, _ESTILO_PAINEL_FECHADO, _ESTILO_BACKDROP_FECHADO, n, ref, rodape, "nav-tab ativo", "nav-tab"
+    return (
+        dados_html,
+        _ESTILO_PAINEL_FECHADO,
+        _ESTILO_BACKDROP_FECHADO,
+        n,
+        ref,
+        rodape,
+        "nav-tab ativo",
+        "nav-tab",
+    )
 
 
 @callback(
@@ -678,9 +785,15 @@ def associar_colunas(
             )
         except KeyError as e:
             colunas_disponiveis = list(DF.columns)
-            return [], componente_painel_erros(
-                [f"Coluna não encontrada: {e}. Colunas disponíveis: {colunas_disponiveis}"]
-            ), *_sem_alteracao
+            return (
+                [],
+                componente_painel_erros(
+                    [
+                        f"Coluna não encontrada: {e}. Colunas disponíveis: {colunas_disponiveis}"
+                    ]
+                ),
+                *_sem_alteracao,
+            )
 
         dados_filtro = calculos.calcular_dados_necessarios_do_filtro(DF)
         dados_filtro.pop("opcoes_valores_anormalidade_leitura", None)
@@ -707,9 +820,13 @@ def associar_colunas(
             "nav-tab",
         )
 
-    return [], componente_painel_erros(
-        ["Todas as variáveis devem estar associadas a uma coluna da tabela"]
-    ), *_sem_alteracao
+    return (
+        [],
+        componente_painel_erros(
+            ["Todas as variáveis devem estar associadas a uma coluna da tabela"]
+        ),
+        *_sem_alteracao,
+    )
 
 
 @callback(
@@ -851,12 +968,25 @@ def concatenar_dados_consumo_mes(
         frequencia_anormalidade_consumo_3,
     ) = calculos.calcular_frequencia_anormalidade_consumo(filtrado)
 
-    ramais_mes_1 = filtrado.loc[filtrado.consumo_max_mes_1.isin(["Maior", "Menor"]),
-                                ["ramal", "diametro_letra", "consumo_max_mes_1", "media_consumo_mes_1"]]
-    ramais_mes_2 = filtrado.loc[filtrado.consumo_max_mes_2.isin(["Maior", "Menor"]),
-                                ["ramal", "diametro_letra", "consumo_max_mes_2", "media_consumo_mes_2"]]
-    ramais_mes_3 = filtrado.loc[filtrado.consumo_max_mes_3.isin(["Maior", "Menor"]),
-                                ["ramal", "diametro_letra", "consumo_max_mes_3", "media_consumo_mes_3"]]
+    ramais_mes_1 = filtrado.loc[
+        filtrado.consumo_max_mes_1.isin(["Maior", "Menor"]),
+        ["ramal", "diametro_letra", "consumo_max_mes_1", "media_consumo_mes_1"],
+    ]
+    ramais_mes_2 = filtrado.loc[
+        filtrado.consumo_max_mes_2.isin(["Maior", "Menor"]),
+        ["ramal", "diametro_letra", "consumo_max_mes_2", "media_consumo_mes_2"],
+    ]
+    ramais_mes_3 = filtrado.loc[
+        filtrado.consumo_max_mes_3.isin(["Maior", "Menor"]),
+        ["ramal", "diametro_letra", "consumo_max_mes_3", "media_consumo_mes_3"],
+    ]
+
+    frequencia_contas_vencidas_aberto = (
+        calculos.calcular_frequencia_contas_vencidas_aberto(filtrado, valor_limite)
+    )
+    frequencia_divida_total_vencida = calculos.calcular_frequencia_total_divida_vencida(
+        filtrado, valor_limite
+    )
 
     return [
         gerar_html_dados_consumo_mes(
@@ -875,6 +1005,8 @@ def concatenar_dados_consumo_mes(
             ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_1,
             mes_index="mes-1",
             limite_consumo_utilizado=valor_limite,
+            frequencia_divida_total_vencida=frequencia_divida_total_vencida,
+            frequencia_contas_vencidas_aberto=frequencia_contas_vencidas_aberto,
         ),
         gerar_html_dados_consumo_mes(
             media_do_consumo_medio_mes_2,
@@ -893,6 +1025,8 @@ def concatenar_dados_consumo_mes(
             mes_index="mes-2",
             oculto=True,
             limite_consumo_utilizado=valor_limite,
+            frequencia_divida_total_vencida=frequencia_divida_total_vencida,
+            frequencia_contas_vencidas_aberto=frequencia_contas_vencidas_aberto,
         ),
         gerar_html_dados_consumo_mes(
             media_do_consumo_medio_mes_3,
@@ -911,14 +1045,22 @@ def concatenar_dados_consumo_mes(
             mes_index="mes-3",
             oculto=True,
             limite_consumo_utilizado=valor_limite,
+            frequencia_divida_total_vencida=frequencia_divida_total_vencida,
+            frequencia_contas_vencidas_aberto=frequencia_contas_vencidas_aberto,
         ),
     ]
 
 
 def _filtrar_df(
-    limites_diametros, limites_idade, situacoes, diametro_letra,
-    grupo_faturamento, perfil_imovel_selecionados, categorias,
-    tipos_tarifa_esgoto, anormalidades_consumo,
+    limites_diametros,
+    limites_idade,
+    situacoes,
+    diametro_letra,
+    grupo_faturamento,
+    perfil_imovel_selecionados,
+    categorias,
+    tipos_tarifa_esgoto,
+    anormalidades_consumo,
 ):
     global DF
     return DF[
@@ -971,9 +1113,15 @@ def atualizar_tabela_ramais_anormalidade(
         return [], ""
 
     filtrado = _filtrar_df(
-        limites_diametros, limites_idade, situacoes, diametro_letra,
-        grupo_faturamento, perfil_imovel_selecionados, categorias,
-        tipos_tarifa_esgoto, anormalidades_consumo,
+        limites_diametros,
+        limites_idade,
+        situacoes,
+        diametro_letra,
+        grupo_faturamento,
+        perfil_imovel_selecionados,
+        categorias,
+        tipos_tarifa_esgoto,
+        anormalidades_consumo,
     )
 
     mes = mes or "1"
@@ -983,13 +1131,16 @@ def atualizar_tabela_ramais_anormalidade(
     ramais = filtrado.loc[filtrado[col_anorm].isin(["Maior", "Menor"])].copy()
 
     if termo:
-        mask = (
-            ramais.ramal.astype(str).str.contains(termo, case=False, na=False)
-            | ramais.diametro_letra.astype(str).str.contains(termo, case=False, na=False)
-        )
+        mask = ramais.ramal.astype(str).str.contains(
+            termo, case=False, na=False
+        ) | ramais.diametro_letra.astype(str).str.contains(termo, case=False, na=False)
         ramais = ramais[mask]
 
-    dados = _ramais_para_tabela(ramais[["ramal", "diametro_letra", col_anorm, col_consumo]], col_anorm, col_consumo)
+    dados = _ramais_para_tabela(
+        ramais[["ramal", "diametro_letra", col_anorm, col_consumo]],
+        col_anorm,
+        col_consumo,
+    )
     total = f"Total: {len(dados)} ramais"
     return dados, total
 
@@ -1075,37 +1226,59 @@ def buscar_ramais_mes(termo):
     prevent_initial_call=True,
 )
 def download_ramais_mes(
-    _n_sem, _n_com,
-    limites_diametros, limites_idade, situacoes, diametro_letra,
-    grupo_faturamento, perfil_imovel_selecionados, categorias,
-    tipos_tarifa_esgoto, anormalidades_consumo,
+    _n_sem,
+    _n_com,
+    limites_diametros,
+    limites_idade,
+    situacoes,
+    diametro_letra,
+    grupo_faturamento,
+    perfil_imovel_selecionados,
+    categorias,
+    tipos_tarifa_esgoto,
+    anormalidades_consumo,
 ):
     global DF
     triggered = ctx.triggered_id
-    mes_index = triggered.get("index", "mes-1") if isinstance(triggered, dict) else "mes-1"
+    mes_index = (
+        triggered.get("index", "mes-1") if isinstance(triggered, dict) else "mes-1"
+    )
     mes = mes_index.split("-")[1]
     sem_filtro = isinstance(triggered, dict) and triggered.get("type") == "btn-dl-sem"
 
     col_anorm = f"consumo_max_mes_{mes}"
     col_consumo = f"media_consumo_mes_{mes}"
 
-    df_base = DF if sem_filtro else _filtrar_df(
-        limites_diametros, limites_idade, situacoes, diametro_letra,
-        grupo_faturamento, perfil_imovel_selecionados, categorias,
-        tipos_tarifa_esgoto, anormalidades_consumo,
+    df_base = (
+        DF
+        if sem_filtro
+        else _filtrar_df(
+            limites_diametros,
+            limites_idade,
+            situacoes,
+            diametro_letra,
+            grupo_faturamento,
+            perfil_imovel_selecionados,
+            categorias,
+            tipos_tarifa_esgoto,
+            anormalidades_consumo,
+        )
     )
 
-    df_export = (
-        df_base.loc[df_base[col_anorm].isin(["Maior", "Menor"]),
-                    ["ramal", "diametro_letra", col_anorm, col_consumo]]
-        .rename(columns={
+    df_export = df_base.loc[
+        df_base[col_anorm].isin(["Maior", "Menor"]),
+        ["ramal", "diametro_letra", col_anorm, col_consumo],
+    ].rename(
+        columns={
             "ramal": "Ramal",
             "diametro_letra": "Diâmetro",
             col_anorm: "Anormalidade de Consumo",
             col_consumo: "Consumo Médio",
-        })
+        }
     )
-    return dcc.send_data_frame(df_export.to_excel, f"ramais_anormalidade_mes{mes}.xlsx", index=False)
+    return dcc.send_data_frame(
+        df_export.to_excel, f"ramais_anormalidade_mes{mes}.xlsx", index=False
+    )
 
 
 @callback(

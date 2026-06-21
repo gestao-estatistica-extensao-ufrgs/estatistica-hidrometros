@@ -1,8 +1,10 @@
+from math import floor
 from typing import Literal
 
 from dash import dcc
 import plotly.express as px  # type: ignore
 import pandas as pd
+import numpy as np
 
 from tipos import NOME_VARIAVEIS, ColunasDataframe
 
@@ -125,18 +127,27 @@ def preparacao_dados(
     data_referencia_2: str,
     data_referencia_3: str,
 ):
-    relacao_temp = {var: f"__orig_{var}__" for var in relacao_colunas_tabela_inserida_com_dataframe}
+    relacao_temp = {
+        var: f"__orig_{var}__" for var in relacao_colunas_tabela_inserida_com_dataframe
+    }
     df.rename(
-        columns={col: relacao_temp[var] for var, col in relacao_colunas_tabela_inserida_com_dataframe.items()},
+        columns={
+            col: relacao_temp[var]
+            for var, col in relacao_colunas_tabela_inserida_com_dataframe.items()
+        },
         inplace=True,
     )
 
     df[ColunasDataframe.RAMAL] = df[relacao_temp["ramal"]]
     df[ColunasDataframe.HIDROMETRO] = df[relacao_temp["hidrometro"]]
 
-    df[ColunasDataframe.SITUACAO_LIGACAO_AGUA] = df[relacao_temp["situacao_ligacao_agua"]]
+    df[ColunasDataframe.SITUACAO_LIGACAO_AGUA] = df[
+        relacao_temp["situacao_ligacao_agua"]
+    ]
 
-    df[ColunasDataframe.DIAMETRO] = df[relacao_temp["diametro"]].apply(padronizacao_diametro)
+    df[ColunasDataframe.DIAMETRO] = df[relacao_temp["diametro"]].apply(
+        padronizacao_diametro
+    )
 
     df[ColunasDataframe.DIAMETRO_LETRA] = df.apply(diametro_e_letra_codigo, axis=1)
 
@@ -145,7 +156,7 @@ def preparacao_dados(
         pd.Timestamp.now() - df[ColunasDataframe.DATA_INSTALACAO]
     )
     df[ColunasDataframe.IDADE_HIDROMETRO] = tempo_instalacao_ate_agora.apply(
-        lambda x: int(round(x.days / 365, 0))
+        lambda x: floor(x.days / 365.25)
     )
 
     df[ColunasDataframe.GRUPO_LEITURA] = df[relacao_temp["grupo_leitura"]]
@@ -166,16 +177,18 @@ def preparacao_dados(
     ] = "-"
 
     df[ColunasDataframe.DIVIDA_TOTAL_VENCIDA] = df[relacao_temp["divida_total_vencida"]]
-    df[ColunasDataframe.DIVIDA_TOTAL_VENCIDA] = df[relacao_temp["divida_total_vencida"]]
-    df.loc[
-        df[ColunasDataframe.DIVIDA_TOTAL_VENCIDA].isna(),
-        ColunasDataframe.DIVIDA_TOTAL_VENCIDA,
-    ] = 0
+    df[ColunasDataframe.DIVIDA_TOTAL_VENCIDA] = np.where(
+        df[ColunasDataframe.DIVIDA_TOTAL_VENCIDA].notna(),
+        round(df[ColunasDataframe.DIVIDA_TOTAL_VENCIDA]),
+        df[ColunasDataframe.DIVIDA_TOTAL_VENCIDA],
+    )
     df[ColunasDataframe.DIVIDA_TOTAL_VENCIDA] = df[
         ColunasDataframe.DIVIDA_TOTAL_VENCIDA
-    ].apply(round)
+    ].astype("Int64")
 
-    df[ColunasDataframe.CONTAS_VENCIDAS_ABERTO] = df[relacao_temp["contas_vencidas_aberto"]]
+    df[ColunasDataframe.CONTAS_VENCIDAS_ABERTO] = df[
+        relacao_temp["contas_vencidas_aberto"]
+    ]
 
     ### Colunas Consumo
     df[ColunasDataframe.DATA_REFERENCIA_1] = data_referencia_1
@@ -185,19 +198,34 @@ def preparacao_dados(
     df[ColunasDataframe.MEDIA_CONSUMO_MES_1] = df[relacao_temp["media_consumo_mes_1"]]
     df[ColunasDataframe.MEDIA_CONSUMO_MES_2] = df[relacao_temp["media_consumo_mes_2"]]
     df[ColunasDataframe.MEDIA_CONSUMO_MES_3] = df[relacao_temp["media_consumo_mes_3"]]
+    df[ColunasDataframe.MEDIA_CONSUMO_MES_1] = df[
+        ColunasDataframe.MEDIA_CONSUMO_MES_1
+    ].astype("Int64")
+    df[ColunasDataframe.MEDIA_CONSUMO_MES_2] = df[
+        ColunasDataframe.MEDIA_CONSUMO_MES_2
+    ].astype("Int64")
+    df[ColunasDataframe.MEDIA_CONSUMO_MES_3] = df[
+        ColunasDataframe.MEDIA_CONSUMO_MES_3
+    ].astype("Int64")
 
-    df[ColunasDataframe.ANORMALIDADE_LEITURA_MES_1] = df[relacao_temp["anormalidade_leitura_mes_1"]]
+    df[ColunasDataframe.ANORMALIDADE_LEITURA_MES_1] = df[
+        relacao_temp["anormalidade_leitura_mes_1"]
+    ]
     # TODO: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value 'Sem Anormalidade' has dtype incompatible with float64, please explicitly cast to a compatible dtype first.
     df.loc[
         df[ColunasDataframe.ANORMALIDADE_LEITURA_MES_1].isna(),
         ColunasDataframe.ANORMALIDADE_LEITURA_MES_1,
     ] = "Sem Anormalidade"
-    df[ColunasDataframe.ANORMALIDADE_LEITURA_MES_2] = df[relacao_temp["anormalidade_leitura_mes_2"]]
+    df[ColunasDataframe.ANORMALIDADE_LEITURA_MES_2] = df[
+        relacao_temp["anormalidade_leitura_mes_2"]
+    ]
     df.loc[
         df[ColunasDataframe.ANORMALIDADE_LEITURA_MES_2].isna(),
         ColunasDataframe.ANORMALIDADE_LEITURA_MES_2,
     ] = "Sem Anormalidade"
-    df[ColunasDataframe.ANORMALIDADE_LEITURA_MES_3] = df[relacao_temp["anormalidade_leitura_mes_3"]]
+    df[ColunasDataframe.ANORMALIDADE_LEITURA_MES_3] = df[
+        relacao_temp["anormalidade_leitura_mes_3"]
+    ]
     df.loc[
         df[ColunasDataframe.ANORMALIDADE_LEITURA_MES_3].isna(),
         ColunasDataframe.ANORMALIDADE_LEITURA_MES_3,
@@ -206,22 +234,43 @@ def preparacao_dados(
     df[ColunasDataframe.CONSUMO_MEDIDO_MES_1] = df[relacao_temp["consumo_medido_mes_1"]]
     df[ColunasDataframe.CONSUMO_MEDIDO_MES_2] = df[relacao_temp["consumo_medido_mes_2"]]
     df[ColunasDataframe.CONSUMO_MEDIDO_MES_3] = df[relacao_temp["consumo_medido_mes_3"]]
+    df[ColunasDataframe.CONSUMO_MEDIDO_MES_1] = df[
+        ColunasDataframe.CONSUMO_MEDIDO_MES_1
+    ].astype("Int64")
+    df[ColunasDataframe.CONSUMO_MEDIDO_MES_2] = df[
+        ColunasDataframe.CONSUMO_MEDIDO_MES_2
+    ].astype("Int64")
+    df[ColunasDataframe.CONSUMO_MEDIDO_MES_3] = df[
+        ColunasDataframe.CONSUMO_MEDIDO_MES_3
+    ].astype("Int64")
 
-    df[ColunasDataframe.CONSUMO_FATURADO_MES_1] = df[relacao_temp["consumo_faturado_mes_1"]]
-    df[ColunasDataframe.CONSUMO_FATURADO_MES_2] = df[relacao_temp["consumo_faturado_mes_2"]]
-    df[ColunasDataframe.CONSUMO_FATURADO_MES_3] = df[relacao_temp["consumo_faturado_mes_3"]]
+    df[ColunasDataframe.CONSUMO_FATURADO_MES_1] = df[
+        relacao_temp["consumo_faturado_mes_1"]
+    ]
+    df[ColunasDataframe.CONSUMO_FATURADO_MES_2] = df[
+        relacao_temp["consumo_faturado_mes_2"]
+    ]
+    df[ColunasDataframe.CONSUMO_FATURADO_MES_3] = df[
+        relacao_temp["consumo_faturado_mes_3"]
+    ]
 
-    df[ColunasDataframe.ANORMALIDADE_CONSUMO_MES_1] = df[relacao_temp["anormalidade_consumo_mes_1"]]
+    df[ColunasDataframe.ANORMALIDADE_CONSUMO_MES_1] = df[
+        relacao_temp["anormalidade_consumo_mes_1"]
+    ]
     df.loc[
         df[ColunasDataframe.ANORMALIDADE_CONSUMO_MES_1].isna(),
         ColunasDataframe.ANORMALIDADE_CONSUMO_MES_1,
     ] = "Sem Anormalidade"
-    df[ColunasDataframe.ANORMALIDADE_CONSUMO_MES_2] = df[relacao_temp["anormalidade_consumo_mes_2"]]
+    df[ColunasDataframe.ANORMALIDADE_CONSUMO_MES_2] = df[
+        relacao_temp["anormalidade_consumo_mes_2"]
+    ]
     df.loc[
         df[ColunasDataframe.ANORMALIDADE_CONSUMO_MES_2].isna(),
         ColunasDataframe.ANORMALIDADE_CONSUMO_MES_2,
     ] = "Sem Anormalidade"
-    df[ColunasDataframe.ANORMALIDADE_CONSUMO_MES_3] = df[relacao_temp["anormalidade_consumo_mes_3"]]
+    df[ColunasDataframe.ANORMALIDADE_CONSUMO_MES_3] = df[
+        relacao_temp["anormalidade_consumo_mes_3"]
+    ]
     df.loc[
         df[ColunasDataframe.ANORMALIDADE_CONSUMO_MES_3].isna(),
         ColunasDataframe.ANORMALIDADE_CONSUMO_MES_3,
@@ -251,18 +300,22 @@ def calcular_dados_hidrometros_segundo_diametro(
     else:
         assert False, f"Diâmetro fora das categorias '20', '25', '25+'"
 
+    idade_media: Literal["-"] | float = "-"
+    idade_desvio_padrao: Literal["-"] | float = "-"
+    grafico_idades_hidrometros = []
     if not hidrometros.empty:
-        idade_media = hidrometros.idade_hidrometro.mean()
-        idade_desvio_padrao = hidrometros.idade_hidrometro.std()
-        idade_media = f"{idade_media:.2f}"
-        idade_desvio_padrao = f"{idade_desvio_padrao:.2f}"
+        idade_media = round(hidrometros.idade_hidrometro.mean(), 2)
+        idade_desvio_padrao = round(hidrometros.idade_hidrometro.std(), 2)
 
-        contagem_idades_hidrometros = hidrometros.idade_hidrometro.value_counts().sort_index()
+        contagem_idades_hidrometros = (
+            hidrometros.idade_hidrometro.value_counts().sort_index()
+        )
 
         titulo = f"Idade Hidrômetros de {diametro}MM"
         if diametro == "25+":
             titulo = f"Idade Hidrômetros acima de 25MM"
 
+        # TODO: separar calculo da produção do gráfico
         grafico_idades_hidrometros = [
             dcc.Graph(
                 figure=px.bar(
@@ -270,21 +323,26 @@ def calcular_dados_hidrometros_segundo_diametro(
                     y=contagem_idades_hidrometros,
                     labels={"y": "Frequência", "x": "idade"},
                     title=titulo,
-                    color_discrete_sequence=["#4f80b8", "#2f6db0", "#7fa8d1", "#b0c8e8"],
+                    color_discrete_sequence=[
+                        "#4f80b8",
+                        "#2f6db0",
+                        "#7fa8d1",
+                        "#b0c8e8",
+                    ],
                 ).update_layout(
                     paper_bgcolor="#ffffff",
                     plot_bgcolor="#ffffff",
                     font_color="#5d6570",
-                    xaxis={"gridcolor": "#dde0e5", "linecolor": "#c6cad1", "dtick": 1, "tickmode": "linear"},
+                    xaxis={
+                        "gridcolor": "#dde0e5",
+                        "linecolor": "#c6cad1",
+                        "dtick": 1,
+                        "tickmode": "linear",
+                    },
                     yaxis={"gridcolor": "#dde0e5", "linecolor": "#c6cad1"},
                 )
             )
         ]
-
-    else:
-        idade_media = "-"
-        idade_desvio_padrao = "-"
-        grafico_idades_hidrometros = []
 
     return (idade_media, idade_desvio_padrao, grafico_idades_hidrometros)
 
@@ -295,15 +353,15 @@ def calcular_porcentagem_hidrometros_ligados(df: pd.DataFrame):
     contagem_hidrometros = df.hidrometro.count()
 
     if contagem_hidrometros > 0:
-        porcentagem = (
-            apenas_ligados.situacao_ligacao_agua.count() * 100 / contagem_hidrometros
+        porcentagem = round(
+            apenas_ligados.situacao_ligacao_agua.count() * 100 / contagem_hidrometros, 2
         )
         return porcentagem
 
     return 0.0
 
 
-def calcular_freq_hidrometros_por_diametro(df):
+def calcular_freq_hidrometros_por_diametro(df) -> list[dict]:
     contagem_hidrometros_por_diametro = df.diametro.value_counts()
     df_freq_hidrometros = contagem_hidrometros_por_diametro.to_frame()
     df_freq_hidrometros["%"] = (
@@ -315,18 +373,18 @@ def calcular_freq_hidrometros_por_diametro(df):
     df_freq_hidrometros.reset_index(inplace=True)
     df_freq_hidrometros.rename(
         columns={
-            "diametro": "Diâmetro",
-            "count": "Frequência",
-            "%": "Frequência Relativa (%)",
+            "diametro": "diametro",
+            "count": "freq_absoluta",
+            "%": "freq_relativa",
         },
         inplace=True,
     )
 
-    freq_hidrometros = df_freq_hidrometros.to_dict("records")
+    freq_hidrometros: list[dict] = df_freq_hidrometros.to_dict("records")
     return freq_hidrometros
 
 
-def calcular_freq_prefil_imoveis(df):
+def calcular_freq_prefil_imoveis(df) -> list[dict[str, int | float | str]]:
     contagem_perfil_imoveis = df.perfil_imovel.value_counts()
     df_freq_perfil_imoveis = contagem_perfil_imoveis.to_frame()
     df_freq_perfil_imoveis["%"] = (
@@ -338,9 +396,9 @@ def calcular_freq_prefil_imoveis(df):
     df_freq_perfil_imoveis.reset_index(inplace=True)
     df_freq_perfil_imoveis.rename(
         columns={
-            "perfil_imovel": "Perfil Imóvel",
-            "count": "Frequência",
-            "%": "Frequência Relativa (%)",
+            "perfil_imovel": "perfil_imovel",
+            "count": "frequencia_absoluta",
+            "%": "frequencia_relativa",
         },
         inplace=True,
     )
@@ -382,7 +440,9 @@ def calcular_dados_necessarios_do_filtro(df: pd.DataFrame):
     opcoes_perfil = [{"label": v, "value": v} for v in sorted(valores_unicos_perfil)]
 
     valores_unicos_categoria = list(df.categoria.unique())
-    opcoes_categoria = [{"label": v, "value": v} for v in sorted(valores_unicos_categoria)]
+    opcoes_categoria = [
+        {"label": v, "value": v} for v in sorted(valores_unicos_categoria)
+    ]
 
     valores_unicos_tipo_tarifa_esgoto = list(df.tipo_tarifa_esgoto.unique())
     opcoes_tipo_tarifa_esgoto = [
@@ -390,22 +450,26 @@ def calcular_dados_necessarios_do_filtro(df: pd.DataFrame):
     ]
 
     valores_unicos_anormalidade_leitura = list(
-        pd.concat([
-            df[ColunasDataframe.ANORMALIDADE_LEITURA_MES_1],
-            df[ColunasDataframe.ANORMALIDADE_LEITURA_MES_2],
-            df[ColunasDataframe.ANORMALIDADE_LEITURA_MES_3],
-        ]).unique()
+        pd.concat(
+            [
+                df[ColunasDataframe.ANORMALIDADE_LEITURA_MES_1],
+                df[ColunasDataframe.ANORMALIDADE_LEITURA_MES_2],
+                df[ColunasDataframe.ANORMALIDADE_LEITURA_MES_3],
+            ]
+        ).unique()
     )
     opcoes_anormalidade_leitura = [
         {"label": v, "value": v} for v in sorted(valores_unicos_anormalidade_leitura)
     ]
 
     valores_unicos_anormalidade_consumo = list(
-        pd.concat([
-            df[ColunasDataframe.ANORMALIDADE_CONSUMO_MES_1],
-            df[ColunasDataframe.ANORMALIDADE_CONSUMO_MES_2],
-            df[ColunasDataframe.ANORMALIDADE_CONSUMO_MES_3],
-        ]).unique()
+        pd.concat(
+            [
+                df[ColunasDataframe.ANORMALIDADE_CONSUMO_MES_1],
+                df[ColunasDataframe.ANORMALIDADE_CONSUMO_MES_2],
+                df[ColunasDataframe.ANORMALIDADE_CONSUMO_MES_3],
+            ]
+        ).unique()
     )
     opcoes_anormalidade_consumo = [
         {"label": v, "value": v} for v in sorted(valores_unicos_anormalidade_consumo)
@@ -440,7 +504,7 @@ def calcular_todos_os_dados_necessarios(df: pd.DataFrame):
 
     porcentagem_hidrometros_ligados = calcular_porcentagem_hidrometros_ligados(df)
 
-    idade_media_hidrometros = df.idade_hidrometro.mean()
+    idade_media_hidrometros = float(df.idade_hidrometro.mean())
 
     idade_media_20MM, idade_desvio_padrao_20MM, grafico_idades_hidrometros_20MM = (
         calcular_dados_hidrometros_segundo_diametro(df, "20")
@@ -587,8 +651,10 @@ def calcular_todos_os_dados_necessarios(df: pd.DataFrame):
     }
 
 
-def calcular_frequencia_consumos_medios(df: pd.DataFrame, valor_concatenar: int):
-    resultados = []
+def calcular_frequencia_consumos_medios(
+    df: pd.DataFrame, valor_concatenar: int
+) -> tuple[dict[str, int], dict[str, int], dict[str, int]]:
+    resultados: list[dict[str, int]] = []
     for col in (
         ColunasDataframe.MEDIA_CONSUMO_MES_1,
         ColunasDataframe.MEDIA_CONSUMO_MES_2,
@@ -597,11 +663,10 @@ def calcular_frequencia_consumos_medios(df: pd.DataFrame, valor_concatenar: int)
         consumos = df[col][df[col] <= valor_concatenar]
         freq_consumos = consumos.groupby(consumos).count()
 
-        freq_consumos_concatenados = df[col][df[col] > valor_concatenar].count()
+        frequencia = {str(k): v for k, v in freq_consumos.to_dict().items()}
+        frequencia[f"{valor_concatenar}+"] = df[col][df[col] > valor_concatenar].count()
 
-        freq_consumos.loc[f"{valor_concatenar}+"] = freq_consumos_concatenados
-
-        resultados.append(freq_consumos)
+        resultados.append(frequencia)
 
     return resultados[0], resultados[1], resultados[2]
 
@@ -633,7 +698,7 @@ def calcular_frequencia_anormalidade_leitura(df: pd.DataFrame):
 
 def calcular_frequencia_consumo_medido(
     df: pd.DataFrame, valor_concatenar: int = 130
-) -> tuple[pd.Series, pd.Series, pd.Series]:
+) -> tuple[dict[str, int], dict[str, int], dict[str, int]]:
     resultados = []
     for col in (
         ColunasDataframe.CONSUMO_MEDIDO_MES_1,
@@ -643,36 +708,38 @@ def calcular_frequencia_consumo_medido(
         consumos_medidos = df[col][df[col] <= valor_concatenar]
         freq_consumos_medidos = consumos_medidos.groupby(consumos_medidos).count()
 
-        freq_consumos_medidos_concatenados = df[col][df[col] > valor_concatenar].count()
+        frequencia = {str(k): v for k, v in freq_consumos_medidos.to_dict().items()}
+        frequencia[f"{valor_concatenar}+"] = df[col][df[col] > valor_concatenar].count()
 
-        freq_consumos_medidos.loc[f"{valor_concatenar}+"] = (
-            freq_consumos_medidos_concatenados
-        )
-
-        resultados.append(freq_consumos_medidos)
+        resultados.append(frequencia)
 
     return resultados[0], resultados[1], resultados[2]
 
 
 def calcular_frequencia_consumo_faturado(
     df: pd.DataFrame, valor_concatenar: int = 130
-) -> tuple[pd.Series, pd.Series, pd.Series]:
-    resultados = []
+) -> tuple[dict[str, int], dict[str, int], dict[str, int]]:
+    resultados: list[dict[str, int]] = []
     for col in (
         ColunasDataframe.CONSUMO_FATURADO_MES_1,
         ColunasDataframe.CONSUMO_FATURADO_MES_2,
         ColunasDataframe.CONSUMO_FATURADO_MES_3,
     ):
-        consumo_faturado = df[col][df[col] <= valor_concatenar]
+        dados_sem_na = df[df[col].notna()]
+
+        consumo_faturado = dados_sem_na[col][dados_sem_na[col] <= valor_concatenar]
+        consumo_faturado = consumo_faturado.astype("Int64")
         freq_consumo_faturado = consumo_faturado.groupby(consumo_faturado).count()
 
-        freq_consumo_faturado_concatenado = df[col][df[col] > valor_concatenar].count()
+        freq_consumo_faturado_concatenado = dados_sem_na[col][
+            dados_sem_na[col] > valor_concatenar
+        ].count()
 
-        freq_consumo_faturado.loc[f"{valor_concatenar}+"] = (
-            freq_consumo_faturado_concatenado
-        )
+        frequencia = {str(k): v for k, v in freq_consumo_faturado.to_dict().items()}
 
-        resultados.append(freq_consumo_faturado)
+        frequencia[f"{valor_concatenar}+"] = freq_consumo_faturado_concatenado
+
+        resultados.append(frequencia)
 
     return resultados[0], resultados[1], resultados[2]
 
@@ -704,61 +771,55 @@ def calcular_frequencia_anormalidade_consumo(df: pd.DataFrame):
 
 def calcular_frequencia_contas_vencidas_aberto(
     df: pd.DataFrame, valor_concatenar: int = 130
-):
+) -> dict[str, float]:
     col = ColunasDataframe.CONTAS_VENCIDAS_ABERTO
 
     registros_com_valor_menor_igual_a_concatenacao = df[df[col] <= valor_concatenar]
     frequencia = registros_com_valor_menor_igual_a_concatenacao.groupby(col)[
         [col]
     ].count()
-    frequencia.columns = ["Frequência Absoluta"]
+    frequencia.columns = ["freq_abs"]
 
     freq_registros_a_concatenar = df[col][df[col] > valor_concatenar].count()
-    frequencia.loc[f"{valor_concatenar}+", "Frequência Absoluta"] = (
-        freq_registros_a_concatenar
-    )
+    frequencia.loc[f"{valor_concatenar}+", "freq_abs"] = freq_registros_a_concatenar
 
-    frequencia["Frequência Relativa (%)"] = (
-        frequencia["Frequência Absoluta"] * 100 / len(df)
-    )
-    frequencia.reset_index(inplace=True)
+    total = len(df)
 
-    frequencia.columns = [
-        "Contas Vencidas",
-        "Frequência Absoluta",
-        "Frequência Relativa (%)",
-    ]
+    frequencia["freq_rel"] = frequencia["freq_abs"] * 100 / total
 
-    return frequencia
+    resultado: dict[str, float] = {
+        str(k): v for k, v in frequencia["freq_rel"].to_dict().items()
+    }
+
+    return resultado
 
 
 def calcular_frequencia_total_divida_vencida(
     df: pd.DataFrame, valor_concatenar: int = 130
-):
+) -> dict[str, float]:
     col = ColunasDataframe.DIVIDA_TOTAL_VENCIDA
 
-    registros_com_valor_menor_igual_a_concatenacao = df[df[col] <= valor_concatenar]
+    sem_valores_na = df[df[col].notna()]
+
+    registros_com_valor_menor_igual_a_concatenacao = sem_valores_na[
+        sem_valores_na[col] <= valor_concatenar
+    ]
     frequencia = registros_com_valor_menor_igual_a_concatenacao.groupby(col)[
         [col]
     ].count()
-    frequencia.columns = ["Frequência Absoluta"]
+    frequencia.columns = ["freq_abs"]
 
-    freq_registros_a_concatenar = df[col][df[col] > valor_concatenar].count()
-    frequencia.loc[f"{valor_concatenar}+", "Frequência Absoluta"] = (
-        freq_registros_a_concatenar
-    )
+    freq_registros_a_concatenar = sem_valores_na[col][
+        sem_valores_na[col] > valor_concatenar
+    ].count()
+    frequencia.loc[f"{valor_concatenar}+", "freq_abs"] = freq_registros_a_concatenar
 
-    frequencia["Frequência Relativa (%)"] = (
-        frequencia["Frequência Absoluta"] * 100 / len(df)
-    )
-    frequencia.reset_index(inplace=True)
+    total = len(sem_valores_na)
 
-    frequencia.columns = [
-        "Dívida Total Vencida",
-        "Frequência Absoluta",
-        "Frequência Relativa (%)",
-    ]
+    frequencia["freq_rel"] = frequencia["freq_abs"] * 100 / total
 
-    frequencia["Dívida Total Vencida"] = frequencia["Dívida Total Vencida"].apply(str)
+    resultado: dict[str, float] = {
+        str(k): v for k, v in frequencia["freq_rel"].to_dict().items()
+    }
 
-    return frequencia
+    return resultado

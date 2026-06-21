@@ -39,7 +39,11 @@ _TABELA_DARK = dict(
         "fontSize": "11px",
     },
     style_data_conditional=[
-        {"if": {"state": "active"}, "backgroundColor": "rgba(47,109,176,.09)", "border": "1px solid #dde0e5"},
+        {
+            "if": {"state": "active"},
+            "backgroundColor": "rgba(47,109,176,.09)",
+            "border": "1px solid #dde0e5",
+        },
     ],
 )
 
@@ -82,7 +86,9 @@ class EstilosCSS:
     }
 
     TABELA = {"gridColumnStart": "span 6"}
+    TABELA_METADE = {"gridColumnStart": "span 3"}
     GRAFICO = {"gridColumnStart": "span 6"}
+    GRAFICO_METADE = {"gridColumnStart": "span 3"}
 
     CHECKLIST = {"display": "flex", "columnGap": "1px", "flexWrap": "wrap"}
     CHECKLIST_LABEL = {
@@ -328,7 +334,12 @@ def gerar_form_importar_planilha(
         {"value": 12, "label": "Dezembro"},
     ]
 
-    _label = {"fontSize": "11px", "color": "#5d6570", "display": "block", "marginBottom": "5px"}
+    _label = {
+        "fontSize": "11px",
+        "color": "#5d6570",
+        "display": "block",
+        "marginBottom": "5px",
+    }
     _btn_style = {
         "backgroundColor": "#2f6db0",
         "color": "#ffffff",
@@ -352,7 +363,11 @@ def gerar_form_importar_planilha(
                     [
                         html.Span(
                             "Escolher arquivo .xlsx",
-                            style={"color": "#2f6db0", "fontWeight": "500", "fontSize": "12.5px"},
+                            style={
+                                "color": "#2f6db0",
+                                "fontWeight": "500",
+                                "fontSize": "12.5px",
+                            },
                         ),
                         html.Br(),
                         html.Span(
@@ -371,7 +386,13 @@ def gerar_form_importar_planilha(
             ),
             html.Span(
                 id=ID_ELEMENTOS_HTML.UPLOAD_NOME_ARQUIVO,
-                style={"fontSize": "11px", "color": "#2f6db0", "display": "block", "minHeight": "16px", "marginBottom": "10px"},
+                style={
+                    "fontSize": "11px",
+                    "color": "#2f6db0",
+                    "display": "block",
+                    "minHeight": "16px",
+                    "marginBottom": "10px",
+                },
             ),
             html.Div(
                 [
@@ -400,10 +421,23 @@ def gerar_form_importar_planilha(
                         style={"flex": "1"},
                     ),
                 ],
-                style={"display": "flex", "gap": "8px", "alignItems": "flex-start", "marginBottom": "12px"},
+                style={
+                    "display": "flex",
+                    "gap": "8px",
+                    "alignItems": "flex-start",
+                    "marginBottom": "12px",
+                },
             ),
-            html.Button("Processar planilha", id=ID_ELEMENTOS_HTML.PROCESSAR_TABELA, style=_btn_style),
-            html.Div(id=ID_ELEMENTOS_HTML.UPLOAD_TABELA_ERRO, children="", style={"marginTop": "6px"}),
+            html.Button(
+                "Processar planilha",
+                id=ID_ELEMENTOS_HTML.PROCESSAR_TABELA,
+                style=_btn_style,
+            ),
+            html.Div(
+                id=ID_ELEMENTOS_HTML.UPLOAD_TABELA_ERRO,
+                children="",
+                style={"marginTop": "6px"},
+            ),
         ],
         style={"display": "flex", "flexDirection": "column"},
     )
@@ -440,9 +474,12 @@ def gerar_form_colunas(
                 dcc.Dropdown(
                     id=id_select,
                     options=opcoes_dropdowns,
-                    value=valores_pre_selecionados.get(coluna_necessaria, None)
-                    if valores_pre_selecionados.get(coluna_necessaria) in opcoes_dropdowns
-                    else None,
+                    value=(
+                        valores_pre_selecionados.get(coluna_necessaria, None)
+                        if valores_pre_selecionados.get(coluna_necessaria)
+                        in opcoes_dropdowns
+                        else None
+                    ),
                 ),
             ],
             style={"display": "flex", "flexDirection": "column", "gap": "1px"},
@@ -512,7 +549,12 @@ def gerar_form_colunas(
         "Anormalidade de Consumo", "anormalidade_consumo_mes_3"
     )
 
-    _label = {"fontSize": "11px", "color": "#5d6570", "display": "block", "marginBottom": "5px"}
+    _label = {
+        "fontSize": "11px",
+        "color": "#5d6570",
+        "display": "block",
+        "marginBottom": "5px",
+    }
     _fieldset = {
         "border": "1px solid #dde0e5",
         "borderRadius": "4px",
@@ -565,7 +607,12 @@ def gerar_form_colunas(
             ),
             html.Div(
                 id=ID_ELEMENTOS_HTML.DROPDOWN_ASSOCIACAO_COLUNAS,
-                style={"padding": "14px 16px", "display": "flex", "flexDirection": "column", "gap": "8px"},
+                style={
+                    "padding": "14px 16px",
+                    "display": "flex",
+                    "flexDirection": "column",
+                    "gap": "8px",
+                },
                 children=[
                     _styled_label_dropdown(col_ramal),
                     _styled_label_dropdown(col_hidrometro),
@@ -674,53 +721,70 @@ def gerar_html_filtros(
                 html.Div(
                     style=estilo_grid_interno,
                     children=[
-                        html.Div([
-                            html.Label("Diâmetro", style=EstilosCSS.LABEL_FILTRO),
-                            dcc.Dropdown(
-                                id=ID_ELEMENTOS_HTML.FILTRO_DIAMETRO,
-                                options=opcoes_valores_diametro_filtro,
-                                value=valores_unicos_diametro,
-                                multi=True,
-                                placeholder="Selecione...",
-                            ),
-                        ], style=EstilosCSS.ITEM_FILTRO),
-                        html.Div([
-                            html.Label("Diâmetro + Letra", style=EstilosCSS.LABEL_FILTRO),
-                            dcc.Dropdown(
-                                id=ID_ELEMENTOS_HTML.FILTRO_DIAMETRO_LETRA,
-                                options=opcoes_valores_diametro_letra,
-                                value=valores_unicos_diametro_letra,
-                                multi=True,
-                                placeholder="Selecione...",
-                            ),
-                        ], style=EstilosCSS.ITEM_FILTRO),
-                        html.Div([
-                            html.Label(
-                                f"Idade ({valor_minimo_idade} – {valor_maximo_idade} anos)",
-                                style=EstilosCSS.LABEL_FILTRO,
-                            ),
-                            html.Div(
-                                dcc.RangeSlider(
-                                    id=ID_ELEMENTOS_HTML.FILTRO_IDADE,
-                                    min=valor_minimo_idade,
-                                    max=valor_maximo_idade,
-                                    step=1,
-                                    value=[valor_minimo_idade, valor_maximo_idade],
-                                    marks={
-                                        str(i): (
-                                            str(i)
-                                            if i % 5 == 0
-                                            or i == valor_minimo_idade
-                                            or i == valor_maximo_idade
-                                            else ""
-                                        )
-                                        for i in range(valor_minimo_idade, valor_maximo_idade + 1)
-                                    },
-                                    tooltip={"placement": "bottom", "always_visible": True},
+                        html.Div(
+                            [
+                                html.Label("Diâmetro", style=EstilosCSS.LABEL_FILTRO),
+                                dcc.Dropdown(
+                                    id=ID_ELEMENTOS_HTML.FILTRO_DIAMETRO,
+                                    options=opcoes_valores_diametro_filtro,
+                                    value=valores_unicos_diametro,
+                                    multi=True,
+                                    placeholder="Selecione...",
                                 ),
-                                style={"marginTop": "15px"},
-                            ),
-                        ], style=EstilosCSS.ITEM_FILTRO | {"gridColumn": "1 / -1"}),
+                            ],
+                            style=EstilosCSS.ITEM_FILTRO,
+                        ),
+                        html.Div(
+                            [
+                                html.Label(
+                                    "Diâmetro + Letra", style=EstilosCSS.LABEL_FILTRO
+                                ),
+                                dcc.Dropdown(
+                                    id=ID_ELEMENTOS_HTML.FILTRO_DIAMETRO_LETRA,
+                                    options=opcoes_valores_diametro_letra,
+                                    value=valores_unicos_diametro_letra,
+                                    multi=True,
+                                    placeholder="Selecione...",
+                                ),
+                            ],
+                            style=EstilosCSS.ITEM_FILTRO,
+                        ),
+                        html.Div(
+                            [
+                                html.Label(
+                                    f"Idade ({valor_minimo_idade} – {valor_maximo_idade} anos)",
+                                    style=EstilosCSS.LABEL_FILTRO,
+                                ),
+                                html.Div(
+                                    dcc.RangeSlider(
+                                        id=ID_ELEMENTOS_HTML.FILTRO_IDADE,
+                                        min=valor_minimo_idade,
+                                        max=valor_maximo_idade,
+                                        step=1,
+                                        value=[valor_minimo_idade, valor_maximo_idade],
+                                        marks={
+                                            str(i): (
+                                                str(i)
+                                                if i % 5 == 0
+                                                or i == valor_minimo_idade
+                                                or i == valor_maximo_idade
+                                                else ""
+                                            )
+                                            for i in range(
+                                                valor_minimo_idade,
+                                                valor_maximo_idade + 1,
+                                            )
+                                        },
+                                        tooltip={
+                                            "placement": "bottom",
+                                            "always_visible": True,
+                                        },
+                                    ),
+                                    style={"marginTop": "15px"},
+                                ),
+                            ],
+                            style=EstilosCSS.ITEM_FILTRO | {"gridColumn": "1 / -1"},
+                        ),
                     ],
                 ),
             ],
@@ -732,36 +796,56 @@ def gerar_html_filtros(
                 html.Div(
                     style=estilo_grid_interno,
                     children=[
-                        html.Div([
-                            html.Label("Situação Ligação Água", style=EstilosCSS.LABEL_FILTRO),
-                            dcc.Checklist(
-                                id=ID_ELEMENTOS_HTML.FILTRO_SITUACAO,
-                                options=opcoes_valores_situacao_ligacao_agua,
-                                value=opcoes_selecionadas_situacao_ligacao_agua,
-                                inline=True,
-                                labelStyle={"marginRight": "10px", "cursor": "pointer"},
-                            ),
-                        ], style=EstilosCSS.ITEM_FILTRO | {"gridColumn": "1 / -1"}),
-                        html.Div([
-                            html.Label("Grupo de Faturamento", style=EstilosCSS.LABEL_FILTRO),
-                            dcc.Dropdown(
-                                id=ID_ELEMENTOS_HTML.FILTRO_GRUPO_FATURAMENTO,
-                                options=opcoes_valores_grupo_faturamento,
-                                value=valores_unicos_grupo_faturamento,
-                                multi=True,
-                                placeholder="Selecione...",
-                            ),
-                        ], style=EstilosCSS.ITEM_FILTRO),
-                        html.Div([
-                            html.Label("Perfil do Imóvel", style=EstilosCSS.LABEL_FILTRO),
-                            dcc.Dropdown(
-                                id=ID_ELEMENTOS_HTML.FILTRO_PERFIL_IMOVEL,
-                                options=opcoes_valores_perfil_imovel,
-                                value=valores_unicos_perfil_imovel,
-                                multi=True,
-                                placeholder="Selecione...",
-                            ),
-                        ], style=EstilosCSS.ITEM_FILTRO),
+                        html.Div(
+                            [
+                                html.Label(
+                                    "Situação Ligação Água",
+                                    style=EstilosCSS.LABEL_FILTRO,
+                                ),
+                                dcc.Checklist(
+                                    id=ID_ELEMENTOS_HTML.FILTRO_SITUACAO,
+                                    options=opcoes_valores_situacao_ligacao_agua,
+                                    value=opcoes_selecionadas_situacao_ligacao_agua,
+                                    inline=True,
+                                    labelStyle={
+                                        "marginRight": "10px",
+                                        "cursor": "pointer",
+                                    },
+                                ),
+                            ],
+                            style=EstilosCSS.ITEM_FILTRO | {"gridColumn": "1 / -1"},
+                        ),
+                        html.Div(
+                            [
+                                html.Label(
+                                    "Grupo de Faturamento",
+                                    style=EstilosCSS.LABEL_FILTRO,
+                                ),
+                                dcc.Dropdown(
+                                    id=ID_ELEMENTOS_HTML.FILTRO_GRUPO_FATURAMENTO,
+                                    options=opcoes_valores_grupo_faturamento,
+                                    value=valores_unicos_grupo_faturamento,
+                                    multi=True,
+                                    placeholder="Selecione...",
+                                ),
+                            ],
+                            style=EstilosCSS.ITEM_FILTRO,
+                        ),
+                        html.Div(
+                            [
+                                html.Label(
+                                    "Perfil do Imóvel", style=EstilosCSS.LABEL_FILTRO
+                                ),
+                                dcc.Dropdown(
+                                    id=ID_ELEMENTOS_HTML.FILTRO_PERFIL_IMOVEL,
+                                    options=opcoes_valores_perfil_imovel,
+                                    value=valores_unicos_perfil_imovel,
+                                    multi=True,
+                                    placeholder="Selecione...",
+                                ),
+                            ],
+                            style=EstilosCSS.ITEM_FILTRO,
+                        ),
                     ],
                 ),
             ],
@@ -773,26 +857,35 @@ def gerar_html_filtros(
                 html.Div(
                     style=estilo_grid_interno,
                     children=[
-                        html.Div([
-                            html.Label("Categoria", style=EstilosCSS.LABEL_FILTRO),
-                            dcc.Dropdown(
-                                id=ID_ELEMENTOS_HTML.FILTRO_CATEGORIA,
-                                options=opcoes_valores_categoria,
-                                value=valores_unicos_categoria,
-                                multi=True,
-                                placeholder="Selecione...",
-                            ),
-                        ], style=EstilosCSS.ITEM_FILTRO),
-                        html.Div([
-                            html.Label("Tipo de Tarifa de Esgoto", style=EstilosCSS.LABEL_FILTRO),
-                            dcc.Dropdown(
-                                id=ID_ELEMENTOS_HTML.FILTRO_TIPO_TARIFA_ESGOTO,
-                                options=opcoes_valores_tipo_tarifa_esgoto,
-                                value=valores_unicos_tipo_tarifa_esgoto,
-                                multi=True,
-                                placeholder="Selecione...",
-                            ),
-                        ], style=EstilosCSS.ITEM_FILTRO),
+                        html.Div(
+                            [
+                                html.Label("Categoria", style=EstilosCSS.LABEL_FILTRO),
+                                dcc.Dropdown(
+                                    id=ID_ELEMENTOS_HTML.FILTRO_CATEGORIA,
+                                    options=opcoes_valores_categoria,
+                                    value=valores_unicos_categoria,
+                                    multi=True,
+                                    placeholder="Selecione...",
+                                ),
+                            ],
+                            style=EstilosCSS.ITEM_FILTRO,
+                        ),
+                        html.Div(
+                            [
+                                html.Label(
+                                    "Tipo de Tarifa de Esgoto",
+                                    style=EstilosCSS.LABEL_FILTRO,
+                                ),
+                                dcc.Dropdown(
+                                    id=ID_ELEMENTOS_HTML.FILTRO_TIPO_TARIFA_ESGOTO,
+                                    options=opcoes_valores_tipo_tarifa_esgoto,
+                                    value=valores_unicos_tipo_tarifa_esgoto,
+                                    multi=True,
+                                    placeholder="Selecione...",
+                                ),
+                            ],
+                            style=EstilosCSS.ITEM_FILTRO,
+                        ),
                     ],
                 ),
             ],
@@ -804,16 +897,22 @@ def gerar_html_filtros(
                 html.Div(
                     style=estilo_grid_interno,
                     children=[
-                        html.Div([
-                            html.Label("Anormalidade de Consumo", style=EstilosCSS.LABEL_FILTRO),
-                            dcc.Dropdown(
-                                id=ID_ELEMENTOS_HTML.FILTRO_ANORMALIDADE_CONSUMO,
-                                options=opcoes_valores_anormalidade_consumo,
-                                value=valores_unicos_anormalidade_consumo,
-                                multi=True,
-                                placeholder="Selecione...",
-                            ),
-                        ], style=EstilosCSS.ITEM_FILTRO),
+                        html.Div(
+                            [
+                                html.Label(
+                                    "Anormalidade de Consumo",
+                                    style=EstilosCSS.LABEL_FILTRO,
+                                ),
+                                dcc.Dropdown(
+                                    id=ID_ELEMENTOS_HTML.FILTRO_ANORMALIDADE_CONSUMO,
+                                    options=opcoes_valores_anormalidade_consumo,
+                                    value=valores_unicos_anormalidade_consumo,
+                                    multi=True,
+                                    placeholder="Selecione...",
+                                ),
+                            ],
+                            style=EstilosCSS.ITEM_FILTRO,
+                        ),
                     ],
                 ),
             ],
@@ -821,13 +920,16 @@ def gerar_html_filtros(
     ]
 
 
-def _ramais_para_tabela(df_ramais: pd.DataFrame, col_anorm: str, col_consumo: str) -> list[dict]:
-    return (
-        df_ramais
-        .rename(columns={"diametro_letra": "diametro", col_anorm: "anormalidade", col_consumo: "consumo_medio"})
-        [["ramal", "diametro", "anormalidade", "consumo_medio"]]
-        .to_dict("records")
-    )
+def _ramais_para_tabela(
+    df_ramais: pd.DataFrame, col_anorm: str, col_consumo: str
+) -> list[dict]:
+    return df_ramais.rename(
+        columns={
+            "diametro_letra": "diametro",
+            col_anorm: "anormalidade",
+            col_consumo: "consumo_medio",
+        }
+    )[["ramal", "diametro", "anormalidade", "consumo_medio"]].to_dict("records")
 
 
 def gerar_html_dados(
@@ -845,8 +947,8 @@ def gerar_html_dados(
     idade_media_acima_25MM,
     idade_desvio_padrao_acima_25MM,
     grafico_idades_hidrometros_acima_de_25MM,
-    freq_perfil_imoveis,
-    freq_hidrometros,
+    freq_perfil_imoveis: list[dict[str, int | float | str]],
+    freq_hidrometros: list[dict],
     media_do_consumo_medio_mes_1,
     media_do_consumo_medio_mes_2,
     media_do_consumo_medio_mes_3,
@@ -862,20 +964,20 @@ def gerar_html_dados(
     anormalidade_leitura_mes_1,
     anormalidade_leitura_mes_2,
     anormalidade_leitura_mes_3,
-    frequencia_consumos_medidos_mes_1: pd.Series,
-    frequencia_consumos_medidos_mes_2: pd.Series,
-    frequencia_consumos_medidos_mes_3: pd.Series,
-    frequencia_consumo_faturado_mes_1: pd.Series,
-    frequencia_consumo_faturado_mes_2: pd.Series,
-    frequencia_consumo_faturado_mes_3: pd.Series,
+    frequencia_consumos_medidos_mes_1: dict[str, int],
+    frequencia_consumos_medidos_mes_2: dict[str, int],
+    frequencia_consumos_medidos_mes_3: dict[str, int],
+    frequencia_consumo_faturado_mes_1: dict[str, int],
+    frequencia_consumo_faturado_mes_2: dict[str, int],
+    frequencia_consumo_faturado_mes_3: dict[str, int],
     frequencia_anormalidade_consumo_1,
     frequencia_anormalidade_consumo_2,
     frequencia_anormalidade_consumo_3,
-    frequencia_contas_vencidas_aberto,
+    frequencia_contas_vencidas_aberto: dict[str, float],
     ramais_com_consumo_maior_ou_menor_que_o_esperado: tuple[
         pd.DataFrame, pd.DataFrame, pd.DataFrame
     ],
-    frequencia_divida_total_vencida: pd.DataFrame,
+    frequencia_divida_total_vencida: dict[str, float],
 ):
     if idade_media_hidrometros is not np.nan:
         idade_media_hidrometros = f"{idade_media_hidrometros:.2f}"
@@ -887,11 +989,18 @@ def gerar_html_dados(
     else:
         porcentagem_hidrometros_ligados = f"{porcentagem_hidrometros_ligados:.2f}"
 
-    _vals_anorm_leitura = sorted(pd.concat([
-        df["anormalidade_leitura_mes_1"],
-        df["anormalidade_leitura_mes_2"],
-        df["anormalidade_leitura_mes_3"],
-    ]).dropna().unique().tolist())
+    _vals_anorm_leitura = sorted(
+        pd.concat(
+            [
+                df["anormalidade_leitura_mes_1"],
+                df["anormalidade_leitura_mes_2"],
+                df["anormalidade_leitura_mes_3"],
+            ]
+        )
+        .dropna()
+        .unique()
+        .tolist()
+    )
     _opcoes_anorm_leitura = [{"label": v, "value": v} for v in _vals_anorm_leitura]
 
     _ESTILO_CARD_SECAO = {
@@ -913,18 +1022,38 @@ def gerar_html_dados(
                         [
                             html.Div(
                                 "Diagnóstico dos hidrômetros",
-                                style={"fontSize": "11px", "letterSpacing": ".13em", "textTransform": "uppercase", "color": "#8b929c", "marginBottom": "5px"},
+                                style={
+                                    "fontSize": "11px",
+                                    "letterSpacing": ".13em",
+                                    "textTransform": "uppercase",
+                                    "color": "#8b929c",
+                                    "marginBottom": "5px",
+                                },
                             ),
                             html.H3(
                                 "Análise Descritiva",
-                                style={"color": "#252a31", "fontSize": "19px", "fontWeight": "600", "letterSpacing": "-.01em", "margin": "0"},
+                                style={
+                                    "color": "#252a31",
+                                    "fontSize": "19px",
+                                    "fontWeight": "600",
+                                    "letterSpacing": "-.01em",
+                                    "margin": "0",
+                                },
                             ),
                             html.P(
-                                "Caracterização dos hidrômetros instalados por idade, perfil de imóvel e diâmetro.",
-                                style={"color": "#5d6570", "fontSize": "12px", "margin": "5px 0 0 0"},
+                                "Caracterização dos hidrômetros instalados por idade, perfil de imóvel e diâmetro. Dívida total vencida e contas vencidas em aberto.",
+                                style={
+                                    "color": "#5d6570",
+                                    "fontSize": "12px",
+                                    "margin": "5px 0 0 0",
+                                },
                             ),
                         ],
-                        style={"marginBottom": "20px", "paddingBottom": "16px", "borderBottom": "1px solid #dde0e5"},
+                        style={
+                            "marginBottom": "20px",
+                            "paddingBottom": "16px",
+                            "borderBottom": "1px solid #dde0e5",
+                        },
                     ),
                     html.Div(
                         [
@@ -933,27 +1062,83 @@ def gerar_html_dados(
                                 [
                                     html.Div(
                                         [
-                                            html.Div("Total de hidrômetros", style=EstilosCSS.QUADRO_DADO_LABEL),
-                                            html.Div(contagem_hidrometros, id=ID_ELEMENTOS_HTML.CONTAGEM_HIDROMETROS, style=EstilosCSS.QUADRO_DADO_NUMERO),
-                                        ],
-                                        style={"padding": "14px 16px", "borderRight": "1px solid #dde0e5"},
-                                    ),
-                                    html.Div(
-                                        [
-                                            html.Div("Hidrômetros ligados", style=EstilosCSS.QUADRO_DADO_LABEL),
                                             html.Div(
-                                                [html.Span(porcentagem_hidrometros_ligados, id=ID_ELEMENTOS_HTML.PORCENTAGEM_HIDROMETOS_LIGADOS, style=EstilosCSS.QUADRO_DADO_NUMERO), html.Span("%", style={"fontSize": "15px", "color": "#5d6570", "marginLeft": "4px", "fontWeight": "400"})],
-                                                style={"display": "flex", "alignItems": "baseline", "gap": "0"},
+                                                "Total de hidrômetros",
+                                                style=EstilosCSS.QUADRO_DADO_LABEL,
+                                            ),
+                                            html.Div(
+                                                contagem_hidrometros,
+                                                id=ID_ELEMENTOS_HTML.CONTAGEM_HIDROMETROS,
+                                                style=EstilosCSS.QUADRO_DADO_NUMERO,
                                             ),
                                         ],
-                                        style={"padding": "14px 16px", "borderRight": "1px solid #dde0e5"},
+                                        style={
+                                            "padding": "14px 16px",
+                                            "borderRight": "1px solid #dde0e5",
+                                        },
                                     ),
                                     html.Div(
                                         [
-                                            html.Div("Idade média dos hidrômetros", style=EstilosCSS.QUADRO_DADO_LABEL),
                                             html.Div(
-                                                [html.Span(idade_media_hidrometros, id=ID_ELEMENTOS_HTML.IDADE_MEDIA_HIDROMETROS, style=EstilosCSS.QUADRO_DADO_NUMERO), html.Span("anos", style={"fontSize": "15px", "color": "#5d6570", "marginLeft": "4px", "fontWeight": "400"})],
-                                                style={"display": "flex", "alignItems": "baseline"},
+                                                "Hidrômetros ligados",
+                                                style=EstilosCSS.QUADRO_DADO_LABEL,
+                                            ),
+                                            html.Div(
+                                                [
+                                                    html.Span(
+                                                        porcentagem_hidrometros_ligados,
+                                                        id=ID_ELEMENTOS_HTML.PORCENTAGEM_HIDROMETOS_LIGADOS,
+                                                        style=EstilosCSS.QUADRO_DADO_NUMERO,
+                                                    ),
+                                                    html.Span(
+                                                        "%",
+                                                        style={
+                                                            "fontSize": "15px",
+                                                            "color": "#5d6570",
+                                                            "marginLeft": "4px",
+                                                            "fontWeight": "400",
+                                                        },
+                                                    ),
+                                                ],
+                                                style={
+                                                    "display": "flex",
+                                                    "alignItems": "baseline",
+                                                    "gap": "0",
+                                                },
+                                            ),
+                                        ],
+                                        style={
+                                            "padding": "14px 16px",
+                                            "borderRight": "1px solid #dde0e5",
+                                        },
+                                    ),
+                                    html.Div(
+                                        [
+                                            html.Div(
+                                                "Idade média dos hidrômetros",
+                                                style=EstilosCSS.QUADRO_DADO_LABEL,
+                                            ),
+                                            html.Div(
+                                                [
+                                                    html.Span(
+                                                        idade_media_hidrometros,
+                                                        id=ID_ELEMENTOS_HTML.IDADE_MEDIA_HIDROMETROS,
+                                                        style=EstilosCSS.QUADRO_DADO_NUMERO,
+                                                    ),
+                                                    html.Span(
+                                                        "anos",
+                                                        style={
+                                                            "fontSize": "15px",
+                                                            "color": "#5d6570",
+                                                            "marginLeft": "4px",
+                                                            "fontWeight": "400",
+                                                        },
+                                                    ),
+                                                ],
+                                                style={
+                                                    "display": "flex",
+                                                    "alignItems": "baseline",
+                                                },
                                             ),
                                         ],
                                         style={"padding": "14px 16px"},
@@ -972,15 +1157,37 @@ def gerar_html_dados(
                                 [
                                     dcc.Graph(
                                         figure=px.bar(
-                                            x=df["idade_hidrometro"].value_counts().sort_index().index,
-                                            y=df["idade_hidrometro"].value_counts().sort_index(),
-                                            labels={"x": "Idade do Hidrômetro (anos)", "y": "Frequência"},
+                                            x=df["idade_hidrometro"]
+                                            .value_counts()
+                                            .sort_index()
+                                            .index,
+                                            y=df["idade_hidrometro"]
+                                            .value_counts()
+                                            .sort_index(),
+                                            labels={
+                                                "x": "Idade do Hidrômetro (anos)",
+                                                "y": "Frequência",
+                                            },
                                             color_discrete_sequence=_PLOTLY_CORES_BARRAS,
                                         ).update_layout(
                                             title="Frequência de idade dos hidrômetros",
-                                            xaxis=dict(tickmode="linear", tick0=0, dtick=5, title="Idade do Hidrômetro (anos)", gridcolor="#dde0e5", linecolor="#c6cad1"),
-                                            yaxis=dict(title="Frequência", gridcolor="#dde0e5", linecolor="#c6cad1"),
-                                            bargap=0.05, paper_bgcolor="#ffffff", plot_bgcolor="#ffffff", font_color="#5d6570",
+                                            xaxis=dict(
+                                                tickmode="linear",
+                                                tick0=0,
+                                                dtick=5,
+                                                title="Idade do Hidrômetro (anos)",
+                                                gridcolor="#dde0e5",
+                                                linecolor="#c6cad1",
+                                            ),
+                                            yaxis=dict(
+                                                title="Frequência",
+                                                gridcolor="#dde0e5",
+                                                linecolor="#c6cad1",
+                                            ),
+                                            bargap=0.05,
+                                            paper_bgcolor="#ffffff",
+                                            plot_bgcolor="#ffffff",
+                                            font_color="#5d6570",
                                         )
                                     )
                                 ],
@@ -990,9 +1197,27 @@ def gerar_html_dados(
                                 [
                                     dcc.Graph(
                                         figure=px.bar(
-                                            x=df["grupo_leitura"].value_counts().rename(index=lambda v: str(v).upper().replace("GRUPO-", "")).sort_index(key=lambda x: x.astype(int)).index,
-                                            y=df["grupo_leitura"].value_counts().rename(index=lambda v: str(v).upper().replace("GRUPO-", "")).sort_index(key=lambda x: x.astype(int)),
-                                            labels={"y": "Frequência", "x": "Grupo de Faturamento"},
+                                            x=df["grupo_leitura"]
+                                            .value_counts()
+                                            .rename(
+                                                index=lambda v: str(v)
+                                                .upper()
+                                                .replace("GRUPO-", "")
+                                            )
+                                            .sort_index(key=lambda x: x.astype(int))
+                                            .index,
+                                            y=df["grupo_leitura"]
+                                            .value_counts()
+                                            .rename(
+                                                index=lambda v: str(v)
+                                                .upper()
+                                                .replace("GRUPO-", "")
+                                            )
+                                            .sort_index(key=lambda x: x.astype(int)),
+                                            labels={
+                                                "y": "Frequência",
+                                                "x": "Grupo de Faturamento",
+                                            },
                                             title="Frequência do grupo de faturamento",
                                             color_discrete_sequence=_PLOTLY_CORES_BARRAS,
                                         ).update_layout(**_PLOTLY_DARK_LAYOUT)
@@ -1006,7 +1231,14 @@ def gerar_html_dados(
                                 id_pesquisa=ID_ELEMENTOS_HTML.PESQUISA_PERFIL_IMOVEL,
                                 id_tabela=ID_ELEMENTOS_HTML.TABELA_PERFIL_IMOVEL,
                                 data=freq_perfil_imoveis,
-                                columns=[{"name": k, "id": k} for k in freq_perfil_imoveis[0].keys()] if freq_perfil_imoveis else [],
+                                columns=(
+                                    [
+                                        {"name": k, "id": k}
+                                        for k in freq_perfil_imoveis[0].keys()
+                                    ]
+                                    if freq_perfil_imoveis
+                                    else []
+                                ),
                                 page_size_default=5,
                             ),
                             _caixa_tabela(
@@ -1015,7 +1247,14 @@ def gerar_html_dados(
                                 id_pesquisa=ID_ELEMENTOS_HTML.PESQUISA_DIAMETRO,
                                 id_tabela=ID_ELEMENTOS_HTML.TABELA_DIAMETRO,
                                 data=freq_hidrometros,
-                                columns=[{"name": k, "id": k} for k in freq_hidrometros[0].keys()] if freq_hidrometros else [],
+                                columns=(
+                                    [
+                                        {"name": k, "id": k}
+                                        for k in freq_hidrometros[0].keys()
+                                    ]
+                                    if freq_hidrometros
+                                    else []
+                                ),
                                 page_size_default=5,
                             ),
                             # Stats grid — idade por faixa de diâmetro
@@ -1023,14 +1262,261 @@ def gerar_html_dados(
                                 [
                                     html.Div(
                                         "Idade por faixa de diâmetro — média / desvio padrão",
-                                        style={"gridColumn": "1 / -1", "fontSize": "11px", "letterSpacing": ".1em", "textTransform": "uppercase", "color": "#8b929c", "padding": "11px 15px 9px", "borderBottom": "1px solid #dde0e5"},
+                                        style={
+                                            "gridColumn": "1 / -1",
+                                            "fontSize": "11px",
+                                            "letterSpacing": ".1em",
+                                            "textTransform": "uppercase",
+                                            "color": "#8b929c",
+                                            "padding": "11px 15px 9px",
+                                            "borderBottom": "1px solid #dde0e5",
+                                        },
                                     ),
-                                    html.Div([html.Div([html.Span(idade_media_20MM, id=ID_ELEMENTOS_HTML.IDADE_MEDIA_HIDROMETROS_20MM, style={"fontSize": "22px", "fontWeight": "500", "fontVariantNumeric": "tabular-nums"}), html.Span("anos", style={"fontSize": "12px", "color": "#5d6570", "marginLeft": "4px"})], style={"display": "flex", "alignItems": "baseline"}), html.Div("Idade média · 20 mm", style={"fontSize": "11.5px", "color": "#5d6570", "marginTop": "6px"})], style={"padding": "14px 15px", "borderRight": "1px solid #dde0e5", "borderBottom": "1px solid #dde0e5"}),
-                                    html.Div([html.Div([html.Span(idade_media_25MM, id=ID_ELEMENTOS_HTML.IDADE_MEDIA_HIDROMETROS_25MM, style={"fontSize": "22px", "fontWeight": "500", "fontVariantNumeric": "tabular-nums"}), html.Span("anos", style={"fontSize": "12px", "color": "#5d6570", "marginLeft": "4px"})], style={"display": "flex", "alignItems": "baseline"}), html.Div("Idade média · 25 mm", style={"fontSize": "11.5px", "color": "#5d6570", "marginTop": "6px"})], style={"padding": "14px 15px", "borderRight": "1px solid #dde0e5", "borderBottom": "1px solid #dde0e5"}),
-                                    html.Div([html.Div([html.Span(idade_media_acima_25MM, id=ID_ELEMENTOS_HTML.IDADE_MEDIA_HIDROMETROS_ACIMA_25MM, style={"fontSize": "22px", "fontWeight": "500", "fontVariantNumeric": "tabular-nums"}), html.Span("anos", style={"fontSize": "12px", "color": "#5d6570", "marginLeft": "4px"})], style={"display": "flex", "alignItems": "baseline"}), html.Div("Idade média · acima de 25 mm", style={"fontSize": "11.5px", "color": "#5d6570", "marginTop": "6px"})], style={"padding": "14px 15px", "borderBottom": "1px solid #dde0e5"}),
-                                    html.Div([html.Div([html.Span(idade_desvio_padrao_20MM, id=ID_ELEMENTOS_HTML.IDADE_DESVIO_PADRAO_20MM, style={"fontSize": "22px", "fontWeight": "500", "fontVariantNumeric": "tabular-nums"}), html.Span("anos", style={"fontSize": "12px", "color": "#5d6570", "marginLeft": "4px"})], style={"display": "flex", "alignItems": "baseline"}), html.Div("Desvio padrão · 20 mm", style={"fontSize": "11.5px", "color": "#5d6570", "marginTop": "6px"})], style={"padding": "14px 15px", "borderRight": "1px solid #dde0e5"}),
-                                    html.Div([html.Div([html.Span(idade_desvio_padrao_25MM, id=ID_ELEMENTOS_HTML.IDADE_DESVIO_PADRAO_25MM, style={"fontSize": "22px", "fontWeight": "500", "fontVariantNumeric": "tabular-nums"}), html.Span("anos", style={"fontSize": "12px", "color": "#5d6570", "marginLeft": "4px"})], style={"display": "flex", "alignItems": "baseline"}), html.Div("Desvio padrão · 25 mm", style={"fontSize": "11.5px", "color": "#5d6570", "marginTop": "6px"})], style={"padding": "14px 15px", "borderRight": "1px solid #dde0e5"}),
-                                    html.Div([html.Div([html.Span(idade_desvio_padrao_acima_25MM, id=ID_ELEMENTOS_HTML.IDADE_DESVIO_PADRAO_ACIMA_25MM, style={"fontSize": "22px", "fontWeight": "500", "fontVariantNumeric": "tabular-nums"}), html.Span("anos", style={"fontSize": "12px", "color": "#5d6570", "marginLeft": "4px"})], style={"display": "flex", "alignItems": "baseline"}), html.Div("Desvio padrão · acima de 25 mm", style={"fontSize": "11.5px", "color": "#5d6570", "marginTop": "6px"})], style={"padding": "14px 15px"}),
+                                    html.Div(
+                                        [
+                                            html.Div(
+                                                [
+                                                    html.Span(
+                                                        idade_media_20MM,
+                                                        id=ID_ELEMENTOS_HTML.IDADE_MEDIA_HIDROMETROS_20MM,
+                                                        style={
+                                                            "fontSize": "22px",
+                                                            "fontWeight": "500",
+                                                            "fontVariantNumeric": "tabular-nums",
+                                                        },
+                                                    ),
+                                                    html.Span(
+                                                        "anos",
+                                                        style={
+                                                            "fontSize": "12px",
+                                                            "color": "#5d6570",
+                                                            "marginLeft": "4px",
+                                                        },
+                                                    ),
+                                                ],
+                                                style={
+                                                    "display": "flex",
+                                                    "alignItems": "baseline",
+                                                },
+                                            ),
+                                            html.Div(
+                                                "Idade média · 20 mm",
+                                                style={
+                                                    "fontSize": "11.5px",
+                                                    "color": "#5d6570",
+                                                    "marginTop": "6px",
+                                                },
+                                            ),
+                                        ],
+                                        style={
+                                            "padding": "14px 15px",
+                                            "borderRight": "1px solid #dde0e5",
+                                            "borderBottom": "1px solid #dde0e5",
+                                        },
+                                    ),
+                                    html.Div(
+                                        [
+                                            html.Div(
+                                                [
+                                                    html.Span(
+                                                        idade_media_25MM,
+                                                        id=ID_ELEMENTOS_HTML.IDADE_MEDIA_HIDROMETROS_25MM,
+                                                        style={
+                                                            "fontSize": "22px",
+                                                            "fontWeight": "500",
+                                                            "fontVariantNumeric": "tabular-nums",
+                                                        },
+                                                    ),
+                                                    html.Span(
+                                                        "anos",
+                                                        style={
+                                                            "fontSize": "12px",
+                                                            "color": "#5d6570",
+                                                            "marginLeft": "4px",
+                                                        },
+                                                    ),
+                                                ],
+                                                style={
+                                                    "display": "flex",
+                                                    "alignItems": "baseline",
+                                                },
+                                            ),
+                                            html.Div(
+                                                "Idade média · 25 mm",
+                                                style={
+                                                    "fontSize": "11.5px",
+                                                    "color": "#5d6570",
+                                                    "marginTop": "6px",
+                                                },
+                                            ),
+                                        ],
+                                        style={
+                                            "padding": "14px 15px",
+                                            "borderRight": "1px solid #dde0e5",
+                                            "borderBottom": "1px solid #dde0e5",
+                                        },
+                                    ),
+                                    html.Div(
+                                        [
+                                            html.Div(
+                                                [
+                                                    html.Span(
+                                                        idade_media_acima_25MM,
+                                                        id=ID_ELEMENTOS_HTML.IDADE_MEDIA_HIDROMETROS_ACIMA_25MM,
+                                                        style={
+                                                            "fontSize": "22px",
+                                                            "fontWeight": "500",
+                                                            "fontVariantNumeric": "tabular-nums",
+                                                        },
+                                                    ),
+                                                    html.Span(
+                                                        "anos",
+                                                        style={
+                                                            "fontSize": "12px",
+                                                            "color": "#5d6570",
+                                                            "marginLeft": "4px",
+                                                        },
+                                                    ),
+                                                ],
+                                                style={
+                                                    "display": "flex",
+                                                    "alignItems": "baseline",
+                                                },
+                                            ),
+                                            html.Div(
+                                                "Idade média · acima de 25 mm",
+                                                style={
+                                                    "fontSize": "11.5px",
+                                                    "color": "#5d6570",
+                                                    "marginTop": "6px",
+                                                },
+                                            ),
+                                        ],
+                                        style={
+                                            "padding": "14px 15px",
+                                            "borderBottom": "1px solid #dde0e5",
+                                        },
+                                    ),
+                                    html.Div(
+                                        [
+                                            html.Div(
+                                                [
+                                                    html.Span(
+                                                        idade_desvio_padrao_20MM,
+                                                        id=ID_ELEMENTOS_HTML.IDADE_DESVIO_PADRAO_20MM,
+                                                        style={
+                                                            "fontSize": "22px",
+                                                            "fontWeight": "500",
+                                                            "fontVariantNumeric": "tabular-nums",
+                                                        },
+                                                    ),
+                                                    html.Span(
+                                                        "anos",
+                                                        style={
+                                                            "fontSize": "12px",
+                                                            "color": "#5d6570",
+                                                            "marginLeft": "4px",
+                                                        },
+                                                    ),
+                                                ],
+                                                style={
+                                                    "display": "flex",
+                                                    "alignItems": "baseline",
+                                                },
+                                            ),
+                                            html.Div(
+                                                "Desvio padrão · 20 mm",
+                                                style={
+                                                    "fontSize": "11.5px",
+                                                    "color": "#5d6570",
+                                                    "marginTop": "6px",
+                                                },
+                                            ),
+                                        ],
+                                        style={
+                                            "padding": "14px 15px",
+                                            "borderRight": "1px solid #dde0e5",
+                                        },
+                                    ),
+                                    html.Div(
+                                        [
+                                            html.Div(
+                                                [
+                                                    html.Span(
+                                                        idade_desvio_padrao_25MM,
+                                                        id=ID_ELEMENTOS_HTML.IDADE_DESVIO_PADRAO_25MM,
+                                                        style={
+                                                            "fontSize": "22px",
+                                                            "fontWeight": "500",
+                                                            "fontVariantNumeric": "tabular-nums",
+                                                        },
+                                                    ),
+                                                    html.Span(
+                                                        "anos",
+                                                        style={
+                                                            "fontSize": "12px",
+                                                            "color": "#5d6570",
+                                                            "marginLeft": "4px",
+                                                        },
+                                                    ),
+                                                ],
+                                                style={
+                                                    "display": "flex",
+                                                    "alignItems": "baseline",
+                                                },
+                                            ),
+                                            html.Div(
+                                                "Desvio padrão · 25 mm",
+                                                style={
+                                                    "fontSize": "11.5px",
+                                                    "color": "#5d6570",
+                                                    "marginTop": "6px",
+                                                },
+                                            ),
+                                        ],
+                                        style={
+                                            "padding": "14px 15px",
+                                            "borderRight": "1px solid #dde0e5",
+                                        },
+                                    ),
+                                    html.Div(
+                                        [
+                                            html.Div(
+                                                [
+                                                    html.Span(
+                                                        idade_desvio_padrao_acima_25MM,
+                                                        id=ID_ELEMENTOS_HTML.IDADE_DESVIO_PADRAO_ACIMA_25MM,
+                                                        style={
+                                                            "fontSize": "22px",
+                                                            "fontWeight": "500",
+                                                            "fontVariantNumeric": "tabular-nums",
+                                                        },
+                                                    ),
+                                                    html.Span(
+                                                        "anos",
+                                                        style={
+                                                            "fontSize": "12px",
+                                                            "color": "#5d6570",
+                                                            "marginLeft": "4px",
+                                                        },
+                                                    ),
+                                                ],
+                                                style={
+                                                    "display": "flex",
+                                                    "alignItems": "baseline",
+                                                },
+                                            ),
+                                            html.Div(
+                                                "Desvio padrão · acima de 25 mm",
+                                                style={
+                                                    "fontSize": "11.5px",
+                                                    "color": "#5d6570",
+                                                    "marginTop": "6px",
+                                                },
+                                            ),
+                                        ],
+                                        style={"padding": "14px 15px"},
+                                    ),
                                 ],
                                 style={
                                     "display": "grid",
@@ -1066,25 +1552,48 @@ def gerar_html_dados(
                         [
                             html.Div(
                                 "Comportamento de consumo",
-                                style={"fontSize": "11px", "letterSpacing": ".13em", "textTransform": "uppercase", "color": "#8b929c", "marginBottom": "5px"},
+                                style={
+                                    "fontSize": "11px",
+                                    "letterSpacing": ".13em",
+                                    "textTransform": "uppercase",
+                                    "color": "#8b929c",
+                                    "marginBottom": "5px",
+                                },
                             ),
                             html.H3(
                                 "Análise de Consumo",
-                                style={"color": "#252a31", "fontSize": "19px", "fontWeight": "600", "letterSpacing": "-.01em", "margin": "0"},
+                                style={
+                                    "color": "#252a31",
+                                    "fontSize": "19px",
+                                    "fontWeight": "600",
+                                    "letterSpacing": "-.01em",
+                                    "margin": "0",
+                                },
                             ),
                             html.P(
                                 "Estatísticas de consumo por mês de referência.",
-                                style={"color": "#5d6570", "fontSize": "12px", "margin": "5px 0 0 0"},
+                                style={
+                                    "color": "#5d6570",
+                                    "fontSize": "12px",
+                                    "margin": "5px 0 0 0",
+                                },
                             ),
                         ],
-                        style={"marginBottom": "20px", "paddingBottom": "16px", "borderBottom": "1px solid #dde0e5"},
+                        style={
+                            "marginBottom": "20px",
+                            "paddingBottom": "16px",
+                            "borderBottom": "1px solid #dde0e5",
+                        },
                     ),
                     # Painel de controles locais
                     html.Div(
                         [
                             html.Div(
                                 [
-                                    html.Label("Mês de Referência", style=EstilosCSS.LABEL_FILTRO),
+                                    html.Label(
+                                        "Mês de Referência",
+                                        style=EstilosCSS.LABEL_FILTRO,
+                                    ),
                                     dcc.RadioItems(
                                         {
                                             "1": f"{datas_referencias[0]}",
@@ -1094,26 +1603,47 @@ def gerar_html_dados(
                                         value="1",
                                         inline=True,
                                         id=ID_ELEMENTOS_HTML.ESCOLHA_ABA_DADOS_CONSUMO,
-                                        labelStyle={"marginRight": "10px", "cursor": "pointer", "color": "#252a31"},
+                                        labelStyle={
+                                            "marginRight": "10px",
+                                            "cursor": "pointer",
+                                            "color": "#252a31",
+                                        },
                                     ),
                                 ],
                                 style=EstilosCSS.ITEM_FILTRO,
                             ),
                             html.Div(
                                 [
-                                    html.Label("Concatenar consumo a partir de:", style=EstilosCSS.LABEL_FILTRO),
+                                    html.Label(
+                                        "Concatenar consumo a partir de:",
+                                        style=EstilosCSS.LABEL_FILTRO,
+                                    ),
                                     html.Div(
                                         [
                                             dcc.Input(
                                                 130,
                                                 "number",
                                                 id=ID_ELEMENTOS_HTML.VALOR_LIMITE_CONCATENAR,
-                                                style={"backgroundColor": "#f7f8fa", "color": "#252a31", "border": "1px solid #dde0e5", "padding": "6px 10px", "width": "90px"},
+                                                style={
+                                                    "backgroundColor": "#f7f8fa",
+                                                    "color": "#252a31",
+                                                    "border": "1px solid #dde0e5",
+                                                    "padding": "6px 10px",
+                                                    "width": "90px",
+                                                },
                                             ),
                                             html.Button(
                                                 "Concatenar",
                                                 id=ID_ELEMENTOS_HTML.BOTAO_CONCATENAR_CONSUMO,
-                                                style={"backgroundColor": "#2f6db0", "color": "white", "border": "none", "padding": "6px 14px", "fontWeight": "500", "cursor": "pointer", "fontFamily": '"Segoe UI", system-ui, sans-serif'},
+                                                style={
+                                                    "backgroundColor": "#2f6db0",
+                                                    "color": "white",
+                                                    "border": "none",
+                                                    "padding": "6px 14px",
+                                                    "fontWeight": "500",
+                                                    "cursor": "pointer",
+                                                    "fontFamily": '"Segoe UI", system-ui, sans-serif',
+                                                },
                                             ),
                                         ],
                                         style={"display": "flex", "gap": "8px"},
@@ -1123,7 +1653,10 @@ def gerar_html_dados(
                             ),
                             html.Div(
                                 [
-                                    html.Label("Anormalidade de Leitura (filtro local)", style=EstilosCSS.LABEL_FILTRO),
+                                    html.Label(
+                                        "Anormalidade de Leitura (filtro local)",
+                                        style=EstilosCSS.LABEL_FILTRO,
+                                    ),
                                     dcc.Dropdown(
                                         id=ID_ELEMENTOS_HTML.FILTRO_LOCAL_ANORM_LEITURA,
                                         options=_opcoes_anorm_leitura,
@@ -1163,6 +1696,8 @@ def gerar_html_dados(
                                 datas_referencias[0],
                                 ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_1,
                                 mes_index="mes-1",
+                                frequencia_divida_total_vencida=frequencia_divida_total_vencida,
+                                frequencia_contas_vencidas_aberto=frequencia_contas_vencidas_aberto,
                             ),
                             gerar_html_dados_consumo_mes(
                                 media_do_consumo_medio_mes_2,
@@ -1180,6 +1715,8 @@ def gerar_html_dados(
                                 ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_2,
                                 mes_index="mes-2",
                                 oculto=True,
+                                frequencia_divida_total_vencida=frequencia_divida_total_vencida,
+                                frequencia_contas_vencidas_aberto=frequencia_contas_vencidas_aberto,
                             ),
                             gerar_html_dados_consumo_mes(
                                 media_do_consumo_medio_mes_3,
@@ -1197,6 +1734,8 @@ def gerar_html_dados(
                                 ID_ELEMENTOS_HTML.DADOS_CONSUMO_MES_3,
                                 mes_index="mes-3",
                                 oculto=True,
+                                frequencia_divida_total_vencida=frequencia_divida_total_vencida,
+                                frequencia_contas_vencidas_aberto=frequencia_contas_vencidas_aberto,
                             ),
                         ],
                     ),
@@ -1216,8 +1755,16 @@ def gerar_html_dados(
     )
 
 
-
-def _caixa_tabela(titulo, id_pagina, id_pesquisa, id_tabela, data, columns, children_extra=None, page_size_default=10):
+def _caixa_tabela(
+    titulo,
+    id_pagina,
+    id_pesquisa,
+    id_tabela,
+    data,
+    columns,
+    children_extra=None,
+    page_size_default=10,
+):
     _ESTILO_BOX = {
         "gridColumnStart": "span 6",
         "backgroundColor": "#ffffff",
@@ -1227,39 +1774,66 @@ def _caixa_tabela(titulo, id_pagina, id_pesquisa, id_tabela, data, columns, chil
     conteudo = [
         html.Div(
             titulo,
-            style={"fontWeight": "600", "fontSize": "13px", "color": "#252a31", "padding": "12px 15px 11px", "borderBottom": "1px solid #dde0e5"},
+            style={
+                "fontWeight": "600",
+                "fontSize": "13px",
+                "color": "#252a31",
+                "padding": "12px 15px 11px",
+                "borderBottom": "1px solid #dde0e5",
+            },
         ),
         html.Div(
             [
                 html.Div(
                     [
-                        html.Label("Mostrar", style={"color": "#5d6570", "fontSize": "11.5px"}),
+                        html.Label(
+                            "Mostrar", style={"color": "#5d6570", "fontSize": "11.5px"}
+                        ),
                         dcc.Dropdown(
-                            options=[{"label": str(n), "value": n} for n in [5, 10, 25, 50, 100]],
+                            options=[
+                                {"label": str(n), "value": n}
+                                for n in [5, 10, 25, 50, 100]
+                            ],
                             value=page_size_default,
                             id=id_pagina,
                             clearable=False,
                             style={"width": "80px", "display": "inline-block"},
                         ),
-                        html.Label("entradas", style={"color": "#5d6570", "fontSize": "11.5px"}),
+                        html.Label(
+                            "entradas", style={"color": "#5d6570", "fontSize": "11.5px"}
+                        ),
                     ],
                     style={"display": "flex", "gap": "8px", "alignItems": "center"},
                 ),
                 html.Div(
                     [
-                        html.Label("Buscar:", style={"color": "#5d6570", "fontSize": "11.5px"}),
+                        html.Label(
+                            "Buscar:", style={"color": "#5d6570", "fontSize": "11.5px"}
+                        ),
                         dcc.Input(
                             id=id_pesquisa,
                             type="text",
                             debounce=True,
                             placeholder="Filtrar...",
-                            style={"backgroundColor": "#f7f8fa", "color": "#252a31", "border": "1px solid #dde0e5", "padding": "4px 10px", "fontSize": "11.5px"},
+                            style={
+                                "backgroundColor": "#f7f8fa",
+                                "color": "#252a31",
+                                "border": "1px solid #dde0e5",
+                                "padding": "4px 10px",
+                                "fontSize": "11.5px",
+                            },
                         ),
                     ],
                     style={"display": "flex", "gap": "8px", "alignItems": "center"},
                 ),
             ],
-            style={"display": "flex", "justifyContent": "space-between", "alignItems": "center", "padding": "10px 15px", "borderBottom": "1px solid #dde0e5"},
+            style={
+                "display": "flex",
+                "justifyContent": "space-between",
+                "alignItems": "center",
+                "padding": "10px 15px",
+                "borderBottom": "1px solid #dde0e5",
+            },
         ),
         DataTable(
             data=data,
@@ -1282,9 +1856,9 @@ def gerar_html_dados_consumo_mes(
     media_consumo_medio: float,
     desvio_padrao: float,
     frequencia_consumo_acima_limite: int,
-    frequencia_consumos_medios: pd.Series,
-    frequencia_consumos_medidos: pd.Series,
-    frequencia_consumo_faturado: pd.Series,
+    frequencia_consumos_medios: dict,
+    frequencia_consumos_medidos: dict,
+    frequencia_consumo_faturado: dict,
     anormalidade_de_leitura: pd.DataFrame,
     frequencia_anormalidade_consumo: pd.DataFrame,
     ramais_df: pd.DataFrame,
@@ -1293,6 +1867,8 @@ def gerar_html_dados_consumo_mes(
     titulo: str,
     id_html_elemento: str,
     mes_index: str,
+    frequencia_divida_total_vencida,
+    frequencia_contas_vencidas_aberto,
     limite_consumo_utilizado: int = 130,
     oculto: bool = False,
 ):
@@ -1301,7 +1877,9 @@ def gerar_html_dados_consumo_mes(
         estilo = {"display": "none"}
 
     _COLS_ANORM = [{"name": c, "id": c} for c in anormalidade_de_leitura.columns]
-    _COLS_CONSUMO = [{"name": c, "id": c} for c in frequencia_anormalidade_consumo.columns]
+    _COLS_CONSUMO = [
+        {"name": c, "id": c} for c in frequencia_anormalidade_consumo.columns
+    ]
     _COLS_RAMAIS = [
         {"name": "Ramal", "id": "ramal"},
         {"name": "Diâmetro", "id": "diametro"},
@@ -1315,52 +1893,170 @@ def gerar_html_dados_consumo_mes(
                 html.Button(
                     "⬇ Download sem filtros",
                     id={"type": "btn-dl-sem", "index": mes_index},
-                    style={"backgroundColor": "#ffffff", "color": "#252a31", "border": "1px solid #dde0e5", "padding": "7px 15px", "fontWeight": "400", "cursor": "pointer", "fontSize": "12.5px", "display": "flex", "alignItems": "center", "gap": "7px"},
+                    style={
+                        "backgroundColor": "#ffffff",
+                        "color": "#252a31",
+                        "border": "1px solid #dde0e5",
+                        "padding": "7px 15px",
+                        "fontWeight": "400",
+                        "cursor": "pointer",
+                        "fontSize": "12.5px",
+                        "display": "flex",
+                        "alignItems": "center",
+                        "gap": "7px",
+                    },
                 ),
                 html.Button(
                     "⬇ Download com filtros",
                     id={"type": "btn-dl-com", "index": mes_index},
-                    style={"backgroundColor": "#2f6db0", "color": "white", "border": "1px solid #2f6db0", "padding": "7px 15px", "fontWeight": "500", "cursor": "pointer", "fontSize": "12.5px", "display": "flex", "alignItems": "center", "gap": "7px"},
+                    style={
+                        "backgroundColor": "#2f6db0",
+                        "color": "white",
+                        "border": "1px solid #2f6db0",
+                        "padding": "7px 15px",
+                        "fontWeight": "500",
+                        "cursor": "pointer",
+                        "fontSize": "12.5px",
+                        "display": "flex",
+                        "alignItems": "center",
+                        "gap": "7px",
+                    },
                 ),
                 dcc.Download(id={"type": "download-mes", "index": mes_index}),
             ],
-            style={"display": "flex", "gap": "10px", "padding": "12px 15px", "borderTop": "1px solid #dde0e5"},
+            style={
+                "display": "flex",
+                "gap": "10px",
+                "padding": "12px 15px",
+                "borderTop": "1px solid #dde0e5",
+            },
         ),
     ]
 
     return html.Div(
         id=id_html_elemento,
         children=[
-            html.H4(titulo, style={"gridColumnStart": "1", "gridColumnEnd": "-1", "color": "#252a31", "fontSize": "14px", "fontWeight": "600"}),
+            html.H4(
+                titulo,
+                style={
+                    "gridColumnStart": "1",
+                    "gridColumnEnd": "-1",
+                    "color": "#252a31",
+                    "fontSize": "14px",
+                    "fontWeight": "600",
+                },
+            ),
             # KPI strip consumo
             html.Div(
                 [
                     html.Div(
-                        [html.Div("Consumo Médio", style=EstilosCSS.QUADRO_DADO_LABEL), html.Div([html.Span(f"{media_consumo_medio:.2f}", style=EstilosCSS.QUADRO_DADO_NUMERO), html.Span("m³", style={"fontSize": "15px", "color": "#5d6570", "marginLeft": "4px", "fontWeight": "400"})], style={"display": "flex", "alignItems": "baseline"})],
-                        style={"padding": "14px 16px", "borderRight": "1px solid #dde0e5"},
+                        [
+                            html.Div(
+                                "Consumo Médio", style=EstilosCSS.QUADRO_DADO_LABEL
+                            ),
+                            html.Div(
+                                [
+                                    html.Span(
+                                        f"{media_consumo_medio:.2f}",
+                                        style=EstilosCSS.QUADRO_DADO_NUMERO,
+                                    ),
+                                    html.Span(
+                                        "m³",
+                                        style={
+                                            "fontSize": "15px",
+                                            "color": "#5d6570",
+                                            "marginLeft": "4px",
+                                            "fontWeight": "400",
+                                        },
+                                    ),
+                                ],
+                                style={"display": "flex", "alignItems": "baseline"},
+                            ),
+                        ],
+                        style={
+                            "padding": "14px 16px",
+                            "borderRight": "1px solid #dde0e5",
+                        },
                     ),
                     html.Div(
-                        [html.Div("Desvio Padrão do Consumo Médio", style=EstilosCSS.QUADRO_DADO_LABEL), html.Div([html.Span(f"{desvio_padrao:.2f}", style=EstilosCSS.QUADRO_DADO_NUMERO), html.Span("m³", style={"fontSize": "15px", "color": "#5d6570", "marginLeft": "4px", "fontWeight": "400"})], style={"display": "flex", "alignItems": "baseline"})],
-                        style={"padding": "14px 16px", "borderRight": "1px solid #dde0e5"},
+                        [
+                            html.Div(
+                                "Desvio Padrão do Consumo Médio",
+                                style=EstilosCSS.QUADRO_DADO_LABEL,
+                            ),
+                            html.Div(
+                                [
+                                    html.Span(
+                                        f"{desvio_padrao:.2f}",
+                                        style=EstilosCSS.QUADRO_DADO_NUMERO,
+                                    ),
+                                    html.Span(
+                                        "m³",
+                                        style={
+                                            "fontSize": "15px",
+                                            "color": "#5d6570",
+                                            "marginLeft": "4px",
+                                            "fontWeight": "400",
+                                        },
+                                    ),
+                                ],
+                                style={"display": "flex", "alignItems": "baseline"},
+                            ),
+                        ],
+                        style={
+                            "padding": "14px 16px",
+                            "borderRight": "1px solid #dde0e5",
+                        },
                     ),
                     html.Div(
-                        [html.Div(f"Consumo maior que {limite_consumo_utilizado} m³", style=EstilosCSS.QUADRO_DADO_LABEL), html.Div([html.Span(frequencia_consumo_acima_limite, style=EstilosCSS.QUADRO_DADO_NUMERO), html.Span("ramais", style={"fontSize": "15px", "color": "#5d6570", "marginLeft": "4px", "fontWeight": "400"})], style={"display": "flex", "alignItems": "baseline"})],
+                        [
+                            html.Div(
+                                f"Consumo maior que {limite_consumo_utilizado} m³",
+                                style=EstilosCSS.QUADRO_DADO_LABEL,
+                            ),
+                            html.Div(
+                                [
+                                    html.Span(
+                                        frequencia_consumo_acima_limite,
+                                        style=EstilosCSS.QUADRO_DADO_NUMERO,
+                                    ),
+                                    html.Span(
+                                        "ramais",
+                                        style={
+                                            "fontSize": "15px",
+                                            "color": "#5d6570",
+                                            "marginLeft": "4px",
+                                            "fontWeight": "400",
+                                        },
+                                    ),
+                                ],
+                                style={"display": "flex", "alignItems": "baseline"},
+                            ),
+                        ],
                         style={"padding": "14px 16px"},
                     ),
                 ],
-                style={"display": "grid", "gridTemplateColumns": "repeat(3, 1fr)", "border": "1px solid #dde0e5", "backgroundColor": "#ffffff", "gridColumnStart": "span 6"},
+                style={
+                    "display": "grid",
+                    "gridTemplateColumns": "repeat(3, 1fr)",
+                    "border": "1px solid #dde0e5",
+                    "backgroundColor": "#ffffff",
+                    "gridColumnStart": "span 6",
+                },
             ),
             # Gráfico de Consumo Médio
             html.Div(
-                [dcc.Graph(
-                    figure=px.bar(
-                        x=[str(x) for x in frequencia_consumos_medios.index],
-                        y=frequencia_consumos_medios,
-                        labels={"y": "Frequência", "x": "Consumo Médio"},
-                        title="Gráfico de Consumo Médio",
-                        color_discrete_sequence=_PLOTLY_CORES_BARRAS,
-                    ).update_layout(**_PLOTLY_DARK_LAYOUT)
-                )],
+                [
+                    dcc.Graph(
+                        figure=px.bar(
+                            x=[x for x in frequencia_consumos_medios.keys()],
+                            y=frequencia_consumos_medios.values(),
+                            labels={"y": "Frequência", "x": "Consumo Médio"},
+                            title="Gráfico de Consumo Médio",
+                            color_discrete_sequence=_PLOTLY_CORES_BARRAS,
+                        ).update_layout(**_PLOTLY_DARK_LAYOUT)
+                    )
+                ],
                 style=EstilosCSS.GRAFICO,
             ),
             # Box: Anorm Leitura
@@ -1383,27 +2079,31 @@ def gerar_html_dados_consumo_mes(
             ),
             # Gráficos lado a lado: Consumo Medido e Consumo Faturado
             html.Div(
-                [dcc.Graph(
-                    figure=px.bar(
-                        x=[str(x) for x in frequencia_consumos_medidos.index],
-                        y=frequencia_consumos_medidos,
-                        labels={"y": "Frequência", "x": "Consumo Medido"},
-                        title="Gráfico de Consumo Medido",
-                        color_discrete_sequence=_PLOTLY_CORES_BARRAS,
-                    ).update_layout(**_PLOTLY_DARK_LAYOUT)
-                )],
+                [
+                    dcc.Graph(
+                        figure=px.bar(
+                            x=[x for x in frequencia_consumos_medidos.keys()],
+                            y=frequencia_consumos_medidos.values(),
+                            labels={"y": "Frequência", "x": "Consumo Medido"},
+                            title="Gráfico de Consumo Medido",
+                            color_discrete_sequence=_PLOTLY_CORES_BARRAS,
+                        ).update_layout(**_PLOTLY_DARK_LAYOUT)
+                    )
+                ],
                 style={"gridColumnStart": "span 3"},
             ),
             html.Div(
-                [dcc.Graph(
-                    figure=px.bar(
-                        x=[str(x) for x in frequencia_consumo_faturado.index],
-                        y=frequencia_consumo_faturado,
-                        labels={"y": "Frequência", "x": "Consumo Faturado"},
-                        title="Gráfico de Consumo Faturado",
-                        color_discrete_sequence=_PLOTLY_CORES_BARRAS,
-                    ).update_layout(**_PLOTLY_DARK_LAYOUT)
-                )],
+                [
+                    dcc.Graph(
+                        figure=px.bar(
+                            x=[x for x in frequencia_consumo_faturado.keys()],
+                            y=frequencia_consumo_faturado.values(),
+                            labels={"y": "Frequência", "x": "Consumo Faturado"},
+                            title="Gráfico de Consumo Faturado",
+                            color_discrete_sequence=_PLOTLY_CORES_BARRAS,
+                        ).update_layout(**_PLOTLY_DARK_LAYOUT)
+                    )
+                ],
                 style={"gridColumnStart": "span 3"},
             ),
             # Box: Ramais com consumo fora do esperado + downloads
@@ -1412,9 +2112,79 @@ def gerar_html_dados_consumo_mes(
                 id_pagina={"type": "pagina-ramais-mes", "index": mes_index},
                 id_pesquisa={"type": "pesquisa-ramais-mes", "index": mes_index},
                 id_tabela={"type": "tabela-ramais-mes", "index": mes_index},
-                data=_ramais_para_tabela(ramais_df, col_anorm_ramais, col_consumo_ramais),
+                data=_ramais_para_tabela(
+                    ramais_df, col_anorm_ramais, col_consumo_ramais
+                ),
                 columns=_COLS_RAMAIS,
                 children_extra=_botoes_download,
+            ),
+            html.Div(
+                dcc.Graph(
+                    figure=px.bar(
+                        title="Frequência de Divida Total Vencida",
+                        x=frequencia_divida_total_vencida.keys(),
+                        y=frequencia_divida_total_vencida.values(),
+                        labels={
+                            "x": "Valor da Conta Vencida",
+                            "y": "Frequência",
+                        },
+                        color_discrete_sequence=[
+                            "#4f80b8",
+                            "#2f6db0",
+                            "#7fa8d1",
+                            "#b0c8e8",
+                        ],
+                    ).update_layout(
+                        paper_bgcolor="#ffffff",
+                        plot_bgcolor="#ffffff",
+                        font_color="#5d6570",
+                        xaxis={
+                            "gridcolor": "#dde0e5",
+                            "linecolor": "#c6cad1",
+                            "dtick": 1,
+                            "tickmode": "linear",
+                        },
+                        yaxis={
+                            "gridcolor": "#dde0e5",
+                            "linecolor": "#c6cad1",
+                        },
+                    )
+                ),
+                style=EstilosCSS.GRAFICO,
+            ),
+            html.Div(
+                dcc.Graph(
+                    figure=px.bar(
+                        title="Frequência de Contas Vencidas em Aberto",
+                        x=frequencia_contas_vencidas_aberto.keys(),
+                        y=frequencia_contas_vencidas_aberto.values(),
+                        labels={
+                            "x": "Qtd. Contas Vencidas",
+                            "y": "Frequência",
+                        },
+                        color_discrete_sequence=[
+                            "#4f80b8",
+                            "#2f6db0",
+                            "#7fa8d1",
+                            "#b0c8e8",
+                        ],
+                    ).update_layout(
+                        paper_bgcolor="#ffffff",
+                        plot_bgcolor="#ffffff",
+                        font_color="#5d6570",
+                        xaxis={
+                            "gridcolor": "#dde0e5",
+                            "linecolor": "#c6cad1",
+                            "dtick": 1,
+                            "tickmode": "linear",
+                        },
+                        yaxis={
+                            "gridcolor": "#dde0e5",
+                            "linecolor": "#c6cad1",
+                        },
+                    )
+                ),
+                style=EstilosCSS.GRAFICO,
             ),
         ],
         style=estilo,
