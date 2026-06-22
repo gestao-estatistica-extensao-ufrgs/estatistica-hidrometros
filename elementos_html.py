@@ -187,6 +187,9 @@ class ID_ELEMENTOS_HTML(StrEnum):
     DROPDOWN_ASSOCIACAO_COLUNAS = "dropdowns-associacao-colunas"
     BOTAO_ASSOCIAR_COLUNAS = "botao_associar_colunas"
 
+    BOTAO_DOWNLOAD_TABELA_COMPLETA_FILTRADA = "download-tabela-completa-filtrada"
+    DOWNLOADER_TABELA_COMPLETA_FILTRADA = "downloader-tabela-completa-filtrada"
+
     ESCOLHA_ABA_DADOS_CONSUMO = "escolha-dados-consumo-mes"
     BOTAO_CONCATENAR_CONSUMO = "concatenar-consumo"
     VALOR_LIMITE_CONCATENAR = "valor-limite-concatenar"
@@ -1537,6 +1540,17 @@ def gerar_html_dados(
                             html.Div(
                                 grafico_idades_hidrometros_acima_de_25MM,
                                 style=EstilosCSS.GRAFICO,
+                            ),
+                            html.Div(
+                                [
+                                    html.Button(
+                                        "Download Tabela Filtrada",
+                                        id=ID_ELEMENTOS_HTML.BOTAO_DOWNLOAD_TABELA_COMPLETA_FILTRADA,
+                                    ),
+                                    dcc.Download(
+                                        ID_ELEMENTOS_HTML.DOWNLOADER_TABELA_COMPLETA_FILTRADA
+                                    ),
+                                ]
                             ),
                         ],
                         style=EstilosCSS.GRID_AREA_DADOS_CONSUMO,

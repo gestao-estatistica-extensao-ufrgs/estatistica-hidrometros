@@ -1332,5 +1332,66 @@ def alternar_abas_principais(_d, _c):
     return _ESTILO_SECAO_VISIVEL, {"display": "none"}, "nav-tab ativo", "nav-tab"
 
 
+@callback(
+    Output(ID_ELEMENTOS_HTML.DOWNLOADER_TABELA_COMPLETA_FILTRADA, "data"),
+    Input(ID_ELEMENTOS_HTML.BOTAO_DOWNLOAD_TABELA_COMPLETA_FILTRADA, "n_clicks"),
+    State(ID_ELEMENTOS_HTML.FILTRO_DIAMETRO, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_IDADE, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_SITUACAO, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_DIAMETRO_LETRA, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_GRUPO_FATURAMENTO, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_PERFIL_IMOVEL, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_CATEGORIA, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_TIPO_TARIFA_ESGOTO, "value"),
+    State(ID_ELEMENTOS_HTML.FILTRO_ANORMALIDADE_CONSUMO, "value"),
+    prevent_initial_call=True,
+)
+def download_tabela_completa_filtrada(
+    n_clicks: int,
+    limites_diametros: list[int],
+    limites_idade: list[int],
+    situacoes: list[str],
+    diametro_letra: list[str],
+    grupo_faturamento: list[str],
+    perfil_imovel_selecionados: list[str],
+    categorias: list[str],
+    tipos_tarifa_esgoto: list[str],
+    anormalidades_consumo: list[str],
+):
+    global DF
+
+    limites_diametros = limites_diametros or []
+    situacoes = situacoes or []
+    diametro_letra = diametro_letra or []
+    grupo_faturamento = grupo_faturamento or []
+    perfil_imovel_selecionados = perfil_imovel_selecionados or []
+    categorias = categorias or []
+    tipos_tarifa_esgoto = tipos_tarifa_esgoto or []
+    anormalidades_consumo = anormalidades_consumo or []
+
+    filtrado = DF[
+        (DF.diametro.isin(limites_diametros))
+        & (DF.idade_hidrometro.between(limites_idade[0], limites_idade[1]))
+        & (DF.situacao_ligacao_agua.isin(situacoes))
+        & (DF.diametro_letra.isin(diametro_letra))
+        & (DF.grupo_leitura.isin(grupo_faturamento))
+        & (DF.perfil_imovel.isin(perfil_imovel_selecionados))
+        & (DF.categoria.isin(categorias))
+        & (DF.tipo_tarifa_esgoto.isin(tipos_tarifa_esgoto))
+        & (
+            DF.anormalidade_consumo_mes_1.isin(anormalidades_consumo)
+            | DF.anormalidade_consumo_mes_2.isin(anormalidades_consumo)
+            | DF.anormalidade_consumo_mes_3.isin(anormalidades_consumo)
+        )
+    ]
+
+    return dcc.send_data_frame(
+        filtrado.to_excel,
+        "filtrado.xlsx",
+        sheet_name="planilha1",
+        index=False,
+    )
+
+
 if __name__ == "__main__":
     app.run(debug=True)
