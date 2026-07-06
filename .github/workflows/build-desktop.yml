@@ -1,0 +1,50 @@
+name: Build Desktop (Windows)
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Gerar executável
+        run: >
+          pyinstaller --onefile --noconsole --name DashboardDMAE
+          --add-data "assets;assets" --collect-all pywebview desktop.py
+
+      - name: Publicar artefato do build
+        uses: actions/upload-artifact@v4
+        with:
+          name: DashboardDMAE-windows
+          path: dist/DashboardDMAE.exe
+
+      # Só cria uma Release (com link de download público) quando o build
+      # é disparado por uma tag "v*" (ex: v1.0.0). Rodar manualmente pelo
+      # botão "Run workflow" apenas gera o artefato acima.
+      - name: Criar release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/DashboardDMAE.exe
