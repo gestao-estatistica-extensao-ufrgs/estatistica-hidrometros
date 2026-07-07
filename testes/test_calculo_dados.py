@@ -198,15 +198,14 @@ class TestDadosCalculados(TestCase):
                 self.assertEqual(x, y)
 
     def test_frequencia_divida_total_vencida(self):
-        freq = self.dados["frequencia_divida_total_vencida"]
-        casos = [
-            (abs(freq["35"] - 6.672678), 0.01),
-            (abs(freq["44"] - 0.9672924), 0.01),
-            (abs(freq["79"] - 1.139438), 0.01),
-        ]
-        for x, y in casos:
-            with self.subTest(x=x, esperado=y):
-                self.assertLess(x, y)
+        # Não é mais um dict de faixas concatenadas: dívida (R$) tem amplitude
+        # grande demais pra um bucket fixo tipo "130+" fazer sentido (ver
+        # calcular_frequencia_total_divida_vencida). Agora é a série bruta
+        # de valores, sem nulos, usada num histograma com bins automáticos.
+        serie = self.dados["frequencia_divida_total_vencida"]
+        self.assertEqual(len(serie), 12198)
+        self.assertFalse(serie.isna().any())
+        self.assertLess(abs(serie.mean() - 3776.688883), 0.01)
 
     def test_frequencia_contas_vencidas_aberto(self):
         freq = self.dados["frequencia_contas_vencidas_aberto"]

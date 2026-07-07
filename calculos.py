@@ -841,34 +841,16 @@ def calcular_frequencia_contas_vencidas_aberto(
     return resultado
 
 
-def calcular_frequencia_total_divida_vencida(
-    df: pd.DataFrame, valor_concatenar: int = 130
-) -> dict[str, float] | None:
+def calcular_frequencia_total_divida_vencida(df: pd.DataFrame) -> pd.Series | None:
+    """
+    Retorna os valores de dívida vencida (sem os nulos), para alimentar um
+    histograma com bins automáticos. Diferente do consumo (m³, faixa de 0 a
+    ~130), dívida é um valor em R$ com amplitude muito maior e sem um teto
+    natural — agrupar por valor exato com um "130+" não faz sentido aqui,
+    por isso não usa "concatenação"/limite algum.
+    """
     col = ColunasDataframe.DIVIDA_TOTAL_VENCIDA
     if col not in df.columns:
         return None
 
-    sem_valores_na = df[df[col].notna()]
-
-    registros_com_valor_menor_igual_a_concatenacao = sem_valores_na[
-        sem_valores_na[col] <= valor_concatenar
-    ]
-    frequencia = registros_com_valor_menor_igual_a_concatenacao.groupby(col)[
-        [col]
-    ].count()
-    frequencia.columns = ["freq_abs"]
-
-    freq_registros_a_concatenar = sem_valores_na[col][
-        sem_valores_na[col] > valor_concatenar
-    ].count()
-    frequencia.loc[f"{valor_concatenar}+", "freq_abs"] = freq_registros_a_concatenar
-
-    total = len(sem_valores_na)
-
-    frequencia["freq_rel"] = frequencia["freq_abs"] * 100 / total
-
-    resultado: dict[str, float] = {
-        str(k): v for k, v in frequencia["freq_rel"].to_dict().items()
-    }
-
-    return resultado
+    return df[col][df[col].notna()].astype(float)
