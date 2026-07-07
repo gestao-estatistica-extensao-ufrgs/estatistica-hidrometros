@@ -13,25 +13,20 @@ from tipos import NOME_VARIAVEIS, ColunasDataframe
 ########################
 ### PREPARAÇÃO DADOS ###
 ########################
-def padronizacao_diametro(diametro: str):
-    filtrado = filter(lambda caractere: caractere.isnumeric(), diametro)
-    diametro_padronizado_texto = "".join(caractere for caractere in filtrado)
-    diametro_padronizado_numero = int(diametro_padronizado_texto)
-    return diametro_padronizado_numero
+def padronizacao_diametro(diametro: pd.Series) -> pd.Series:
+    """Mantém só os dígitos de cada valor (ex: "20MM" -> 20)."""
+    return diametro.astype(str).str.replace(r"\D", "", regex=True).astype(int)
 
 
-def diametro_e_letra_codigo(linha: pd.Series):
-    codigo = linha["hidrometro"]
-    if codigo is None:
-        primeira_letra = "*"
-    elif isinstance(codigo, int):
-        primeira_letra = "*"
-    elif (len(codigo) < 1) or (not codigo[0].isalpha):
-        primeira_letra = "*"
-    else:
-        primeira_letra = codigo[0]
-
-    return f"{linha["diametro"]} - {primeira_letra}"
+def diametro_e_letra_codigo(df: pd.DataFrame) -> pd.Series:
+    """
+    Monta "<diametro> - <letra>", onde a letra é o primeiro caractere do
+    código do hidrômetro (ou "*" se não houver um caractere válido ali).
+    `.str[0]` já retorna NaN para valores não-string (int, None), então o
+    `fillna` cobre tanto esses casos quanto strings vazias.
+    """
+    primeira_letra = df[ColunasDataframe.HIDROMETRO].str[0].fillna("*")
+    return df[ColunasDataframe.DIAMETRO].astype(str) + " - " + primeira_letra
 
 
 def calcular_data_referencia(mes_extracao: int, ano_extracao: int):
@@ -145,11 +140,9 @@ def preparacao_dados(
         relacao_temp["situacao_ligacao_agua"]
     ]
 
-    df[ColunasDataframe.DIAMETRO] = df[relacao_temp["diametro"]].apply(
-        padronizacao_diametro
-    )
+    df[ColunasDataframe.DIAMETRO] = padronizacao_diametro(df[relacao_temp["diametro"]])
 
-    df[ColunasDataframe.DIAMETRO_LETRA] = df.apply(diametro_e_letra_codigo, axis=1)
+    df[ColunasDataframe.DIAMETRO_LETRA] = diametro_e_letra_codigo(df)
 
     df[ColunasDataframe.DATA_INSTALACAO] = df[relacao_temp["data_instalacao"]]
     tempo_instalacao_ate_agora = (
@@ -282,6 +275,24 @@ def preparacao_dados(
         columns=[col for col in relacao_temp.values() if col in df.columns],
         inplace=True,
     )
+
+    # Colunas de texto com poucos valores únicos repetidos em todas as
+    # linhas: "category" economiza bastante memória frente a "object".
+    # Não inclui colunas usadas em groupby/value_counts (ex: perfil_imovel,
+    # anormalidade_*), pois category preserva categorias "zeradas" após um
+    # filtro e mudaria o resultado dessas contagens.
+    colunas_categoricas = (
+        ColunasDataframe.SITUACAO_LIGACAO_AGUA,
+        ColunasDataframe.DIAMETRO_LETRA,
+        ColunasDataframe.GRUPO_LEITURA,
+        ColunasDataframe.CATEGORIA,
+        ColunasDataframe.TIPO_TARIFA_ESGOTO,
+        ColunasDataframe.CONSUMO_MAX_MES_1,
+        ColunasDataframe.CONSUMO_MAX_MES_2,
+        ColunasDataframe.CONSUMO_MAX_MES_3,
+    )
+    for coluna in colunas_categoricas:
+        df[coluna] = df[coluna].astype("category")
 
 
 # -------------------------------------------------------------
