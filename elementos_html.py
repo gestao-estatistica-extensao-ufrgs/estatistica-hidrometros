@@ -311,6 +311,47 @@ def componente_painel_erros(erros: list[str]):
     )
 
 
+def componente_aviso_coluna_nao_associada(nome_variavel: str):
+    """
+    Substitui um gráfico/tabela quando a coluna que o alimenta não foi
+    associada a nenhuma coluna do arquivo importado.
+    """
+    return html.Div(
+        [
+            html.Div(
+                "Coluna não associada",
+                style={
+                    "fontSize": "11px",
+                    "fontWeight": "600",
+                    "textTransform": "uppercase",
+                    "letterSpacing": "0.08em",
+                    "color": "#8b929c",
+                    "marginBottom": "6px",
+                },
+            ),
+            html.Div(
+                f'A coluna "{nome_variavel}" não foi associada a nenhuma coluna do arquivo.',
+                style={
+                    "fontSize": "12.5px",
+                    "color": "#5d6570",
+                    "maxWidth": "320px",
+                },
+            ),
+        ],
+        style={
+            "display": "flex",
+            "flexDirection": "column",
+            "justifyContent": "center",
+            "alignItems": "center",
+            "textAlign": "center",
+            "minHeight": "220px",
+            "padding": "20px",
+            "backgroundColor": "#f7f8fa",
+            "border": "1px dashed #dde0e5",
+        },
+    )
+
+
 def gerar_form_importar_planilha(
     mes_extracao: int | None = None,
     ano_extracao: int | None = None,
@@ -499,10 +540,10 @@ def gerar_form_colunas(
     )
     col_perfil_imovel = _label_e_dropdown("Perfil do Imóvel", "perfil_imovel")
     col_divida_total_vencida = _label_e_dropdown(
-        "Dívida Total Vencida", "divida_total_vencida"
+        "Dívida Total Vencida (opcional)", "divida_total_vencida"
     )
     col_contas_vencidas_aberto = _label_e_dropdown(
-        "Contas Vencidas em Aberto", "contas_vencidas_aberto"
+        "Contas Vencidas em Aberto (opcional)", "contas_vencidas_aberto"
     )
     col_consumo_medio_mes_1 = _label_e_dropdown(
         "Média de Consumo", "media_consumo_mes_1"
@@ -514,42 +555,42 @@ def gerar_form_colunas(
         "Média de Consumo", "media_consumo_mes_3"
     )
     col_anormalidade_leitura_mes_1 = _label_e_dropdown(
-        "Anormalidade de Leitura", "anormalidade_leitura_mes_1"
+        "Anormalidade de Leitura (opcional)", "anormalidade_leitura_mes_1"
     )
     col_anormalidade_leitura_mes_2 = _label_e_dropdown(
-        "Anormalidade de Leitura", "anormalidade_leitura_mes_2"
+        "Anormalidade de Leitura (opcional)", "anormalidade_leitura_mes_2"
     )
     col_anormalidade_leitura_mes_3 = _label_e_dropdown(
-        "Anormalidade de Leitura", "anormalidade_leitura_mes_3"
+        "Anormalidade de Leitura (opcional)", "anormalidade_leitura_mes_3"
     )
     col_consumo_medido_mes_1 = _label_e_dropdown(
-        "Consumo Medido", "consumo_medido_mes_1"
+        "Consumo Medido (opcional)", "consumo_medido_mes_1"
     )
     col_consumo_medido_mes_2 = _label_e_dropdown(
-        "Consumo Medido", "consumo_medido_mes_2"
+        "Consumo Medido (opcional)", "consumo_medido_mes_2"
     )
     col_consumo_medido_mes_3 = _label_e_dropdown(
-        "Consumo Medido", "consumo_medido_mes_3"
+        "Consumo Medido (opcional)", "consumo_medido_mes_3"
     )
 
     col_consumo_faturado_mes_1 = _label_e_dropdown(
-        "Consumo Faturado", "consumo_faturado_mes_1"
+        "Consumo Faturado (opcional)", "consumo_faturado_mes_1"
     )
     col_consumo_faturado_mes_2 = _label_e_dropdown(
-        "Consumo Faturado", "consumo_faturado_mes_2"
+        "Consumo Faturado (opcional)", "consumo_faturado_mes_2"
     )
     col_consumo_faturado_mes_3 = _label_e_dropdown(
-        "Consumo Faturado", "consumo_faturado_mes_3"
+        "Consumo Faturado (opcional)", "consumo_faturado_mes_3"
     )
 
     col_anormalidade_consumo_mes_1 = _label_e_dropdown(
-        "Anormalidade de Consumo", "anormalidade_consumo_mes_1"
+        "Anormalidade de Consumo (opcional)", "anormalidade_consumo_mes_1"
     )
     col_anormalidade_consumo_mes_2 = _label_e_dropdown(
-        "Anormalidade de Consumo", "anormalidade_consumo_mes_2"
+        "Anormalidade de Consumo (opcional)", "anormalidade_consumo_mes_2"
     )
     col_anormalidade_consumo_mes_3 = _label_e_dropdown(
-        "Anormalidade de Consumo", "anormalidade_consumo_mes_3"
+        "Anormalidade de Consumo (opcional)", "anormalidade_consumo_mes_3"
     )
 
     _label = {
@@ -1871,18 +1912,18 @@ def gerar_html_dados_consumo_mes(
     desvio_padrao: float,
     frequencia_consumo_acima_limite: int,
     frequencia_consumos_medios: dict,
-    frequencia_consumos_medidos: dict,
-    frequencia_consumo_faturado: dict,
-    anormalidade_de_leitura: pd.DataFrame,
-    frequencia_anormalidade_consumo: pd.DataFrame,
+    frequencia_consumos_medidos: dict | None,
+    frequencia_consumo_faturado: dict | None,
+    anormalidade_de_leitura: pd.DataFrame | None,
+    frequencia_anormalidade_consumo: pd.DataFrame | None,
     ramais_df: pd.DataFrame,
     col_anorm_ramais: str,
     col_consumo_ramais: str,
     titulo: str,
     id_html_elemento: str,
     mes_index: str,
-    frequencia_divida_total_vencida,
-    frequencia_contas_vencidas_aberto,
+    frequencia_divida_total_vencida: dict | None,
+    frequencia_contas_vencidas_aberto: dict | None,
     limite_consumo_utilizado: int = 130,
     oculto: bool = False,
 ):
@@ -1890,10 +1931,16 @@ def gerar_html_dados_consumo_mes(
     if oculto:
         estilo = {"display": "none"}
 
-    _COLS_ANORM = [{"name": c, "id": c} for c in anormalidade_de_leitura.columns]
-    _COLS_CONSUMO = [
-        {"name": c, "id": c} for c in frequencia_anormalidade_consumo.columns
-    ]
+    _COLS_ANORM = (
+        [{"name": c, "id": c} for c in anormalidade_de_leitura.columns]
+        if anormalidade_de_leitura is not None
+        else []
+    )
+    _COLS_CONSUMO = (
+        [{"name": c, "id": c} for c in frequencia_anormalidade_consumo.columns]
+        if frequencia_anormalidade_consumo is not None
+        else []
+    )
     _COLS_RAMAIS = [
         {"name": "Ramal", "id": "ramal"},
         {"name": "Diâmetro", "id": "diametro"},
@@ -2074,26 +2121,40 @@ def gerar_html_dados_consumo_mes(
                 style=EstilosCSS.GRAFICO,
             ),
             # Box: Anorm Leitura
-            _caixa_tabela(
-                "Tabela de Frequência de Anormalidade de Leitura",
-                id_pagina={"type": "pagina-anorm-leitura", "index": mes_index},
-                id_pesquisa={"type": "pesquisa-anorm-leitura", "index": mes_index},
-                id_tabela={"type": "tabela-anorm-leitura", "index": mes_index},
-                data=anormalidade_de_leitura.to_dict("records"),
-                columns=_COLS_ANORM,
+            (
+                _caixa_tabela(
+                    "Tabela de Frequência de Anormalidade de Leitura",
+                    id_pagina={"type": "pagina-anorm-leitura", "index": mes_index},
+                    id_pesquisa={"type": "pesquisa-anorm-leitura", "index": mes_index},
+                    id_tabela={"type": "tabela-anorm-leitura", "index": mes_index},
+                    data=anormalidade_de_leitura.to_dict("records"),
+                    columns=_COLS_ANORM,
+                )
+                if anormalidade_de_leitura is not None
+                else html.Div(
+                    componente_aviso_coluna_nao_associada("Anormalidade de Leitura"),
+                    style=EstilosCSS.TABELA,
+                )
             ),
             # Box: Anorm Consumo
-            _caixa_tabela(
-                "Tabela de Frequência de Anormalidade de Consumo",
-                id_pagina={"type": "pagina-anorm-consumo", "index": mes_index},
-                id_pesquisa={"type": "pesquisa-anorm-consumo", "index": mes_index},
-                id_tabela={"type": "tabela-anorm-consumo", "index": mes_index},
-                data=frequencia_anormalidade_consumo.to_dict("records"),
-                columns=_COLS_CONSUMO,
+            (
+                _caixa_tabela(
+                    "Tabela de Frequência de Anormalidade de Consumo",
+                    id_pagina={"type": "pagina-anorm-consumo", "index": mes_index},
+                    id_pesquisa={"type": "pesquisa-anorm-consumo", "index": mes_index},
+                    id_tabela={"type": "tabela-anorm-consumo", "index": mes_index},
+                    data=frequencia_anormalidade_consumo.to_dict("records"),
+                    columns=_COLS_CONSUMO,
+                )
+                if frequencia_anormalidade_consumo is not None
+                else html.Div(
+                    componente_aviso_coluna_nao_associada("Anormalidade de Consumo"),
+                    style=EstilosCSS.TABELA,
+                )
             ),
             # Gráficos lado a lado: Consumo Medido e Consumo Faturado
             html.Div(
-                [
+                (
                     dcc.Graph(
                         figure=px.bar(
                             x=[x for x in frequencia_consumos_medidos.keys()],
@@ -2103,11 +2164,13 @@ def gerar_html_dados_consumo_mes(
                             color_discrete_sequence=_PLOTLY_CORES_BARRAS,
                         ).update_layout(**_PLOTLY_DARK_LAYOUT)
                     )
-                ],
+                    if frequencia_consumos_medidos is not None
+                    else componente_aviso_coluna_nao_associada("Consumo Medido")
+                ),
                 style={"gridColumnStart": "span 3"},
             ),
             html.Div(
-                [
+                (
                     dcc.Graph(
                         figure=px.bar(
                             x=[x for x in frequencia_consumo_faturado.keys()],
@@ -2117,7 +2180,9 @@ def gerar_html_dados_consumo_mes(
                             color_discrete_sequence=_PLOTLY_CORES_BARRAS,
                         ).update_layout(**_PLOTLY_DARK_LAYOUT)
                     )
-                ],
+                    if frequencia_consumo_faturado is not None
+                    else componente_aviso_coluna_nao_associada("Consumo Faturado")
+                ),
                 style={"gridColumnStart": "span 3"},
             ),
             # Box: Ramais com consumo fora do esperado + downloads
@@ -2133,69 +2198,81 @@ def gerar_html_dados_consumo_mes(
                 children_extra=_botoes_download,
             ),
             html.Div(
-                dcc.Graph(
-                    figure=px.bar(
-                        title="Frequência de Divida Total Vencida",
-                        x=frequencia_divida_total_vencida.keys(),
-                        y=frequencia_divida_total_vencida.values(),
-                        labels={
-                            "x": "Valor da Conta Vencida",
-                            "y": "Frequência",
-                        },
-                        color_discrete_sequence=[
-                            "#4f80b8",
-                            "#2f6db0",
-                            "#7fa8d1",
-                            "#b0c8e8",
-                        ],
-                    ).update_layout(
-                        paper_bgcolor="#ffffff",
-                        plot_bgcolor="#ffffff",
-                        font_color="#5d6570",
-                        xaxis={
-                            "gridcolor": "#dde0e5",
-                            "linecolor": "#c6cad1",
-                            "dtick": 1,
-                            "tickmode": "linear",
-                        },
-                        yaxis={
-                            "gridcolor": "#dde0e5",
-                            "linecolor": "#c6cad1",
-                        },
+                (
+                    dcc.Graph(
+                        figure=px.bar(
+                            title="Frequência de Divida Total Vencida",
+                            x=frequencia_divida_total_vencida.keys(),
+                            y=frequencia_divida_total_vencida.values(),
+                            labels={
+                                "x": "Valor da Conta Vencida",
+                                "y": "Frequência",
+                            },
+                            color_discrete_sequence=[
+                                "#4f80b8",
+                                "#2f6db0",
+                                "#7fa8d1",
+                                "#b0c8e8",
+                            ],
+                        ).update_layout(
+                            paper_bgcolor="#ffffff",
+                            plot_bgcolor="#ffffff",
+                            font_color="#5d6570",
+                            xaxis={
+                                "gridcolor": "#dde0e5",
+                                "linecolor": "#c6cad1",
+                                "dtick": 1,
+                                "tickmode": "linear",
+                            },
+                            yaxis={
+                                "gridcolor": "#dde0e5",
+                                "linecolor": "#c6cad1",
+                            },
+                        )
+                    )
+                    if frequencia_divida_total_vencida is not None
+                    else componente_aviso_coluna_nao_associada(
+                        "Dívida Total Vencida"
                     )
                 ),
                 style=EstilosCSS.GRAFICO,
             ),
             html.Div(
-                dcc.Graph(
-                    figure=px.bar(
-                        title="Frequência de Contas Vencidas em Aberto",
-                        x=frequencia_contas_vencidas_aberto.keys(),
-                        y=frequencia_contas_vencidas_aberto.values(),
-                        labels={
-                            "x": "Qtd. Contas Vencidas",
-                            "y": "Frequência",
-                        },
-                        color_discrete_sequence=[
-                            "#4f80b8",
-                            "#2f6db0",
-                            "#7fa8d1",
-                            "#b0c8e8",
-                        ],
-                    ).update_layout(
-                        paper_bgcolor="#ffffff",
-                        plot_bgcolor="#ffffff",
-                        font_color="#5d6570",
-                        xaxis={
-                            "gridcolor": "#dde0e5",
-                            "linecolor": "#c6cad1",
-                            "dtick": 1,
-                            "tickmode": "linear",
-                        },
-                        yaxis={
-                            "gridcolor": "#dde0e5",
-                            "linecolor": "#c6cad1",
-                        },
+                (
+                    dcc.Graph(
+                        figure=px.bar(
+                            title="Frequência de Contas Vencidas em Aberto",
+                            x=frequencia_contas_vencidas_aberto.keys(),
+                            y=frequencia_contas_vencidas_aberto.values(),
+                            labels={
+                                "x": "Qtd. Contas Vencidas",
+                                "y": "Frequência",
+                            },
+                            color_discrete_sequence=[
+                                "#4f80b8",
+                                "#2f6db0",
+                                "#7fa8d1",
+                                "#b0c8e8",
+                            ],
+                        ).update_layout(
+                            paper_bgcolor="#ffffff",
+                            plot_bgcolor="#ffffff",
+                            font_color="#5d6570",
+                            xaxis={
+                                "gridcolor": "#dde0e5",
+                                "linecolor": "#c6cad1",
+                                "dtick": 1,
+                                "tickmode": "linear",
+                            },
+                            yaxis={
+                                "gridcolor": "#dde0e5",
+                                "linecolor": "#c6cad1",
+                            },
+                        )
+                    )
+                    if frequencia_contas_vencidas_aberto is not None
+                    else componente_aviso_coluna_nao_associada(
+                        "Contas Vencidas em Aberto"
                     )
                 ),
                 style=EstilosCSS.GRAFICO,

@@ -5,7 +5,7 @@ import sys
 import pandas as pd
 from dash import Dash, html, dcc, callback, Output, Input, State, ctx, MATCH, no_update
 
-from tipos import NOME_VARIAVEIS
+from tipos import NOME_VARIAVEIS, VARIAVEIS_OPCIONAIS
 from elementos_html import (
     componente_painel_erros,
     gerar_form_colunas,
@@ -153,6 +153,10 @@ app.layout = [
                                     "fontSize": "12px",
                                     "lineHeight": "1.3",
                                     "fontVariantNumeric": "tabular-nums",
+                                    "display": "block",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "whiteSpace": "nowrap",
                                 },
                             ),
                         ],
@@ -164,6 +168,7 @@ app.layout = [
                             "borderRight": "1px solid #dde0e5",
                             "width": "280px",
                             "minWidth": "280px",
+                            "overflow": "hidden",
                         },
                     ),
                     html.Nav(
@@ -777,8 +782,12 @@ def associar_colunas(
         "divida_total_vencida": divida_total_vencida,
     }
 
+    # Variáveis opcionais (ver tipos.VARIAVEIS_OPCIONAIS) podem ficar sem
+    # associação — só as demais (estruturais) são obrigatórias.
     teste_se_todos_valores_sao_nao_nulos = all(
-        map(lambda x: x is not None, colunas_associadas_de_cada_variavel.values())
+        valor is not None
+        for variavel, valor in colunas_associadas_de_cada_variavel.items()
+        if variavel not in VARIAVEIS_OPCIONAIS
     )
 
     if teste_se_todos_valores_sao_nao_nulos:
@@ -788,6 +797,10 @@ def associar_colunas(
             calculos.calcular_data_referencia(mes_extracao, ano_extracao)
         )
 
+        colunas_para_ler = [
+            col for col in colunas_associadas_de_cada_variavel.values() if col is not None
+        ]
+
         try:
             # Só agora o arquivo é lido de fato, e só com as colunas
             # associadas (não as ~todas da planilha original) — reduz a
@@ -795,7 +808,7 @@ def associar_colunas(
             DF = pd.read_excel(
                 io.BytesIO(_ARQUIVO_BYTES),
                 engine="calamine",
-                usecols=list(colunas_associadas_de_cada_variavel.values()),
+                usecols=colunas_para_ler,
             )
             calculos.preparacao_dados(
                 DF,
@@ -1001,11 +1014,14 @@ def concatenar_dados_consumo_mes(
         ["ramal", "diametro_letra", "consumo_max_mes_3", "media_consumo_mes_3"],
     ]
 
-    frequencia_contas_vencidas_aberto = (
-        calculos.calcular_frequencia_contas_vencidas_aberto(filtrado, valor_limite)
+    # "Concatenar Consumo a partir de" é especificamente sobre consumo (m³);
+    # contas vencidas (contagem) e dívida total (R$) são unidades diferentes
+    # e não devem usar esse mesmo limite — mantêm o padrão de calculos.py.
+    frequencia_contas_vencidas_aberto = calculos.calcular_frequencia_contas_vencidas_aberto(
+        filtrado
     )
     frequencia_divida_total_vencida = calculos.calcular_frequencia_total_divida_vencida(
-        filtrado, valor_limite
+        filtrado
     )
 
     return [
