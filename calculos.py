@@ -8,6 +8,8 @@ import numpy as np
 
 from tipos import NOME_VARIAVEIS, ColunasDataframe
 
+SENTINELA_NAO_ASSOCIADA = "Não associada"
+
 
 # -------------------------------------------------------------
 ########################
@@ -115,6 +117,49 @@ def classificar_consumo_ramal(df: pd.DataFrame):
         ] = "Maior"
 
 
+def _preencher_coluna_opcional_simples(
+    df: pd.DataFrame,
+    relacao: dict[NOME_VARIAVEIS, str],
+    relacao_temp: dict[str, str],
+    variavel: NOME_VARIAVEIS,
+    coluna: str,
+):
+    """Copia a coluna associada, ou não cria nada se a variável opcional
+    não foi associada a nenhuma coluna do arquivo."""
+    if relacao.get(variavel) is None:
+        return
+    df[coluna] = df[relacao_temp[variavel]]
+
+
+def _preencher_coluna_opcional_int64(
+    df: pd.DataFrame,
+    relacao: dict[NOME_VARIAVEIS, str],
+    relacao_temp: dict[str, str],
+    variavel: NOME_VARIAVEIS,
+    coluna: str,
+):
+    if relacao.get(variavel) is None:
+        return
+    df[coluna] = df[relacao_temp[variavel]].astype("Int64")
+
+
+def _preencher_coluna_opcional_anormalidade(
+    df: pd.DataFrame,
+    relacao: dict[NOME_VARIAVEIS, str],
+    relacao_temp: dict[str, str],
+    variavel: NOME_VARIAVEIS,
+    coluna: str,
+):
+    """Preenche com SENTINELA_NAO_ASSOCIADA (em vez de simplesmente não criar
+    a coluna) porque essas colunas são usadas em filtros (.isin) em vários
+    pontos do main.py — precisam existir para esses filtros não quebrarem."""
+    if relacao.get(variavel) is None:
+        df[coluna] = SENTINELA_NAO_ASSOCIADA
+        return
+    df[coluna] = df[relacao_temp[variavel]]
+    df.loc[df[coluna].isna(), coluna] = "Sem Anormalidade"
+
+
 def preparacao_dados(
     df: pd.DataFrame,
     relacao_colunas_tabela_inserida_com_dataframe: dict[NOME_VARIAVEIS, str],
@@ -169,19 +214,25 @@ def preparacao_dados(
         ColunasDataframe.TIPO_TARIFA_ESGOTO,
     ] = "-"
 
-    df[ColunasDataframe.DIVIDA_TOTAL_VENCIDA] = df[relacao_temp["divida_total_vencida"]]
-    df[ColunasDataframe.DIVIDA_TOTAL_VENCIDA] = np.where(
-        df[ColunasDataframe.DIVIDA_TOTAL_VENCIDA].notna(),
-        round(df[ColunasDataframe.DIVIDA_TOTAL_VENCIDA]),
-        df[ColunasDataframe.DIVIDA_TOTAL_VENCIDA],
-    )
-    df[ColunasDataframe.DIVIDA_TOTAL_VENCIDA] = df[
-        ColunasDataframe.DIVIDA_TOTAL_VENCIDA
-    ].astype("Int64")
+    if relacao_colunas_tabela_inserida_com_dataframe.get("divida_total_vencida") is not None:
+        df[ColunasDataframe.DIVIDA_TOTAL_VENCIDA] = df[
+            relacao_temp["divida_total_vencida"]
+        ]
+        df[ColunasDataframe.DIVIDA_TOTAL_VENCIDA] = np.where(
+            df[ColunasDataframe.DIVIDA_TOTAL_VENCIDA].notna(),
+            round(df[ColunasDataframe.DIVIDA_TOTAL_VENCIDA]),
+            df[ColunasDataframe.DIVIDA_TOTAL_VENCIDA],
+        )
+        df[ColunasDataframe.DIVIDA_TOTAL_VENCIDA] = df[
+            ColunasDataframe.DIVIDA_TOTAL_VENCIDA
+        ].astype("Int64")
+    # else: variável opcional não associada, coluna não é criada — os
+    # widgets que dependem dela mostram um aviso (ver calcular_todos_os_dados_necessarios)
 
-    df[ColunasDataframe.CONTAS_VENCIDAS_ABERTO] = df[
-        relacao_temp["contas_vencidas_aberto"]
-    ]
+    if relacao_colunas_tabela_inserida_com_dataframe.get("contas_vencidas_aberto") is not None:
+        df[ColunasDataframe.CONTAS_VENCIDAS_ABERTO] = df[
+            relacao_temp["contas_vencidas_aberto"]
+        ]
 
     ### Colunas Consumo
     df[ColunasDataframe.DATA_REFERENCIA_1] = data_referencia_1
@@ -201,73 +252,40 @@ def preparacao_dados(
         ColunasDataframe.MEDIA_CONSUMO_MES_3
     ].astype("Int64")
 
-    df[ColunasDataframe.ANORMALIDADE_LEITURA_MES_1] = df[
-        relacao_temp["anormalidade_leitura_mes_1"]
-    ]
-    # TODO: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value 'Sem Anormalidade' has dtype incompatible with float64, please explicitly cast to a compatible dtype first.
-    df.loc[
-        df[ColunasDataframe.ANORMALIDADE_LEITURA_MES_1].isna(),
-        ColunasDataframe.ANORMALIDADE_LEITURA_MES_1,
-    ] = "Sem Anormalidade"
-    df[ColunasDataframe.ANORMALIDADE_LEITURA_MES_2] = df[
-        relacao_temp["anormalidade_leitura_mes_2"]
-    ]
-    df.loc[
-        df[ColunasDataframe.ANORMALIDADE_LEITURA_MES_2].isna(),
-        ColunasDataframe.ANORMALIDADE_LEITURA_MES_2,
-    ] = "Sem Anormalidade"
-    df[ColunasDataframe.ANORMALIDADE_LEITURA_MES_3] = df[
-        relacao_temp["anormalidade_leitura_mes_3"]
-    ]
-    df.loc[
-        df[ColunasDataframe.ANORMALIDADE_LEITURA_MES_3].isna(),
-        ColunasDataframe.ANORMALIDADE_LEITURA_MES_3,
-    ] = "Sem Anormalidade"
-
-    df[ColunasDataframe.CONSUMO_MEDIDO_MES_1] = df[relacao_temp["consumo_medido_mes_1"]]
-    df[ColunasDataframe.CONSUMO_MEDIDO_MES_2] = df[relacao_temp["consumo_medido_mes_2"]]
-    df[ColunasDataframe.CONSUMO_MEDIDO_MES_3] = df[relacao_temp["consumo_medido_mes_3"]]
-    df[ColunasDataframe.CONSUMO_MEDIDO_MES_1] = df[
-        ColunasDataframe.CONSUMO_MEDIDO_MES_1
-    ].astype("Int64")
-    df[ColunasDataframe.CONSUMO_MEDIDO_MES_2] = df[
-        ColunasDataframe.CONSUMO_MEDIDO_MES_2
-    ].astype("Int64")
-    df[ColunasDataframe.CONSUMO_MEDIDO_MES_3] = df[
-        ColunasDataframe.CONSUMO_MEDIDO_MES_3
-    ].astype("Int64")
-
-    df[ColunasDataframe.CONSUMO_FATURADO_MES_1] = df[
-        relacao_temp["consumo_faturado_mes_1"]
-    ]
-    df[ColunasDataframe.CONSUMO_FATURADO_MES_2] = df[
-        relacao_temp["consumo_faturado_mes_2"]
-    ]
-    df[ColunasDataframe.CONSUMO_FATURADO_MES_3] = df[
-        relacao_temp["consumo_faturado_mes_3"]
-    ]
-
-    df[ColunasDataframe.ANORMALIDADE_CONSUMO_MES_1] = df[
-        relacao_temp["anormalidade_consumo_mes_1"]
-    ]
-    df.loc[
-        df[ColunasDataframe.ANORMALIDADE_CONSUMO_MES_1].isna(),
-        ColunasDataframe.ANORMALIDADE_CONSUMO_MES_1,
-    ] = "Sem Anormalidade"
-    df[ColunasDataframe.ANORMALIDADE_CONSUMO_MES_2] = df[
-        relacao_temp["anormalidade_consumo_mes_2"]
-    ]
-    df.loc[
-        df[ColunasDataframe.ANORMALIDADE_CONSUMO_MES_2].isna(),
-        ColunasDataframe.ANORMALIDADE_CONSUMO_MES_2,
-    ] = "Sem Anormalidade"
-    df[ColunasDataframe.ANORMALIDADE_CONSUMO_MES_3] = df[
-        relacao_temp["anormalidade_consumo_mes_3"]
-    ]
-    df.loc[
-        df[ColunasDataframe.ANORMALIDADE_CONSUMO_MES_3].isna(),
-        ColunasDataframe.ANORMALIDADE_CONSUMO_MES_3,
-    ] = "Sem Anormalidade"
+    # anormalidade_leitura/anormalidade_consumo/consumo_medido/consumo_faturado
+    # são variáveis opcionais (ver tipos.VARIAVEIS_OPCIONAIS): se não forem
+    # associadas, os widgets que dependem delas mostram um aviso em vez de
+    # obrigar a associação (ver calcular_todos_os_dados_necessarios).
+    _relacao = relacao_colunas_tabela_inserida_com_dataframe
+    for i in (1, 2, 3):
+        _preencher_coluna_opcional_anormalidade(
+            df,
+            _relacao,
+            relacao_temp,
+            f"anormalidade_leitura_mes_{i}",
+            f"anormalidade_leitura_mes_{i}",
+        )
+        _preencher_coluna_opcional_int64(
+            df,
+            _relacao,
+            relacao_temp,
+            f"consumo_medido_mes_{i}",
+            f"consumo_medido_mes_{i}",
+        )
+        _preencher_coluna_opcional_simples(
+            df,
+            _relacao,
+            relacao_temp,
+            f"consumo_faturado_mes_{i}",
+            f"consumo_faturado_mes_{i}",
+        )
+        _preencher_coluna_opcional_anormalidade(
+            df,
+            _relacao,
+            relacao_temp,
+            f"anormalidade_consumo_mes_{i}",
+            f"anormalidade_consumo_mes_{i}",
+        )
 
     classificar_consumo_ramal(df)
 
@@ -689,6 +707,10 @@ def calcular_frequencia_anormalidade_leitura(df: pd.DataFrame):
         ColunasDataframe.ANORMALIDADE_LEITURA_MES_2,
         ColunasDataframe.ANORMALIDADE_LEITURA_MES_3,
     ):
+        if (df[col] == SENTINELA_NAO_ASSOCIADA).all():
+            resultados.append(None)
+            continue
+
         contagem = df.groupby(col)[[col]].count()
         contagem.columns = ["Frequência Absoluta"]
         contagem["Frequência Relativa (%)"] = (
@@ -716,6 +738,10 @@ def calcular_frequencia_consumo_medido(
         ColunasDataframe.CONSUMO_MEDIDO_MES_2,
         ColunasDataframe.CONSUMO_MEDIDO_MES_3,
     ):
+        if col not in df.columns:
+            resultados.append(None)
+            continue
+
         consumos_medidos = df[col][df[col] <= valor_concatenar]
         freq_consumos_medidos = consumos_medidos.groupby(consumos_medidos).count()
 
@@ -730,12 +756,16 @@ def calcular_frequencia_consumo_medido(
 def calcular_frequencia_consumo_faturado(
     df: pd.DataFrame, valor_concatenar: int = 130
 ) -> tuple[dict[str, int], dict[str, int], dict[str, int]]:
-    resultados: list[dict[str, int]] = []
+    resultados: list[dict[str, int] | None] = []
     for col in (
         ColunasDataframe.CONSUMO_FATURADO_MES_1,
         ColunasDataframe.CONSUMO_FATURADO_MES_2,
         ColunasDataframe.CONSUMO_FATURADO_MES_3,
     ):
+        if col not in df.columns:
+            resultados.append(None)
+            continue
+
         dados_sem_na = df[df[col].notna()]
 
         consumo_faturado = dados_sem_na[col][dados_sem_na[col] <= valor_concatenar]
@@ -762,6 +792,10 @@ def calcular_frequencia_anormalidade_consumo(df: pd.DataFrame):
         ColunasDataframe.ANORMALIDADE_CONSUMO_MES_2,
         ColunasDataframe.ANORMALIDADE_CONSUMO_MES_3,
     ):
+        if (df[col] == SENTINELA_NAO_ASSOCIADA).all():
+            resultados.append(None)
+            continue
+
         contagem = df.groupby(col)[[col]].count()
         contagem.columns = ["Frequência Absoluta"]
         contagem["Frequência Relativa (%)"] = (
@@ -782,8 +816,10 @@ def calcular_frequencia_anormalidade_consumo(df: pd.DataFrame):
 
 def calcular_frequencia_contas_vencidas_aberto(
     df: pd.DataFrame, valor_concatenar: int = 130
-) -> dict[str, float]:
+) -> dict[str, float] | None:
     col = ColunasDataframe.CONTAS_VENCIDAS_ABERTO
+    if col not in df.columns:
+        return None
 
     registros_com_valor_menor_igual_a_concatenacao = df[df[col] <= valor_concatenar]
     frequencia = registros_com_valor_menor_igual_a_concatenacao.groupby(col)[
@@ -807,8 +843,10 @@ def calcular_frequencia_contas_vencidas_aberto(
 
 def calcular_frequencia_total_divida_vencida(
     df: pd.DataFrame, valor_concatenar: int = 130
-) -> dict[str, float]:
+) -> dict[str, float] | None:
     col = ColunasDataframe.DIVIDA_TOTAL_VENCIDA
+    if col not in df.columns:
+        return None
 
     sem_valores_na = df[df[col].notna()]
 

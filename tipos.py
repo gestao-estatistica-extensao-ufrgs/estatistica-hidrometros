@@ -34,6 +34,31 @@ NOME_VARIAVEIS: TypeAlias = Literal[
     "tipo_tarifa_esgoto",
 ]
 
+# Variáveis "isoladas": cada uma alimenta só um gráfico/tabela específico, então
+# se não forem associadas a nenhuma coluna do arquivo, o app mostra um aviso no
+# lugar daquela visualização em vez de obrigar a associação. As demais variáveis
+# (ex: ramal, diâmetro, situação, média de consumo) sustentam quase todo o resto
+# do app (filtros, classificação de consumo, idade do hidrômetro) e continuam
+# obrigatórias.
+VARIAVEIS_OPCIONAIS: frozenset[NOME_VARIAVEIS] = frozenset(
+    {
+        "divida_total_vencida",
+        "contas_vencidas_aberto",
+        "anormalidade_leitura_mes_1",
+        "anormalidade_leitura_mes_2",
+        "anormalidade_leitura_mes_3",
+        "anormalidade_consumo_mes_1",
+        "anormalidade_consumo_mes_2",
+        "anormalidade_consumo_mes_3",
+        "consumo_medido_mes_1",
+        "consumo_medido_mes_2",
+        "consumo_medido_mes_3",
+        "consumo_faturado_mes_1",
+        "consumo_faturado_mes_2",
+        "consumo_faturado_mes_3",
+    }
+)
+
 
 class ColunasDataframe(StrEnum):
     """
