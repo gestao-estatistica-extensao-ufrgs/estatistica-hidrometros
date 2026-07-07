@@ -1021,7 +1021,7 @@ def gerar_html_dados(
     ramais_com_consumo_maior_ou_menor_que_o_esperado: tuple[
         pd.DataFrame, pd.DataFrame, pd.DataFrame
     ],
-    frequencia_divida_total_vencida: dict[str, float],
+    frequencia_divida_total_vencida: pd.Series | None,
 ):
     if idade_media_hidrometros is not np.nan:
         idade_media_hidrometros = f"{idade_media_hidrometros:.2f}"
@@ -1922,7 +1922,7 @@ def gerar_html_dados_consumo_mes(
     titulo: str,
     id_html_elemento: str,
     mes_index: str,
-    frequencia_divida_total_vencida: dict | None,
+    frequencia_divida_total_vencida: pd.Series | None,
     frequencia_contas_vencidas_aberto: dict | None,
     limite_consumo_utilizado: int = 130,
     oculto: bool = False,
@@ -2200,14 +2200,10 @@ def gerar_html_dados_consumo_mes(
             html.Div(
                 (
                     dcc.Graph(
-                        figure=px.bar(
+                        figure=px.histogram(
+                            x=frequencia_divida_total_vencida,
                             title="Frequência de Divida Total Vencida",
-                            x=frequencia_divida_total_vencida.keys(),
-                            y=frequencia_divida_total_vencida.values(),
-                            labels={
-                                "x": "Valor da Conta Vencida",
-                                "y": "Frequência",
-                            },
+                            labels={"x": "Valor da Conta Vencida"},
                             color_discrete_sequence=[
                                 "#4f80b8",
                                 "#2f6db0",
@@ -2218,11 +2214,14 @@ def gerar_html_dados_consumo_mes(
                             paper_bgcolor="#ffffff",
                             plot_bgcolor="#ffffff",
                             font_color="#5d6570",
+                            yaxis_title="Frequência",
                             xaxis={
+                                # sem dtick/tickmode fixos: dívida (R$) tem
+                                # amplitude bem maior e variável que consumo
+                                # (m³), então os bins e os rótulos do eixo X
+                                # se ajustam automaticamente à escala dos dados
                                 "gridcolor": "#dde0e5",
                                 "linecolor": "#c6cad1",
-                                "dtick": 1,
-                                "tickmode": "linear",
                             },
                             yaxis={
                                 "gridcolor": "#dde0e5",
