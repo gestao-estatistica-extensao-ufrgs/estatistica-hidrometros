@@ -30,6 +30,13 @@ filtro_html = []
 dados_html = []
 mes_extracao = None
 ano_extracao = None
+# Bytes crus da planilha enviada e nomes de colunas disponíveis nela. Guardados
+# à parte do DF para adiar a leitura completa (todas as colunas) até o
+# usuário associar as colunas necessárias — só nesse momento o arquivo é lido
+# de fato, e só com as colunas usadas (usecols), reduzindo a memória do DF
+# mantido pelo resto da sessão.
+_ARQUIVO_BYTES: bytes | None = None
+_COLUNAS_ARQUIVO: list[str] = []
 ASSOCIACAO_COLUNAS_VARIAVEIS_PREVIA: dict[NOME_VARIAVEIS, str] | None = None
 if len(sys.argv) > 1:
 
@@ -455,7 +462,7 @@ def liberar_associacao_de_colunas(
     mes_extracao: int | None,
     ano_extracao: int | None,
 ):
-    global DF
+    global DF, _ARQUIVO_BYTES, _COLUNAS_ARQUIVO
     DF = pd.DataFrame()
 
     erros: list[str] = []
@@ -478,8 +485,14 @@ def liberar_associacao_de_colunas(
     assert isinstance(conteudo, str)
     _, con = conteudo.split(",")
 
-    DF = pd.read_excel(io.BytesIO(base64.b64decode(con)), engine="calamine")
-    opcoes = list(DF.columns)
+    _ARQUIVO_BYTES = base64.b64decode(con)
+    # Libera as strings base64 (conteúdo original + fatia decodificada) assim
+    # que os bytes já foram extraídos, em vez de esperar a função terminar.
+    del conteudo, con
+
+    cabecalho = pd.read_excel(io.BytesIO(_ARQUIVO_BYTES), engine="calamine", nrows=0)
+    opcoes = list(cabecalho.columns)
+    _COLUNAS_ARQUIVO = opcoes
 
     assert isinstance(mes_extracao, int)
     assert isinstance(ano_extracao, int)
@@ -776,6 +789,14 @@ def associar_colunas(
         )
 
         try:
+            # Só agora o arquivo é lido de fato, e só com as colunas
+            # associadas (não as ~todas da planilha original) — reduz a
+            # memória do DF mantido pelo resto da sessão.
+            DF = pd.read_excel(
+                io.BytesIO(_ARQUIVO_BYTES),
+                engine="calamine",
+                usecols=list(colunas_associadas_de_cada_variavel.values()),
+            )
             calculos.preparacao_dados(
                 DF,
                 colunas_associadas_de_cada_variavel,
@@ -783,13 +804,12 @@ def associar_colunas(
                 data_referencia_2,
                 data_referencia_3,
             )
-        except KeyError as e:
-            colunas_disponiveis = list(DF.columns)
+        except (KeyError, ValueError) as e:
             return (
                 [],
                 componente_painel_erros(
                     [
-                        f"Coluna não encontrada: {e}. Colunas disponíveis: {colunas_disponiveis}"
+                        f"Coluna não encontrada: {e}. Colunas disponíveis: {_COLUNAS_ARQUIVO}"
                     ]
                 ),
                 *_sem_alteracao,
