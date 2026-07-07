@@ -19,6 +19,11 @@ def rodar_servidor():
 
 
 if __name__ == "__main__":
+    # Sem isso, o motor de navegador embutido (WebView2 no Windows) bloqueia
+    # downloads silenciosamente — o dcc.Download do Dash simula um clique num
+    # link com "download", que é exatamente o que fica bloqueado por padrão.
+    webview.settings["ALLOW_DOWNLOADS"] = True
+
     threading.Thread(target=rodar_servidor, daemon=True).start()
     webview.create_window(
         "Dashboard DMAE",
