@@ -2230,9 +2230,7 @@ def gerar_html_dados_consumo_mes(
                         )
                     )
                     if frequencia_divida_total_vencida is not None
-                    else componente_aviso_coluna_nao_associada(
-                        "Dívida Total Vencida"
-                    )
+                    else componente_aviso_coluna_nao_associada("Dívida Total Vencida")
                 ),
                 style=EstilosCSS.GRAFICO,
             ),
@@ -2303,4 +2301,13 @@ def gerar_html_quadro_dado(
 
 
 def gerar_html_zero_resultados():
-    return html.Div("0 Resultados")
+    return html.Div(
+        [
+            html.Div("0 Resultados", id=ID_ELEMENTOS_HTML.SECAO_DESCRITIVA),
+            html.Div(
+                "0 Resultados",
+                id=ID_ELEMENTOS_HTML.SECAO_CONSUMO_CARD,
+                style={"display": "none"},
+            ),
+        ],
+    )
