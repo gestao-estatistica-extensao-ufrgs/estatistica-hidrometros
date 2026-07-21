@@ -48,6 +48,8 @@ if len(sys.argv) > 1:
         "grupo_leitura": "Grupo Leitura",
         "perfil_imovel": "Perfil Imovel",
         "situacao_ligacao_agua": "Situacao Ligacao Agua",
+        "tipo_tarifa_esgoto": "tipo Tarifa Esgoto",
+        "categoria": "Categoria",
         "media_consumo_mes_1": "Media de Consumo 1",
         "media_consumo_mes_2": "Media de Consumo 2",
         "media_consumo_mes_3": "Media de Consumo 3",
@@ -719,6 +721,11 @@ def filtrar(
         ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["divida_total_vencida"],
         "value",
     ),
+    State(ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["categoria"], "value"),
+    State(
+        ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS["tipo_tarifa_esgoto"],
+        "value",
+    ),
     prevent_initial_call=True,
 )
 def associar_colunas(
@@ -749,6 +756,8 @@ def associar_colunas(
     anormalidade_consumo_mes_3: str,
     contas_vencidas_aberto: str,
     divida_total_vencida: str,
+    categoria: str,
+    tipo_tarifa_esgoto: str,
 ):
     _sem_alteracao = (no_update,) * 6
 
@@ -780,6 +789,8 @@ def associar_colunas(
         "anormalidade_consumo_mes_3": anormalidade_consumo_mes_3,
         "contas_vencidas_aberto": contas_vencidas_aberto,
         "divida_total_vencida": divida_total_vencida,
+        "categoria": categoria,
+        "tipo_tarifa_esgoto": tipo_tarifa_esgoto,
     }
 
     # Variáveis opcionais (ver tipos.VARIAVEIS_OPCIONAIS) podem ficar sem
@@ -798,7 +809,9 @@ def associar_colunas(
         )
 
         colunas_para_ler = [
-            col for col in colunas_associadas_de_cada_variavel.values() if col is not None
+            col
+            for col in colunas_associadas_de_cada_variavel.values()
+            if col is not None
         ]
 
         try:
@@ -1017,8 +1030,8 @@ def concatenar_dados_consumo_mes(
     # "Concatenar Consumo a partir de" é especificamente sobre consumo (m³);
     # contas vencidas (contagem) e dívida total (R$) são unidades diferentes
     # e não devem usar esse mesmo limite — mantêm o padrão de calculos.py.
-    frequencia_contas_vencidas_aberto = calculos.calcular_frequencia_contas_vencidas_aberto(
-        filtrado
+    frequencia_contas_vencidas_aberto = (
+        calculos.calcular_frequencia_contas_vencidas_aberto(filtrado)
     )
     frequencia_divida_total_vencida = calculos.calcular_frequencia_total_divida_vencida(
         filtrado

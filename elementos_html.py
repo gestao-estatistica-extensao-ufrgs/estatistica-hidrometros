@@ -542,6 +542,10 @@ def gerar_form_colunas(
     col_divida_total_vencida = _label_e_dropdown(
         "Dívida Total Vencida (opcional)", "divida_total_vencida"
     )
+    col_categoria = _label_e_dropdown("Categoria", "categoria")
+    col_tipo_tarifa_esgoto = _label_e_dropdown(
+        "Tipo Tarifa Esgoto", "tipo_tarifa_esgoto"
+    )
     col_contas_vencidas_aberto = _label_e_dropdown(
         "Contas Vencidas em Aberto (opcional)", "contas_vencidas_aberto"
     )
@@ -665,6 +669,8 @@ def gerar_form_colunas(
                     _styled_label_dropdown(col_grupo_leitura),
                     _styled_label_dropdown(col_situacao_ligacao_agua),
                     _styled_label_dropdown(col_perfil_imovel),
+                    _styled_label_dropdown(col_categoria),
+                    _styled_label_dropdown(col_tipo_tarifa_esgoto),
                     _styled_label_dropdown(col_divida_total_vencida),
                     _styled_label_dropdown(col_contas_vencidas_aberto),
                     html.Fieldset(
