@@ -214,7 +214,10 @@ def preparacao_dados(
         ColunasDataframe.TIPO_TARIFA_ESGOTO,
     ] = "-"
 
-    if relacao_colunas_tabela_inserida_com_dataframe.get("divida_total_vencida") is not None:
+    if (
+        relacao_colunas_tabela_inserida_com_dataframe.get("divida_total_vencida")
+        is not None
+    ):
         df[ColunasDataframe.DIVIDA_TOTAL_VENCIDA] = df[
             relacao_temp["divida_total_vencida"]
         ]
@@ -229,7 +232,10 @@ def preparacao_dados(
     # else: variável opcional não associada, coluna não é criada — os
     # widgets que dependem dela mostram um aviso (ver calcular_todos_os_dados_necessarios)
 
-    if relacao_colunas_tabela_inserida_com_dataframe.get("contas_vencidas_aberto") is not None:
+    if (
+        relacao_colunas_tabela_inserida_com_dataframe.get("contas_vencidas_aberto")
+        is not None
+    ):
         df[ColunasDataframe.CONTAS_VENCIDAS_ABERTO] = df[
             relacao_temp["contas_vencidas_aberto"]
         ]
@@ -451,31 +457,35 @@ def calcular_dados_necessarios_do_filtro(df: pd.DataFrame):
     VALOR_MAXIMO_IDADE = max(valores_unicos_idade)
 
     valores_unicos_situacao_agua = list(df.situacao_ligacao_agua.unique())
+    valores_unicos_situacao_agua.sort()
     opcoes_valores_situacao_agua = [
-        {"label": v, "value": v} for v in sorted(valores_unicos_situacao_agua)
+        {"label": v, "value": v} for v in valores_unicos_situacao_agua
     ]
 
     valores_unicos_diametro_letra = list(df.diametro_letra.unique())
+    valores_unicos_diametro_letra.sort()
     opcoes_valores_diametro_letra = [
-        {"label": v, "value": v} for v in sorted(valores_unicos_diametro_letra)
+        {"label": v, "value": v} for v in valores_unicos_diametro_letra
     ]
 
     valores_unicos_grupo_faturamento = list(df.grupo_leitura.unique())
+    valores_unicos_grupo_faturamento.sort()
     opcoes_valores_grupo_faturamento = [
-        {"label": v, "value": v} for v in sorted(valores_unicos_grupo_faturamento)
+        {"label": v, "value": v} for v in valores_unicos_grupo_faturamento
     ]
 
     valores_unicos_perfil = list(df.perfil_imovel.unique())
-    opcoes_perfil = [{"label": v, "value": v} for v in sorted(valores_unicos_perfil)]
+    valores_unicos_perfil.sort()
+    opcoes_perfil = [{"label": v, "value": v} for v in valores_unicos_perfil]
 
     valores_unicos_categoria = list(df.categoria.unique())
-    opcoes_categoria = [
-        {"label": v, "value": v} for v in sorted(valores_unicos_categoria)
-    ]
+    valores_unicos_categoria.sort()
+    opcoes_categoria = [{"label": v, "value": v} for v in valores_unicos_categoria]
 
     valores_unicos_tipo_tarifa_esgoto = list(df.tipo_tarifa_esgoto.unique())
+    valores_unicos_tipo_tarifa_esgoto.sort()
     opcoes_tipo_tarifa_esgoto = [
-        {"label": v, "value": v} for v in sorted(valores_unicos_tipo_tarifa_esgoto)
+        {"label": v, "value": v} for v in valores_unicos_tipo_tarifa_esgoto
     ]
 
     valores_unicos_anormalidade_leitura = list(
@@ -487,8 +497,9 @@ def calcular_dados_necessarios_do_filtro(df: pd.DataFrame):
             ]
         ).unique()
     )
+    valores_unicos_anormalidade_leitura.sort()
     opcoes_anormalidade_leitura = [
-        {"label": v, "value": v} for v in sorted(valores_unicos_anormalidade_leitura)
+        {"label": v, "value": v} for v in valores_unicos_anormalidade_leitura
     ]
 
     valores_unicos_anormalidade_consumo = list(
@@ -500,8 +511,9 @@ def calcular_dados_necessarios_do_filtro(df: pd.DataFrame):
             ]
         ).unique()
     )
+    valores_unicos_anormalidade_consumo.sort()
     opcoes_anormalidade_consumo = [
-        {"label": v, "value": v} for v in sorted(valores_unicos_anormalidade_consumo)
+        {"label": v, "value": v} for v in valores_unicos_anormalidade_consumo
     ]
 
     return {
