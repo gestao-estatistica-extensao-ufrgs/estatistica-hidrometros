@@ -1,0 +1,4 @@
+# Dependências apenas para gerar o executável desktop (PyInstaller).
+# Não são necessárias para rodar/desenvolver o app via `python main.py`.
+# Instalação: pip install -r requirements.txt -r requirements-dev.txt
+pyinstaller==6.21.0
