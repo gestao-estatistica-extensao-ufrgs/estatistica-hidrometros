@@ -9,6 +9,13 @@ from dash.dash_table.DataTable import DataTable
 
 from tipos import NOME_VARIAVEIS
 
+NOME_APLICATIVO = "Painel de Gestão do Consumo"
+SUBTITULO_APLICATIVO = "DMAE · Gerência de Gestão do Consumo"
+TEXTO_SOBRE_APLICATIVO = (
+    "Desenvolvido pelo Departamento de Estatística da UFRGS, em projeto de "
+    "extensão com alunos do curso. Uso: Gerência de Gestão do Consumo — DMAE."
+)
+
 _PLOTLY_CORES_BARRAS = ["#4f80b8", "#2f6db0", "#7fa8d1", "#b0c8e8"]
 
 _PLOTLY_DARK_LAYOUT = dict(
@@ -139,6 +146,23 @@ class EstilosCSS:
         "rowGap": "10px",
     }
 
+    ESTILO_SOBRE_FECHADO = {"display": "none"}
+    ESTILO_SOBRE_ABERTO = {
+        "display": "block",
+        "position": "absolute",
+        "top": "100%",
+        "left": "0",
+        "width": "320px",
+        "zIndex": "1002",
+        "backgroundColor": "#ffffff",
+        "border": "1px solid #dde0e5",
+        "boxShadow": "0 4px 16px rgba(0,0,0,0.15)",
+        "padding": "12px 14px",
+        "fontSize": "12px",
+        "color": "#5d6570",
+        "lineHeight": "1.4",
+    }
+
 
 class ID_ELEMENTOS_HTML(StrEnum):
     LAYOUT = "layout"
@@ -231,8 +255,10 @@ class ID_ELEMENTOS_HTML(StrEnum):
     SECAO_CONSUMO_CARD = "secao-consumo-card"
     META_REGISTROS = "meta-registros"
     META_REFERENCIA = "meta-referencia"
-    NOME_ARQUIVO_TOPBAR = "nome-arquivo-topbar"
     RODAPE = "rodape"
+
+    BOTAO_SOBRE = "botao-sobre"
+    PAINEL_SOBRE = "painel-sobre"
 
 
 ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS: dict[
@@ -348,6 +374,80 @@ def componente_aviso_coluna_nao_associada(nome_variavel: str):
             "padding": "20px",
             "backgroundColor": "#f7f8fa",
             "border": "1px dashed #dde0e5",
+        },
+    )
+
+
+def gerar_html_titulo_app():
+    """
+    Caixa de identificação do app na topbar: nome do painel, subtítulo com o
+    setor do DMAE e um ícone "Sobre" que abre um popover com a autoria
+    completa (UFRGS/projeto de extensão). Substitui a antiga caixa "Base de
+    dados" — o nome do arquivo carregado continua visível no rodapé.
+    """
+    return html.Div(
+        [
+            html.Div(
+                [
+                    html.Span(
+                        NOME_APLICATIVO,
+                        style={
+                            "fontSize": "13px",
+                            "fontWeight": "600",
+                            "color": "#252a31",
+                            "lineHeight": "1.3",
+                        },
+                    ),
+                    html.Button(
+                        "ⓘ",
+                        id=ID_ELEMENTOS_HTML.BOTAO_SOBRE,
+                        n_clicks=0,
+                        title="Sobre este painel",
+                        style={
+                            "background": "none",
+                            "border": "none",
+                            "color": "#8b929c",
+                            "fontSize": "13px",
+                            "cursor": "pointer",
+                            "padding": "0",
+                            "lineHeight": "1",
+                        },
+                    ),
+                ],
+                style={
+                    "display": "flex",
+                    "alignItems": "center",
+                    "gap": "6px",
+                },
+            ),
+            html.Span(
+                SUBTITULO_APLICATIVO,
+                style={
+                    "fontSize": "10px",
+                    "color": "#8b929c",
+                    "lineHeight": "1.3",
+                    "display": "block",
+                    "overflow": "hidden",
+                    "textOverflow": "ellipsis",
+                    "whiteSpace": "nowrap",
+                },
+            ),
+            html.Div(
+                TEXTO_SOBRE_APLICATIVO,
+                id=ID_ELEMENTOS_HTML.PAINEL_SOBRE,
+                style=EstilosCSS.ESTILO_SOBRE_FECHADO,
+            ),
+        ],
+        style={
+            "position": "relative",
+            "display": "flex",
+            "flexDirection": "column",
+            "justifyContent": "center",
+            "padding": "0 16px",
+            "borderRight": "1px solid #dde0e5",
+            "width": "280px",
+            "minWidth": "280px",
+            "overflow": "visible",
         },
     )
 

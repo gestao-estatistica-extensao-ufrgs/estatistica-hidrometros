@@ -13,6 +13,7 @@ from elementos_html import (
     gerar_html_dados,
     gerar_html_dados_consumo_mes,
     gerar_html_filtros,
+    gerar_html_titulo_app,
     gerar_html_zero_resultados,
     _ramais_para_tabela,
     ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS,
@@ -90,9 +91,8 @@ if len(sys.argv) > 1:
 _meta_registros = str(len(DF)) if not DF.empty else "—"
 _meta_referencia = dados["datas_referencias"][0] if not DF.empty else "—"  # type: ignore[possibly-undefined]
 _meta_rodape = f"amostra_dados.xlsx · {len(DF)} registros · referência {dados['datas_referencias'][0]}" if not DF.empty else "—"  # type: ignore[possibly-undefined]
-_meta_nome_arquivo = "amostra_dados.xlsx" if not DF.empty else "—"
 
-app = Dash(suppress_callback_exceptions=True)
+app = Dash(suppress_callback_exceptions=True, title="Painel de Gestão do Consumo")
 
 _ESTILO_SECAO_VISIVEL = {
     "display": "flex",
@@ -137,42 +137,7 @@ app.layout = [
             html.Div(
                 id="topbar",
                 children=[
-                    html.Div(
-                        [
-                            html.Span(
-                                "Base de dados",
-                                style={
-                                    "fontSize": "10px",
-                                    "color": "#8b929c",
-                                    "lineHeight": "1.3",
-                                    "display": "block",
-                                },
-                            ),
-                            html.Span(
-                                _meta_nome_arquivo,
-                                id=ID_ELEMENTOS_HTML.NOME_ARQUIVO_TOPBAR,
-                                style={
-                                    "fontSize": "12px",
-                                    "lineHeight": "1.3",
-                                    "fontVariantNumeric": "tabular-nums",
-                                    "display": "block",
-                                    "overflow": "hidden",
-                                    "textOverflow": "ellipsis",
-                                    "whiteSpace": "nowrap",
-                                },
-                            ),
-                        ],
-                        style={
-                            "display": "flex",
-                            "flexDirection": "column",
-                            "justifyContent": "center",
-                            "padding": "0 16px",
-                            "borderRight": "1px solid #dde0e5",
-                            "width": "280px",
-                            "minWidth": "280px",
-                            "overflow": "hidden",
-                        },
-                    ),
+                    gerar_html_titulo_app(),
                     html.Nav(
                         [
                             html.Button(
@@ -441,13 +406,23 @@ def toggle_painel_filtros(_open, _fechar, _backdrop):
 
 
 @callback(
+    Output(ID_ELEMENTOS_HTML.PAINEL_SOBRE, "style"),
+    Input(ID_ELEMENTOS_HTML.BOTAO_SOBRE, "n_clicks"),
+    prevent_initial_call=True,
+)
+def toggle_painel_sobre(n_clicks: int):
+    if n_clicks % 2 == 1:
+        return EstilosCSS.ESTILO_SOBRE_ABERTO
+    return EstilosCSS.ESTILO_SOBRE_FECHADO
+
+
+@callback(
     Output(ID_ELEMENTOS_HTML.UPLOAD_NOME_ARQUIVO, "children"),
-    Output(ID_ELEMENTOS_HTML.NOME_ARQUIVO_TOPBAR, "children"),
     Input(ID_ELEMENTOS_HTML.UPLOAD_TABELA, "filename"),
     prevent_initial_call=True,
 )
 def colocar_nome_arquivo_tabela(nome_arquivo: str):
-    return nome_arquivo, nome_arquivo or "—"
+    return nome_arquivo
 
 
 @callback(
