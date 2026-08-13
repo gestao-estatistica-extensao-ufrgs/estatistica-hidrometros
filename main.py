@@ -300,6 +300,9 @@ app.layout = [
                     ),
                 ],
             ),
+            # Dummy invisível: alvo do clientside_callback que reseta o
+            # scroll ao trocar de aba principal (Descritiva/Consumo).
+            dcc.Store(id=ID_ELEMENTOS_HTML.SCROLL_RESET_DUMMY),
             # Backdrop (fecha o painel ao clicar fora)
             html.Div(
                 id=ID_ELEMENTOS_HTML.BACKDROP_FILTROS,
@@ -1354,6 +1357,21 @@ def alternar_abas_principais(_d, _c):
     if ctx.triggered_id == ID_ELEMENTOS_HTML.TAB_CONSUMO:
         return {"display": "none"}, _ESTILO_SECAO_VISIVEL, "nav-tab", "nav-tab ativo"
     return _ESTILO_SECAO_VISIVEL, {"display": "none"}, "nav-tab ativo", "nav-tab"
+
+
+app.clientside_callback(
+    """
+    function(classeDescritiva, classeConsumo) {
+        var el = document.getElementById('main-content');
+        if (el) { el.scrollTop = 0; }
+        return '';
+    }
+    """,
+    Output(ID_ELEMENTOS_HTML.SCROLL_RESET_DUMMY, "data"),
+    Input(ID_ELEMENTOS_HTML.TAB_DESCRITIVA, "className"),
+    Input(ID_ELEMENTOS_HTML.TAB_CONSUMO, "className"),
+    prevent_initial_call=True,
+)
 
 
 @callback(

@@ -26,6 +26,13 @@ _PLOTLY_DARK_LAYOUT = dict(
     yaxis={"gridcolor": "#dde0e5", "linecolor": "#c6cad1"},
 )
 
+# Margem fixa e idêntica para os gráficos de idade/grupo de faturamento
+# (lado a lado, Análise Descritiva): sem isso, o Plotly calcula a margem
+# superior de cada figura de um jeito diferente dependendo de como o título
+# foi definido (direto no px.bar() vs. via update_layout() depois), o que
+# fazia os dois gráficos ficarem com título/plotagem em alturas diferentes.
+_MARGEM_GRAFICOS_LADO_A_LADO = dict(t=60, b=60, l=60, r=30)
+
 _TABELA_DARK = dict(
     style_cell={
         "textAlign": "left",
@@ -259,6 +266,8 @@ class ID_ELEMENTOS_HTML(StrEnum):
 
     BOTAO_SOBRE = "botao-sobre"
     PAINEL_SOBRE = "painel-sobre"
+
+    SCROLL_RESET_DUMMY = "scroll-reset-dummy"
 
 
 ID_HMTL_PARA_OPCOES_FORMULARIO_DE_ASSOCIACAO_COLUNAS: dict[
@@ -1306,6 +1315,7 @@ def gerar_html_dados(
                             html.Div(
                                 [
                                     dcc.Graph(
+                                        style={"height": "420px"},
                                         figure=px.bar(
                                             x=df["idade_hidrometro"]
                                             .value_counts()
@@ -1320,24 +1330,24 @@ def gerar_html_dados(
                                             },
                                             color_discrete_sequence=_PLOTLY_CORES_BARRAS,
                                         ).update_layout(
-                                            title="Frequência de idade dos hidrômetros",
-                                            xaxis=dict(
-                                                tickmode="linear",
-                                                tick0=0,
-                                                dtick=5,
-                                                title="Idade do Hidrômetro (anos)",
-                                                gridcolor="#dde0e5",
-                                                linecolor="#c6cad1",
-                                            ),
-                                            yaxis=dict(
-                                                title="Frequência",
-                                                gridcolor="#dde0e5",
-                                                linecolor="#c6cad1",
-                                            ),
-                                            bargap=0.05,
-                                            paper_bgcolor="#ffffff",
-                                            plot_bgcolor="#ffffff",
-                                            font_color="#5d6570",
+                                            **{
+                                                **_PLOTLY_DARK_LAYOUT,
+                                                "title": "Frequência de idade dos hidrômetros",
+                                                "xaxis": {
+                                                    **_PLOTLY_DARK_LAYOUT["xaxis"],
+                                                    "tickmode": "linear",
+                                                    "tick0": 0,
+                                                    "dtick": 5,
+                                                    "title": "Idade do Hidrômetro (anos)",
+                                                },
+                                                "yaxis": {
+                                                    **_PLOTLY_DARK_LAYOUT["yaxis"],
+                                                    "title": "Frequência",
+                                                },
+                                                "bargap": 0.05,
+                                                "height": 420,
+                                                "margin": _MARGEM_GRAFICOS_LADO_A_LADO,
+                                            }
                                         )
                                     )
                                 ],
@@ -1346,6 +1356,7 @@ def gerar_html_dados(
                             html.Div(
                                 [
                                     dcc.Graph(
+                                        style={"height": "420px"},
                                         figure=px.bar(
                                             x=df["grupo_leitura"]
                                             .value_counts()
@@ -1370,7 +1381,11 @@ def gerar_html_dados(
                                             },
                                             title="Frequência do grupo de faturamento",
                                             color_discrete_sequence=_PLOTLY_CORES_BARRAS,
-                                        ).update_layout(**_PLOTLY_DARK_LAYOUT)
+                                        ).update_layout(
+                                            **_PLOTLY_DARK_LAYOUT,
+                                            height=420,
+                                            margin=_MARGEM_GRAFICOS_LADO_A_LADO,
+                                        )
                                     )
                                 ],
                                 style={"gridColumnStart": "span 3"},
@@ -2364,7 +2379,7 @@ def gerar_html_dados_consumo_mes(
                             xaxis={
                                 "gridcolor": "#dde0e5",
                                 "linecolor": "#c6cad1",
-                                "dtick": 1,
+                                "dtick": 10,
                                 "tickmode": "linear",
                             },
                             yaxis={
