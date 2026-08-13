@@ -1706,13 +1706,30 @@ def gerar_html_dados(
                             html.Div(
                                 [
                                     html.Button(
-                                        "Download Tabela Filtrada",
+                                        "⬇ Download Tabela Filtrada",
                                         id=ID_ELEMENTOS_HTML.BOTAO_DOWNLOAD_TABELA_COMPLETA_FILTRADA,
+                                        style={
+                                            "backgroundColor": "#2f6db0",
+                                            "color": "white",
+                                            "border": "1px solid #2f6db0",
+                                            "padding": "7px 15px",
+                                            "fontWeight": "500",
+                                            "cursor": "pointer",
+                                            "fontSize": "12.5px",
+                                            "display": "flex",
+                                            "alignItems": "center",
+                                            "gap": "7px",
+                                        },
                                     ),
                                     dcc.Download(
                                         ID_ELEMENTOS_HTML.DOWNLOADER_TABELA_COMPLETA_FILTRADA
                                     ),
-                                ]
+                                ],
+                                style={
+                                    "display": "flex",
+                                    "gap": "10px",
+                                    "gridColumnStart": "span 6",
+                                },
                             ),
                         ],
                         style=EstilosCSS.GRID_AREA_DADOS_CONSUMO,
