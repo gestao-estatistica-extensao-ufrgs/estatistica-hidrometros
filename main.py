@@ -266,7 +266,7 @@ app.layout = [
                             "Filtros",
                             id=ID_ELEMENTOS_HTML.BOTAO_TOGGLE_FILTROS,
                             style={
-                                "backgroundColor": "#2f6db0",
+                                "backgroundColor": "var(--cor-verde)",
                                 "color": "white",
                                 "border": "none",
                                 "padding": "14px",
@@ -367,7 +367,7 @@ app.layout = [
                             id=ID_ELEMENTOS_HTML.FILTRO_SUBMIT,
                             type="button",
                             style={
-                                "backgroundColor": "#2f6db0",
+                                "backgroundColor": "var(--cor-verde)",
                                 "color": "white",
                                 "border": "none",
                                 "padding": "16px",

@@ -10,8 +10,9 @@
     --borda: #dde0e5;
     --borda-forte: #c6cad1;
     --destaque: #2f6db0;
-    --destaque-suave: rgba(47,109,176,.09);
+    --destaque-suave: rgba(47, 109, 176, .09);
     --cor-barra: #4f80b8;
+    --cor-verde: #179e36;
 }
 
 * {
@@ -29,7 +30,12 @@ body {
     padding: 0;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     padding: 0;
     margin: 0;
 }
@@ -121,16 +127,16 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Accordion de filtros */
-#filtros details > summary {
+#filtros details>summary {
     list-style: none;
     user-select: none;
 }
 
-#filtros details > summary::-webkit-details-marker {
+#filtros details>summary::-webkit-details-marker {
     display: none;
 }
 
-#filtros details > summary::before {
+#filtros details>summary::before {
     content: "▶";
     display: inline-block;
     margin-right: 8px;
@@ -139,7 +145,7 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--destaque);
 }
 
-#filtros details[open] > summary::before {
+#filtros details[open]>summary::before {
     transform: rotate(90deg);
 }
 
@@ -153,7 +159,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .Select-placeholder,
 .Select-value-label,
-.Select-input > input {
+.Select-input>input {
     color: var(--texto-secundario) !important;
 }
 
@@ -204,9 +210,19 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Scrollbar */
-::-webkit-scrollbar { width: 12px; height: 12px; }
-::-webkit-scrollbar-thumb { background: var(--borda-forte); border: 3px solid var(--bg-geral); }
-::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--borda-forte);
+    border: 3px solid var(--bg-geral);
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
 
 /* Ocultar linha de filtro nativa das DataTables (usamos busca externa) */
 .dash-filter {
