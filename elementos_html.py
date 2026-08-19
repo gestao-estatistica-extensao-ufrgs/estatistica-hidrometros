@@ -2086,6 +2086,27 @@ def gerar_html_dados_consumo_mes(
         {"name": "Consumo Médio", "id": "consumo_medio", "type": "numeric"},
     ]
 
+    # Dívida (R$) tem cauda longa: uns poucos valores extremos esticam o
+    # eixo X e espremem a maioria dos casos num canto do gráfico. Em vez de
+    # binar sobre o range completo dos dados, corta-se no percentil 99 (só
+    # pra decidir a escala/os bins do gráfico) e mostra-se quantos registros
+    # ficaram de fora — mesma lógica das faixas "130+" usadas no consumo,
+    # os valores continuam completos nos KPIs/tabelas, só o gráfico corta.
+    _serie_grafico_divida = frequencia_divida_total_vencida
+    _qtd_divida_acima_corte = 0
+    _corte_divida = None
+    if (
+        frequencia_divida_total_vencida is not None
+        and len(frequencia_divida_total_vencida) > 0
+    ):
+        _corte_divida = frequencia_divida_total_vencida.quantile(0.99)
+        _qtd_divida_acima_corte = int(
+            (frequencia_divida_total_vencida > _corte_divida).sum()
+        )
+        _serie_grafico_divida = frequencia_divida_total_vencida[
+            frequencia_divida_total_vencida <= _corte_divida
+        ]
+
     _botoes_download = [
         html.Div(
             [
@@ -2337,36 +2358,58 @@ def gerar_html_dados_consumo_mes(
             ),
             html.Div(
                 (
-                    dcc.Graph(
-                        figure=px.histogram(
-                            x=frequencia_divida_total_vencida,
-                            title="Frequência de Divida Total Vencida",
-                            labels={"x": "Valor da Conta Vencida"},
-                            color_discrete_sequence=[
-                                "#4f80b8",
-                                "#2f6db0",
-                                "#7fa8d1",
-                                "#b0c8e8",
-                            ],
-                        ).update_layout(
-                            paper_bgcolor="#ffffff",
-                            plot_bgcolor="#ffffff",
-                            font_color="#5d6570",
-                            yaxis_title="Frequência",
-                            xaxis={
-                                # sem dtick/tickmode fixos: dívida (R$) tem
-                                # amplitude bem maior e variável que consumo
-                                # (m³), então os bins e os rótulos do eixo X
-                                # se ajustam automaticamente à escala dos dados
-                                "gridcolor": "#dde0e5",
-                                "linecolor": "#c6cad1",
-                            },
-                            yaxis={
-                                "gridcolor": "#dde0e5",
-                                "linecolor": "#c6cad1",
-                            },
-                        )
-                    )
+                    [
+                        dcc.Graph(
+                            figure=px.histogram(
+                                x=_serie_grafico_divida,
+                                title="Frequência de Divida Total Vencida",
+                                labels={"x": "Valor da Conta Vencida"},
+                                color_discrete_sequence=[
+                                    "#4f80b8",
+                                    "#2f6db0",
+                                    "#7fa8d1",
+                                    "#b0c8e8",
+                                ],
+                            ).update_layout(
+                                paper_bgcolor="#ffffff",
+                                plot_bgcolor="#ffffff",
+                                font_color="#5d6570",
+                                yaxis_title="Frequência",
+                                xaxis={
+                                    # Sem dtick/tickmode fixos: dívida (R$)
+                                    # tem amplitude variável e sem teto
+                                    # natural. O corte no percentil 99
+                                    # (_serie_grafico_divida, calculado
+                                    # acima) já limita a escala a uma faixa
+                                    # razoável, então os bins/rótulos do
+                                    # eixo X ficam legíveis automaticamente.
+                                    "gridcolor": "#dde0e5",
+                                    "linecolor": "#c6cad1",
+                                },
+                                yaxis={
+                                    "gridcolor": "#dde0e5",
+                                    "linecolor": "#c6cad1",
+                                },
+                            )
+                        ),
+                        *(
+                            [
+                                html.Div(
+                                    f"{_qtd_divida_acima_corte} registro(s) com dívida acima de "
+                                    f"R$ {_corte_divida:,.0f} não exibido(s) no gráfico (fora de escala).".replace(
+                                        ",", "."
+                                    ),
+                                    style={
+                                        "fontSize": "11px",
+                                        "color": "#8b929c",
+                                        "padding": "4px 15px 0",
+                                    },
+                                )
+                            ]
+                            if _qtd_divida_acima_corte > 0
+                            else []
+                        ),
+                    ]
                     if frequencia_divida_total_vencida is not None
                     else componente_aviso_coluna_nao_associada("Dívida Total Vencida")
                 ),
